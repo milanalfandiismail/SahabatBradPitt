@@ -1,0 +1,7 @@
+Django>=4.2,<5.2
+djangorestframework
+python-decouple
+requests
+numpy
+pillow
+django-cors-headers

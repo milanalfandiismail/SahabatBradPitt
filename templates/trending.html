@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - Trending now{% endblock %}
+
+{% block content %}
+<!-- Header Banner Section -->
+<header class="mt-[80px] bg-[#141314] h-[260px] flex items-center justify-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-t from-[#37353E] via-[#37353E]/80 to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#141314]/90 via-transparent to-[#141314]/90 z-10"></div>
+    <div id="backdrop-banner" class="absolute inset-0 w-full h-full bg-cover bg-center opacity-25 filter blur-sm scale-105"></div>
+    <div class="relative z-20 text-center space-y-3">
+        <h1 class="font-['Playfair_Display'] text-4xl md:text-5xl text-[#D3DAD9] font-bold tracking-tight drop-shadow-2xl">Trending Now</h1>
+        <p class="font-['DM_Sans'] text-stone-400 uppercase tracking-[0.2em] text-xs">Film Terpopuler & Paling Banyak Dibicarakan Hari Ini</p>
+    </div>
+</header>
+
+<!-- Main Area -->
+<main class="max-w-[1440px] mx-auto px-6 md:px-12 py-12 space-y-16">
+    <!-- Top Spotlight -->
+    <section>
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-8 h-[1px] bg-[#715A5A]"></div>
+            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] font-bold tracking-wide">Top Spotlight</h2>
+        </div>
+        
+        <!-- Loading indicator -->
+        <div id="spotlight-loading" class="text-center py-12 text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+            <p class="mt-2 font-['DM_Sans']">Memuat data trending...</p>
+        </div>
+
+        <div id="spotlight-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
+            <!-- Rank 1 Card -->
+            <div id="rank-1-card" class="lg:col-span-12 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 shadow-2xl flex flex-col md:flex-row cursor-pointer">
+                <div class="md:w-3/5 relative aspect-video md:aspect-auto md:h-[450px] overflow-hidden">
+                    <img id="rank-1-img" alt="Spotlight Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" src=""/>
+                    <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#201f20] via-transparent to-transparent"></div>
+                    <div class="absolute top-6 left-6 z-20 flex items-center gap-2 bg-[#D3DAD9] text-[#141314] px-4 py-1.5 rounded-full font-bold shadow-lg text-xs">
+                        <span class="material-symbols-outlined text-sm">crown</span>
+                        <span class="font-serif">NO. 1 TRENDING</span>
+                    </div>
+                </div>
+                <div class="md:w-2/5 p-8 md:p-10 flex flex-col justify-center relative">
+                    <h3 id="rank-1-title" class="font-['Playfair_Display'] text-3xl lg:text-4xl text-[#D3DAD9] font-bold mb-4"></h3>
+                    <div class="flex items-center gap-3 font-['DM_Sans'] text-stone-400 mb-6 text-xs uppercase tracking-wider">
+                        <span class="px-2.5 py-0.5 rounded-full border border-[#715A5A] text-[#D3DAD9]">Film</span>
+                        <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-sm text-[#715A5A]">star</span> <span id="rank-1-rating"></span></span>
+                        <span id="rank-1-year"></span>
+                    </div>
+                    <p id="rank-1-synopsis" class="text-stone-400 mb-8 text-sm leading-relaxed max-w-md"></p>
+                    <div class="flex gap-4">
+                        <button id="rank-1-btn" class="flex-grow bg-[#715A5A] text-[#D3DAD9] py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#8A6E6E] hover:-translate-y-0.5 transition-all shadow-lg text-sm">
+                            <span class="material-symbols-outlined">info</span> Selengkapnya
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rank 2 & 3 -->
+            <div id="rank-2-card" class="lg:col-span-6 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
+                <div class="aspect-video relative overflow-hidden bg-surface-dim">
+                    <img id="rank-2-img" alt="Rank 2 Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src=""/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#201f20] via-[#201f20]/30 to-transparent"></div>
+                    <div class="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#141314]/80 text-[#D3DAD9] px-3.5 py-1 rounded-full font-bold border border-white/5 text-xs">
+                        <span>#2</span>
+                    </div>
+                </div>
+                <div class="p-6 relative -mt-10 z-10">
+                    <h3 id="rank-2-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl font-bold mb-2"></h3>
+                    <div class="flex items-center gap-2.5 font-['DM_Sans'] text-stone-400 mb-4 text-xs uppercase tracking-wider">
+                        <span class="text-[#715A5A]">Film</span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-xs">star</span> <span id="rank-2-rating"></span></span>
+                        <span>•</span>
+                        <span id="rank-2-year"></span>
+                    </div>
+                    <p id="rank-2-synopsis" class="line-clamp-2 text-stone-400 text-xs leading-relaxed mb-6"></p>
+                </div>
+            </div>
+
+            <div id="rank-3-card" class="lg:col-span-6 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
+                <div class="aspect-video relative overflow-hidden bg-surface-dim">
+                    <img id="rank-3-img" alt="Rank 3 Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src=""/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#201f20] via-[#201f20]/30 to-transparent"></div>
+                    <div class="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#141314]/80 text-[#D3DAD9] px-3.5 py-1 rounded-full font-bold border border-white/5 text-xs">
+                        <span>#3</span>
+                    </div>
+                </div>
+                <div class="p-6 relative -mt-10 z-10">
+                    <h3 id="rank-3-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl font-bold mb-2"></h3>
+                    <div class="flex items-center gap-2.5 font-['DM_Sans'] text-stone-400 mb-4 text-xs uppercase tracking-wider">
+                        <span class="text-[#715A5A]">Film</span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-xs">star</span> <span id="rank-3-rating"></span></span>
+                        <span>•</span>
+                        <span id="rank-3-year"></span>
+                    </div>
+                    <p id="rank-3-synopsis" class="line-clamp-2 text-stone-400 text-xs leading-relaxed mb-6"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rising Fast -->
+    <section>
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-8 h-[1px] bg-white/10"></div>
+            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] font-bold tracking-wide">Rising Fast</h2>
+        </div>
+        <div id="rising-list" class="flex flex-col gap-4">
+            <!-- Populated dynamically (ranks 4, 5, 6) -->
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const spotlightLoading = document.getElementById("spotlight-loading");
+        const spotlightContainer = document.getElementById("spotlight-container");
+        const risingList = document.getElementById("rising-list");
+
+        // Fetch films ordered by popularity
+        fetch("/api/films/?ordering=-popularity")
+            .then(res => res.json())
+            .then(data => {
+                const films = data.results || data;
+                if (films.length === 0) {
+                    spotlightLoading.textContent = "Tidak ada data film saat ini.";
+                    return;
+                }
+
+                spotlightLoading.classList.add("hidden");
+                spotlightContainer.classList.remove("hidden");
+
+                // Populate Rank 1
+                const f1 = films[0];
+                let poster1 = f1.poster_path ? (f1.poster_path.startsWith("http") ? f1.poster_path : `https://image.tmdb.org/t/p/w500${f1.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
+                document.getElementById("rank-1-img").src = poster1;
+                document.getElementById("rank-1-title").textContent = f1.title;
+                document.getElementById("rank-1-rating").textContent = f1.avg_rating ? parseFloat(f1.avg_rating).toFixed(1) : "N/A";
+                document.getElementById("rank-1-year").textContent = f1.release_year;
+                document.getElementById("rank-1-synopsis").textContent = f1.synopsis || "Sinopsis tidak tersedia.";
+                document.getElementById("backdrop-banner").style.backgroundImage = `url('${poster1}')`;
+                
+                document.getElementById("rank-1-card").addEventListener("click", () => {
+                    window.location.href = `/movies/${f1.id}/`;
+                });
+                document.getElementById("rank-1-btn").addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    window.location.href = `/movies/${f1.id}/`;
+                });
+
+                // Populate Rank 2
+                if (films.length > 1) {
+                    const f2 = films[1];
+                    let poster2 = f2.poster_path ? (f2.poster_path.startsWith("http") ? f2.poster_path : `https://image.tmdb.org/t/p/w500${f2.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                    document.getElementById("rank-2-img").src = poster2;
+                    document.getElementById("rank-2-title").textContent = f2.title;
+                    document.getElementById("rank-2-rating").textContent = f2.avg_rating ? parseFloat(f2.avg_rating).toFixed(1) : "N/A";
+                    document.getElementById("rank-2-year").textContent = f2.release_year;
+                    document.getElementById("rank-2-synopsis").textContent = f2.synopsis || "Sinopsis tidak tersedia.";
+                    
+                    document.getElementById("rank-2-card").addEventListener("click", () => {
+                        window.location.href = `/movies/${f2.id}/`;
+                    });
+                } else {
+                    document.getElementById("rank-2-card").classList.add("hidden");
+                }
+
+                // Populate Rank 3
+                if (films.length > 2) {
+                    const f3 = films[2];
+                    let poster3 = f3.poster_path ? (f3.poster_path.startsWith("http") ? f3.poster_path : `https://image.tmdb.org/t/p/w500${f3.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                    document.getElementById("rank-3-img").src = poster3;
+                    document.getElementById("rank-3-title").textContent = f3.title;
+                    document.getElementById("rank-3-rating").textContent = f3.avg_rating ? parseFloat(f3.avg_rating).toFixed(1) : "N/A";
+                    document.getElementById("rank-3-year").textContent = f3.release_year;
+                    document.getElementById("rank-3-synopsis").textContent = f3.synopsis || "Sinopsis tidak tersedia.";
+                    
+                    document.getElementById("rank-3-card").addEventListener("click", () => {
+                        window.location.href = `/movies/${f3.id}/`;
+                    });
+                } else {
+                    document.getElementById("rank-3-card").classList.add("hidden");
+                }
+
+                // Populate Rising List (Ranks 4, 5, 6)
+                risingList.textContent = "";
+                const risingFilms = films.slice(3, 6);
+                if (risingFilms.length === 0) {
+                    risingList.innerHTML = `<p class="text-stone-500 italic text-sm">Tidak ada film rising saat ini.</p>`;
+                    return;
+                }
+
+                risingFilms.forEach((film, index) => {
+                    const rankNum = index + 4;
+                    const item = document.createElement("div");
+                    item.className = "group flex items-center gap-6 p-4 rounded-xl bg-[#201f20]/50 border border-transparent hover:border-white/5 hover:bg-[#201f20] transition-all cursor-pointer";
+                    item.addEventListener("click", () => {
+                        window.location.href = `/movies/${film.id}/`;
+                    });
+
+                    const num = document.createElement("div");
+                    num.className = "text-2xl font-serif font-bold text-stone-600 w-12 text-center group-hover:text-[#715A5A] transition-colors";
+                    num.textContent = rankNum;
+
+                    const posterWrap = document.createElement("div");
+                    posterWrap.className = "w-12 h-16 bg-surface-dim rounded overflow-hidden shrink-0";
+                    
+                    let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200";
+                    if (film.poster_path) {
+                        pUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                    }
+                    const img = document.createElement("img");
+                    img.className = "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity";
+                    img.src = pUrl;
+                    img.alt = film.title;
+                    posterWrap.appendChild(img);
+
+                    const mid = document.createElement("div");
+                    mid.className = "flex-grow";
+                    const title = document.createElement("h4");
+                    title.className = "font-['DM_Sans'] text-base text-[#D3DAD9] font-medium mb-1";
+                    title.textContent = film.title;
+                    const meta = document.createElement("p");
+                    meta.className = "font-['DM_Sans'] text-xs text-stone-500 uppercase tracking-wider";
+                    meta.textContent = `${film.release_year} • ${film.duration ? film.duration + ' menit' : 'N/A'}`;
+                    mid.appendChild(title);
+                    mid.appendChild(meta);
+
+                    const end = document.createElement("div");
+                    end.className = "flex flex-col items-end gap-1 mr-4 hidden sm:flex";
+                    
+                    const trend = document.createElement("span");
+                    trend.className = "flex items-center gap-1 text-[#D3DAD9] text-xs font-['DM_Sans']";
+                    trend.innerHTML = `<span class="material-symbols-outlined text-sm text-[#715A5A]">trending_up</span> Rising`;
+                    
+                    const rate = document.createElement("span");
+                    rate.className = "text-[11px] text-stone-500 font-bold";
+                    rate.textContent = `★ ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}`;
+                    
+                    end.appendChild(trend);
+                    end.appendChild(rate);
+
+                    const btn = document.createElement("button");
+                    btn.className = "w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-[#D3DAD9] hover:bg-[#715A5A] hover:border-[#715A5A] transition-colors shrink-0";
+                    btn.innerHTML = `<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>`;
+
+                    item.appendChild(num);
+                    item.appendChild(posterWrap);
+                    item.appendChild(mid);
+                    item.appendChild(end);
+                    item.appendChild(btn);
+                    risingList.appendChild(item);
+                });
+            })
+            .catch(err => {
+                console.error("Gagal memuat film trending:", err);
+                spotlightLoading.textContent = "Terjadi kegagalan saat memuat data.";
+            });
+    });
+</script>
+{% endblock %}

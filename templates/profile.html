@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - My Profile{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[80px] pb-16">
+    <!-- Authenticating Overlay -->
+    <div id="loading" class="max-w-[1440px] mx-auto text-center py-24 text-[#c9c5cb]">
+        <span class="material-symbols-outlined text-5xl animate-spin">sync</span>
+        <p class="mt-3 font-['DM_Sans'] text-lg">Memuat profil pengguna...</p>
+    </div>
+
+    <div id="profile-container" class="hidden">
+        <!-- Banner -->
+        <div class="relative h-64 md:h-80 w-full bg-[#2b2a2a] overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center opacity-40 blur-sm" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800');"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#37353E] via-[#37353E]/50 to-transparent"></div>
+        </div>
+
+        <!-- Identity and Info -->
+        <div class="max-w-[1440px] mx-auto px-6 md:px-12 relative -mt-24 z-10 mb-10">
+            <div class="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+                <!-- Avatar -->
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#37353E] overflow-hidden shadow-2xl shrink-0">
+                    <img id="avatar-img" alt="User Avatar" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300"/>
+                </div>
+                <!-- Details -->
+                <div class="flex-grow pb-2">
+                    <h1 id="display-name" class="font-['Playfair_Display'] text-3xl md:text-5xl text-[#D3DAD9] font-bold mb-2"></h1>
+                    <p id="username-val" class="font-['DM_Sans'] text-sm text-[#D3DAD9]/50 mb-3"></p>
+                    <p id="bio-val" class="font-['DM_Sans'] text-[#D3DAD9]/80 max-w-2xl text-sm leading-relaxed"></p>
+                </div>
+                <!-- Actions -->
+                <div class="flex gap-2 mt-4 md:mt-0">
+                    <button id="edit-profile-btn" class="bg-[#715A5A] hover:bg-[#8A6E6E] text-[#D3DAD9] transition-all px-6 py-2.5 rounded font-medium text-sm">Edit Profile</button>
+                    <button id="logout-btn" class="bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 transition-all px-4 py-2.5 rounded flex items-center justify-center gap-1.5 text-sm">
+                        <span class="material-symbols-outlined text-sm">logout</span> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="grid grid-cols-3 gap-4 mt-8 bg-[#201f20]/50 border border-white/10 rounded-lg p-6 shadow-xl backdrop-blur-md">
+                <div class="text-center">
+                    <div id="stat-ratings" class="font-['Playfair_Display'] text-2xl md:text-3xl text-[#D3DAD9] font-bold">0</div>
+                    <div class="font-['DM_Sans'] text-xs text-[#D3DAD9]/70 mt-1">Diberi Rating</div>
+                </div>
+                <div class="text-center border-l border-r border-white/10">
+                    <div id="stat-reviews" class="font-['Playfair_Display'] text-2xl md:text-3xl text-[#D3DAD9] font-bold">0</div>
+                    <div class="font-['DM_Sans'] text-xs text-[#D3DAD9]/70 mt-1">Ulasan Ditulis</div>
+                </div>
+                <div class="text-center">
+                    <div id="stat-avg" class="font-['Playfair_Display'] text-2xl md:text-3xl text-[#D3DAD9] font-bold">0.0</div>
+                    <div class="font-['DM_Sans'] text-xs text-[#D3DAD9]/70 mt-1">Rerata Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Modal overlay -->
+        <div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div class="bg-[#44444E] rounded-xl p-6 border border-white/10 w-full max-w-md shadow-2xl flex flex-col gap-4">
+                <h3 class="font-['Playfair_Display'] text-xl font-bold text-white">Edit Profile</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-['DM_Sans'] text-stone-300" for="edit-display-name">Nama Tampilan</label>
+                        <input id="edit-display-name" class="w-full px-3 py-2 bg-[#37353E] border border-white/10 rounded text-sm text-white focus:outline-none focus:border-[#715A5A]" type="text"/>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-['DM_Sans'] text-stone-300" for="edit-bio">Bio</label>
+                        <textarea id="edit-bio" class="w-full px-3 py-2 bg-[#37353E] border border-white/10 rounded text-sm text-white focus:outline-none focus:border-[#715A5A]" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-2 justify-end mt-2">
+                    <button id="cancel-edit-btn" class="px-4 py-2 border border-white/10 rounded text-sm text-stone-300 hover:bg-white/5">Batal</button>
+                    <button id="save-profile-btn" class="px-4 py-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded text-sm font-semibold">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rated Movies Grid list -->
+        <section class="max-w-[1440px] mx-auto px-6 md:px-12 py-6 border-t border-white/5">
+            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-8 font-bold">Film yang Saya Ulas</h2>
+            <div id="rated-movies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem("auth_token");
+        const loading = document.getElementById("loading");
+        const profileContainer = document.getElementById("profile-container");
+        const logoutBtn = document.getElementById("logout-btn");
+        
+        const editProfileBtn = document.getElementById("edit-profile-btn");
+        const editModal = document.getElementById("edit-modal");
+        const cancelEditBtn = document.getElementById("cancel-edit-btn");
+        const saveProfileBtn = document.getElementById("save-profile-btn");
+
+        const editDisplayName = document.getElementById("edit-display-name");
+        const editBio = document.getElementById("edit-bio");
+
+        // Auth Guard
+        if (!token) {
+            window.location.href = "/login/";
+            return;
+        }
+
+        // Fetch User Info
+        function loadProfile() {
+            fetch("/api/auth/me/", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Token ${token}`
+                }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    localStorage.removeItem("auth_token");
+                    window.location.href = "/login/";
+                    throw new Error("Unauthorized");
+                }
+                return res.json();
+            })
+            .then(user => {
+                loading.classList.add("hidden");
+                profileContainer.classList.remove("hidden");
+
+                // Populate safely
+                document.getElementById("display-name").textContent = user.display_name || user.username;
+                document.getElementById("username-val").textContent = `@${user.username}`;
+                document.getElementById("bio-val").textContent = user.bio || "Bio belum diisi. Ceritakan sedikit tentang diri Anda!";
+                
+                // Populate Edit fields
+                editDisplayName.value = user.display_name || "";
+                editBio.value = user.bio || "";
+
+                if (user.avatar_path) {
+                    const avatarUrl = user.avatar_path.startsWith("http") ? user.avatar_path : `/static/${user.avatar_path}`;
+                    document.getElementById("avatar-img").src = avatarUrl;
+                }
+
+                // Populate stats
+                if (user.stats) {
+                    document.getElementById("stat-ratings").textContent = user.stats.total_ratings;
+                    document.getElementById("stat-reviews").textContent = user.stats.total_reviews;
+                    document.getElementById("stat-avg").textContent = parseFloat(user.stats.avg_score_given).toFixed(1);
+                }
+
+                // Load User Ratings list
+                fetchUserRatings(user.id);
+            })
+            .catch(err => console.error(err));
+        }
+
+        function fetchUserRatings(userId) {
+            const grid = document.getElementById("rated-movies-grid");
+            grid.textContent = "";
+
+            fetch(`/api/ratings/?user=${userId}`)
+                .then(res => res.json())
+                .then(ratings => {
+                    const results = ratings.results || ratings;
+                    if (results.length === 0) {
+                        grid.innerHTML = `<p class="col-span-full text-stone-500 italic text-sm">Anda belum mengulas film apa pun.</p>`;
+                        return;
+                    }
+
+                    results.forEach(item => {
+                        const card = document.createElement("div");
+                        card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg";
+                        card.addEventListener("click", () => {
+                            window.location.href = `/movies/${item.film}/`;
+                        });
+
+                        const imgWrap = document.createElement("div");
+                        imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
+                        
+                        let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                        if (item.poster_path) {
+                            posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                        }
+
+                        const img = document.createElement("img");
+                        img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
+                        img.src = posterUrl;
+                        img.alt = item.film_title;
+                        imgWrap.appendChild(img);
+
+                        const p = document.createElement("div");
+                        p.className = "p-4 flex flex-col gap-1";
+
+                        const title = document.createElement("h3");
+                        title.className = "font-['DM_Sans'] text-sm font-semibold text-white truncate";
+                        title.textContent = item.film_title;
+
+                        const meta = document.createElement("div");
+                        meta.className = "flex justify-between items-center mt-1";
+
+                        const stars = document.createElement("span");
+                        stars.className = "flex items-center text-[#F5C518] text-xs font-bold gap-0.5";
+                        stars.innerHTML = `<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span> ${item.score}/10`;
+
+                        const year = document.createElement("span");
+                        year.className = "text-[10px] text-stone-500";
+                        year.textContent = item.release_year || "";
+
+                        meta.appendChild(stars);
+                        meta.appendChild(year);
+                        
+                        p.appendChild(title);
+                        p.appendChild(meta);
+                        card.appendChild(imgWrap);
+                        card.appendChild(p);
+                        grid.appendChild(card);
+                    });
+                });
+        }
+
+        // Edit Profile Modal Toggles
+        editProfileBtn.addEventListener("click", () => editModal.classList.remove("hidden"));
+        cancelEditBtn.addEventListener("click", () => editModal.classList.add("hidden"));
+
+        saveProfileBtn.addEventListener("click", () => {
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = "Menyimpan...";
+
+            const bodyData = {
+                display_name: editDisplayName.value.trim(),
+                bio: editBio.value.trim()
+            };
+
+            fetch("/api/auth/me/", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Token ${token}`
+                },
+                body: JSON.stringify(bodyData)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Gagal menyimpan profil.");
+                return res.json();
+            })
+            .then(data => {
+                editModal.classList.add("hidden");
+                alert("Profil berhasil diperbarui!");
+                loadProfile();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Gagal memperbarui profil.");
+            })
+            .finally(() => {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.textContent = "Simpan";
+            });
+        });
+
+        // Logout Flow
+        logoutBtn.addEventListener("click", () => {
+            logoutBtn.disabled = true;
+            
+            fetch("/api/auth/logout/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Token ${token}`
+                }
+            })
+            .then(() => {
+                localStorage.clear();
+                window.location.href = "/login/";
+            })
+            .catch(err => {
+                console.error("Logout gagal, melakukan pembersihan lokal:", err);
+                localStorage.clear();
+                window.location.href = "/login/";
+            });
+        });
+
+        // Load initially
+        loadProfile();
+    });
+</script>
+{% endblock %}

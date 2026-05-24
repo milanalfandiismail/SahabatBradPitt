@@ -1,0 +1,26 @@
+# Django
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+static/staticfiles/
+
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Project Context and Task Tracking
+# (Jika Anda ingin mengabaikan berkas catatan markdown atau log di git)
+# task.md

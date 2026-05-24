@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - All Films{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[120px] pb-16 px-6 md:px-12 max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8">
+    
+    <!-- LEFT COLUMN: Film List -->
+    <div class="w-full lg:w-[70%] flex flex-col gap-8">
+        <!-- Header -->
+        <div class="flex flex-col gap-2">
+            <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-stone-100 font-bold tracking-tight">Cinephile Database</h1>
+            <p id="results-count" class="font-['DM_Sans'] text-sm text-[#c9c5cb]"></p>
+        </div>
+        
+        <!-- Film Grid -->
+        <div id="film-grid" class="flex flex-col gap-6">
+            <!-- Loading indicator -->
+            <div id="loading" class="text-center py-12 text-[#c9c5cb]">
+                <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+                <p class="mt-2 font-['DM_Sans']">Mengambil data film...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- RIGHT COLUMN: Sticky Sidebar Filters -->
+    <div class="w-full lg:w-[28%] relative">
+        <div class="sticky top-[100px] flex flex-col gap-6">
+            <!-- Search -->
+            <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-lg">
+                <h3 class="font-['DM_Sans'] text-lg font-medium text-stone-200 mb-4">Cari Database</h3>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
+                    <input id="search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-3 text-sm text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Judul, pemeran, dll..." type="text"/>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-lg flex flex-col gap-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-['DM_Sans'] text-lg font-medium text-stone-200">Filter</h3>
+                    <button id="reset-btn" class="text-xs text-[#715A5A] hover:text-stone-300 transition-colors underline decoration-[#715A5A]/30 underline-offset-2">Reset All</button>
+                </div>
+                
+                <div class="flex flex-col gap-5 divide-y divide-white/5">
+                    <!-- Genre Filter -->
+                    <div class="pt-0">
+                        <h4 class="text-xs font-semibold text-stone-400 tracking-wider mb-3">GENRES</h4>
+                        <div id="genres-container" class="flex flex-wrap gap-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Year Filter -->
+                    <div class="pt-4">
+                        <h4 class="text-xs font-semibold text-stone-400 tracking-wider mb-3">TAHUN RILIS</h4>
+                        <div class="flex gap-3 items-center">
+                            <input id="year-from" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" placeholder="Dari" type="number"/>
+                            <span class="text-stone-500">-</span>
+                            <input id="year-to" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" placeholder="Ke" type="number"/>
+                        </div>
+                    </div>
+                    
+                    <!-- Rating Filter -->
+                    <div class="pt-4">
+                        <div class="flex justify-between text-xs text-stone-400 mb-2">
+                            <h4 class="font-semibold tracking-wider">RATING MINIMUM</h4>
+                            <span id="rating-val" class="font-bold text-[#F5C518]">0.0</span>
+                        </div>
+                        <input id="rating-slider" class="w-full accent-[#715A5A] h-1 bg-[#141314] rounded-lg appearance-none cursor-pointer" max="10" min="0" step="0.5" type="range" value="0"/>
+                    </div>
+                    
+                    <!-- Sort By -->
+                    <div class="pt-4">
+                        <h4 class="text-xs font-semibold text-stone-400 tracking-wider mb-3">URUTKAN BERDASARKAN</h4>
+                        <div class="flex flex-col gap-2 font-['DM_Sans'] text-sm">
+                            <label class="flex items-center gap-3 cursor-pointer group text-stone-400 hover:text-stone-200">
+                                <input checked class="border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 transition-all" name="sort" type="radio" value="-popularity"/>
+                                <span>Terpopuler</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group text-stone-400 hover:text-stone-200">
+                                <input class="border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 transition-all" name="sort" type="radio" value="-avg_rating"/>
+                                <span>Rating Tertinggi</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group text-stone-400 hover:text-stone-200">
+                                <input class="border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 transition-all" name="sort" type="radio" value="-release_year"/>
+                                <span>Terbaru</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const filmGrid = document.getElementById("film-grid");
+        const resultsCount = document.getElementById("results-count");
+        const searchInput = document.getElementById("search-input");
+        const genresContainer = document.getElementById("genres-container");
+        const yearFrom = document.getElementById("year-from");
+        const yearTo = document.getElementById("year-to");
+        const ratingSlider = document.getElementById("rating-slider");
+        const ratingVal = document.getElementById("rating-val");
+        const resetBtn = document.getElementById("reset-btn");
+        
+        let selectedGenreId = null;
+        let genresList = [];
+
+        // 1. Fetch available genres
+        fetch("/api/films/genres/")
+            .then(res => res.json())
+            .then(data => {
+                genresList = data;
+                renderGenreChips();
+            })
+            .catch(err => console.error("Gagal memuat genre:", err));
+
+        function renderGenreChips() {
+            genresContainer.textContent = "";
+            genresList.forEach(genre => {
+                const btn = document.createElement("button");
+                btn.className = "px-3 py-1 rounded-full border text-xs font-medium transition-all";
+                if (selectedGenreId === genre.id) {
+                    btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                } else {
+                    btn.classList.add("border-white/10", "text-stone-400", "hover:border-white/30");
+                }
+                btn.textContent = genre.name;
+                btn.addEventListener("click", () => {
+                    if (selectedGenreId === genre.id) {
+                        selectedGenreId = null;
+                    } else {
+                        selectedGenreId = genre.id;
+                    }
+                    renderGenreChips();
+                    fetchFilms();
+                });
+                genresContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Fetch and render films based on filters
+        function fetchFilms() {
+            filmGrid.textContent = "";
+            
+            // Build query params
+            const params = new URLSearchParams();
+            if (searchInput.value.trim()) {
+                params.append("search", searchInput.value.trim());
+            }
+            if (selectedGenreId) {
+                params.append("genre", selectedGenreId);
+            }
+            if (yearFrom.value) {
+                params.append("year_from", yearFrom.value);
+            }
+            if (yearTo.value) {
+                params.append("year_to", yearTo.value);
+            }
+            if (ratingSlider.value > 0) {
+                params.append("min_rating", ratingSlider.value);
+            }
+            
+            const activeSort = document.querySelector('input[name="sort"]:checked').value;
+            params.append("ordering", activeSort);
+
+            // Add loading indicator
+            const spinner = document.createElement("div");
+            spinner.className = "text-center py-12 text-[#c9c5cb]";
+            spinner.innerHTML = `<span class="material-symbols-outlined text-4xl animate-spin">sync</span><p class="mt-2 font-['DM_Sans']">Memuat film...</p>`;
+            filmGrid.appendChild(spinner);
+
+            fetch(`/api/films/?${params.toString()}`)
+                .then(res => res.json())
+                .then(data => {
+                    filmGrid.textContent = "";
+                    const results = data.results || data;
+                    
+                    resultsCount.textContent = `Menampilkan ${results.length} hasil`;
+
+                    if (results.length === 0) {
+                        const emptyState = document.createElement("div");
+                        emptyState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";
+                        emptyState.innerHTML = `
+                            <span class="material-symbols-outlined text-5xl text-[#938f95] mb-3">sentiment_dissatisfied</span>
+                            <h3 class="text-lg font-medium text-stone-300">Tidak ada film yang cocok</h3>
+                            <p class="text-sm text-stone-500 mt-1">Coba sesuaikan kata kunci atau filter pencarian Anda.</p>
+                        `;
+                        filmGrid.appendChild(emptyState);
+                        return;
+                    }
+
+                    results.forEach((film, index) => {
+                        const card = document.createElement("div");
+                        card.className = "bg-[#201f20] rounded-lg overflow-hidden flex shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01] group border border-white/5 cursor-pointer";
+                        
+                        // Poster Source Handling
+                        let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                        if (film.poster_path) {
+                            posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                        }
+
+                        // Film card layout construction using document elements to prevent XSS
+                        const thumbDiv = document.createElement("div");
+                        thumbDiv.className = "w-[100px] sm:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden";
+                        
+                        const img = document.createElement("img");
+                        img.alt = film.title;
+                        img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
+                        img.src = posterUrl;
+                        thumbDiv.appendChild(img);
+
+                        const contentDiv = document.createElement("div");
+                        contentDiv.className = "flex-grow p-5 flex flex-col justify-between gap-3 relative";
+
+                        const mainInfoDiv = document.createElement("div");
+                        
+                        const titleHeader = document.createElement("div");
+                        titleHeader.className = "flex justify-between items-start gap-4";
+                        
+                        const title = document.createElement("h2");
+                        title.className = "font-['DM_Sans'] text-lg md:text-xl font-medium text-[#c7c5d1] group-hover:text-white transition-colors line-clamp-1";
+                        title.textContent = film.title;
+                        titleHeader.appendChild(title);
+
+                        const rankBadge = document.createElement("div");
+                        rankBadge.className = "w-7 h-7 rounded-full bg-[#715A5A] flex items-center justify-center text-[#D3DAD9] font-bold text-xs shrink-0 shadow-md";
+                        rankBadge.textContent = `#${index + 1}`;
+                        titleHeader.appendChild(rankBadge);
+                        mainInfoDiv.appendChild(titleHeader);
+
+                        const metaRow = document.createElement("div");
+                        metaRow.className = "flex flex-wrap items-center gap-x-2 gap-y-1 font-['DM_Sans'] text-xs text-stone-400 mt-2";
+                        
+                        const yearSpan = document.createElement("span");
+                        yearSpan.textContent = film.release_year;
+                        metaRow.appendChild(yearSpan);
+                        
+                        metaRow.appendChild(document.createTextNode(" • "));
+                        
+                        const durationSpan = document.createElement("span");
+                        durationSpan.textContent = film.duration ? `${film.duration} min` : "N/A";
+                        metaRow.appendChild(durationSpan);
+
+                        metaRow.appendChild(document.createTextNode(" • "));
+
+                        const ratingDiv = document.createElement("div");
+                        ratingDiv.className = "flex items-center gap-1 text-[#F5C518]";
+                        ratingDiv.innerHTML = `<span class="material-symbols-outlined text-xs fill-1" style="font-variation-settings: 'FILL' 1;">star</span>`;
+                        const ratingText = document.createElement("span");
+                        ratingText.className = "text-stone-300 font-medium";
+                        ratingText.textContent = film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : "N/A";
+                        ratingDiv.appendChild(ratingText);
+                        metaRow.appendChild(ratingDiv);
+                        mainInfoDiv.appendChild(metaRow);
+
+                        const synopsis = document.createElement("p");
+                        synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 mt-3 leading-relaxed";
+                        synopsis.textContent = film.synopsis || "Tidak ada sinopsis tersedia.";
+                        mainInfoDiv.appendChild(synopsis);
+                        contentDiv.appendChild(mainInfoDiv);
+
+                        const actionsDiv = document.createElement("div");
+                        actionsDiv.className = "flex items-center gap-3 mt-1";
+                        
+                        const detailBtn = document.createElement("button");
+                        detailBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all flex items-center gap-1";
+                        detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail Film`;
+                        detailBtn.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            window.location.href = `/movies/${film.id}/`;
+                        });
+                        actionsDiv.appendChild(detailBtn);
+
+                        if (film.trailer_url) {
+                            const trailerBtn = document.createElement("a");
+                            trailerBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-white/10 text-stone-300 hover:border-[#715A5A] hover:text-[#c7c5d1] transition-all flex items-center gap-1";
+                            trailerBtn.href = film.trailer_url;
+                            trailerBtn.target = "_blank";
+                            trailerBtn.innerHTML = `<span class="material-symbols-outlined text-sm">play_circle</span> Trailer`;
+                            trailerBtn.addEventListener("click", (e) => e.stopPropagation());
+                            actionsDiv.appendChild(trailerBtn);
+                        }
+                        contentDiv.appendChild(actionsDiv);
+
+                        card.appendChild(thumbDiv);
+                        card.appendChild(contentDiv);
+                        
+                        card.addEventListener("click", () => {
+                            window.location.href = `/movies/${film.id}/`;
+                        });
+
+                        filmGrid.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    console.error("Gagal mengambil data film:", err);
+                    filmGrid.textContent = "";
+                    const errorState = document.createElement("div");
+                    errorState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";
+                    errorState.innerHTML = `
+                        <span class="material-symbols-outlined text-5xl text-red-500 mb-3">error</span>
+                        <h3 class="text-lg font-medium text-stone-300">Gagal mengambil data</h3>
+                        <p class="text-sm text-stone-500 mt-1">Terjadi kesalahan koneksi dengan server.</p>
+                    `;
+                    filmGrid.appendChild(errorState);
+                });
+        }
+
+        // Live Filters Listeners
+        let searchTimeout;
+        searchInput.addEventListener("input", () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(fetchFilms, 300);
+        });
+
+        yearFrom.addEventListener("input", fetchFilms);
+        yearTo.addEventListener("input", fetchFilms);
+
+        ratingSlider.addEventListener("input", () => {
+            ratingVal.textContent = parseFloat(ratingSlider.value).toFixed(1);
+            fetchFilms();
+        });
+
+        document.querySelectorAll('input[name="sort"]').forEach(radio => {
+            radio.addEventListener("change", fetchFilms);
+        });
+
+        // Reset Filter
+        resetBtn.addEventListener("click", () => {
+            searchInput.value = "";
+            selectedGenreId = null;
+            yearFrom.value = "";
+            yearTo.value = "";
+            ratingSlider.value = 0;
+            ratingVal.textContent = "0.0";
+            document.querySelector('input[name="sort"][value="-popularity"]').checked = true;
+            renderGenreChips();
+            fetchFilms();
+        });
+
+        // Initial Load
+        fetchFilms();
+    });
+</script>
+{% endblock %}

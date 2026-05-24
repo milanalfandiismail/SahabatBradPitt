@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Suppress global navbar & footer on this transactional page */
+    nav, footer { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="min-h-screen flex items-stretch w-full">
+    <!-- Left Column: Cinematic Background -->
+    <div class="hidden lg:flex w-1/2 relative flex-col justify-center items-center p-12 overflow-hidden bg-[#201f20]">
+        <div class="absolute inset-0 z-0 bg-cover bg-center opacity-30 backdrop-blur-[1px]" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1000');"></div>
+        <div class="absolute inset-0 z-10 bg-gradient-to-t from-[#141314] via-[#141314]/85 to-transparent"></div>
+        
+        <!-- Quote -->
+        <div class="relative z-20 flex flex-col items-center text-center max-w-lg space-y-6">
+            <blockquote class="font-['Playfair_Display'] text-4xl lg:text-5xl italic text-[#D3DAD9] leading-tight">
+                "Setiap cerita hebat dimulai dari satu bingkai film."
+            </blockquote>
+            <div class="flex flex-col items-center gap-1 border-t border-[#715A5A]/30 pt-6">
+                <span class="font-['Playfair_Display'] text-xl font-bold tracking-widest text-white">Sahabat Bradpitt</span>
+                <p class="font-['DM_Sans'] text-xs text-[#D3DAD9]/70 uppercase tracking-widest">A Cinematic Tribute Database</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Login Form -->
+    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center bg-[#37353E] p-8 md:p-16">
+        <div class="w-full max-w-md bg-[#44444E] p-8 rounded-xl shadow-2xl border border-white/5 flex flex-col gap-6">
+            
+            <!-- Mobile Logo -->
+            <div class="lg:hidden flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-white">movie</span>
+                <span class="font-['Playfair_Display'] text-2xl font-bold tracking-widest text-white">Sahabat Bradpitt</span>
+            </div>
+
+            <!-- Header -->
+            <div class="text-center lg:text-left">
+                <h1 class="font-['Playfair_Display'] text-3xl text-[#D3DAD9] font-bold">Welcome Back</h1>
+                <p class="font-['DM_Sans'] text-sm text-stone-400 mt-1">Sign in untuk memberikan ulasan dan melihat rekomendasi AI</p>
+            </div>
+
+            <!-- Error Box -->
+            <div id="error-box" class="hidden text-xs text-red-400 bg-red-500/10 p-3.5 rounded border border-red-500/20 font-['DM_Sans']">
+                Username atau password salah. Silakan coba lagi.
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" class="flex flex-col gap-4">
+                <!-- Username -->
+                <div class="flex flex-col gap-1">
+                    <label class="font-['DM_Sans'] text-xs text-[#D3DAD9]/90 font-medium" for="username">Username</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">person</span>
+                        <input id="username" class="w-full pl-10 pr-3 py-3 bg-[#37353E] border border-white/10 rounded-lg text-sm text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" name="username" placeholder="Masukkan username..." required type="text"/>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="flex flex-col gap-1">
+                    <label class="font-['DM_Sans'] text-xs text-[#D3DAD9]/90 font-medium" for="password">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">lock</span>
+                        <input id="password" class="w-full pl-10 pr-3 py-3 bg-[#37353E] border border-white/10 rounded-lg text-sm text-stone-200 placeholder-•••••••• focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" name="password" placeholder="••••••••" required type="password"/>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button id="login-btn" class="w-full h-12 mt-4 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded-lg font-semibold hover:scale-[1.02] hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2" type="submit">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="relative flex items-center justify-center my-2 text-xs">
+                <div class="w-full border-t border-white/10 absolute"></div>
+                <span class="px-3 bg-[#44444E] relative z-10 text-stone-500 font-['DM_Sans']">atau</span>
+            </div>
+
+            <!-- Sign Up Redirect -->
+            <p class="text-center font-['DM_Sans'] text-sm text-stone-400">
+                Belum memiliki akun? 
+                <a class="text-[#715A5A] font-semibold hover:underline ml-1" href="/signup/">Sign Up</a>
+            </p>
+
+            <p class="text-center font-['DM_Sans'] text-xs text-stone-500">
+                <a class="hover:text-stone-400" href="/">Kembali ke Beranda</a>
+            </p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("login-form");
+        const errorBox = document.getElementById("error-box");
+        const loginBtn = document.getElementById("login-btn");
+
+        // Redirect if already authenticated
+        if (localStorage.getItem("auth_token")) {
+            window.location.href = "/profile/";
+        }
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            errorBox.classList.add("hidden");
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Authenticating...";
+
+            fetch("/api/auth/login/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Login gagal.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Save Token and user info
+                localStorage.setItem("auth_token", data.token);
+                localStorage.setItem("auth_user_id", data.user.id);
+                localStorage.setItem("auth_username", data.user.username);
+                localStorage.setItem("auth_display_name", data.user.display_name || data.user.username);
+                
+                window.location.href = "/profile/";
+            })
+            .catch(err => {
+                console.error(err);
+                errorBox.textContent = err.message || "Username atau password salah.";
+                errorBox.classList.remove("hidden");
+            })
+            .finally(() => {
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Sign In";
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - All Actors{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto">
+    <!-- Breadcrumbs -->
+    <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs mb-6">
+        <a class="hover:text-white transition-colors" href="/">Home</a>
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        <span class="text-white">Actors</span>
+    </nav>
+    
+    <!-- Header -->
+    <header class="mb-12">
+        <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">Pemain & Sutradara</h1>
+        <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 mt-2">Daftar tokoh-tokoh utama di balik karya-karya legendaris Hollywood.</p>
+    </header>
+
+    <!-- Actor Grid -->
+    <div id="actors-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <!-- Loading indicator -->
+        <div id="loading" class="col-span-full text-center py-12 text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+            <p class="mt-2 font-['DM_Sans']">Memuat tokoh film...</p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const grid = document.getElementById("actors-grid");
+
+        fetch("/api/actors/")
+            .then(res => res.json())
+            .then(actors => {
+                grid.textContent = "";
+                const results = actors.results || actors;
+
+                if (results.length === 0) {
+                    grid.innerHTML = `<p class="col-span-full text-center text-[#c9c5cb] italic py-12">Tidak ada data aktor/tokoh tersedia.</p>`;
+                    return;
+                }
+
+                results.forEach(actor => {
+                    const article = document.createElement("article");
+                    article.className = "group bg-[#201f20] rounded-lg p-5 border border-white/5 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 cursor-pointer flex flex-col items-center text-center";
+                    article.addEventListener("click", () => {
+                        window.location.href = `/actors/${actor.id}/`;
+                    });
+
+                    // Circular Portrait Wrapper
+                    const portraitWrap = document.createElement("div");
+                    portraitWrap.className = "w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-[#715A5A] transition-all duration-300 group-hover:scale-105 shadow-lg shadow-white/5";
+
+                    if (actor.photo_path) {
+                        const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                        const img = document.createElement("img");
+                        img.className = "w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500";
+                        img.src = photoUrl;
+                        img.alt = actor.name;
+                        portraitWrap.appendChild(img);
+                    } else {
+                        // Placeholder untuk aktor tanpa foto
+                        portraitWrap.className += " bg-[#37353E] flex items-center justify-center";
+                        const icon = document.createElement("span");
+                        icon.className = "material-symbols-outlined text-5xl text-stone-600";
+                        icon.textContent = "help";
+                        portraitWrap.appendChild(icon);
+                    }
+
+                    const name = document.createElement("h3");
+                    name.className = "font-['DM_Sans'] text-base font-semibold text-white mb-1 truncate w-full";
+                    name.textContent = actor.name;
+
+                    const origin = document.createElement("p");
+                    origin.className = "font-['DM_Sans'] text-xs text-[#D3DAD9]/50";
+                    origin.textContent = actor.birth_year ? `Lahir ${actor.birth_year}` : "Sineas";
+
+                    article.appendChild(portraitWrap);
+                    article.appendChild(name);
+                    article.appendChild(origin);
+                    grid.appendChild(article);
+                });
+            })
+            .catch(err => {
+                console.error("Gagal memuat daftar aktor:", err);
+                grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-12">Terjadi kesalahan saat memuat data.</p>`;
+            });
+    });
+</script>
+{% endblock %}

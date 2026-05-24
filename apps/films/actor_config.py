@@ -76,6 +76,11 @@ FEATURED_ACTORS = [
         "name": "Jennifer Lawrence",
         "bio": "Aktris Amerika pemenang Academy Award untuk Silver Linings Playbook"
     },
+    {
+        "tmdb_id": 30614,
+        "name": "Ryan Gosling",
+        "bio": "Aktor Kanada pemenang Golden Globe, dikenal dari La La Land, Blade Runner 2049, Drive, dan Barbie."
+    },
 ]
 
 # Default minimum rating untuk film berkualitas tinggi

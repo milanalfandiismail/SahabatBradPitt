@@ -12,18 +12,26 @@
     </nav>
     
     <!-- Header -->
-    <header class="mb-12">
-        <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">Pemain & Sutradara</h1>
-        <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 mt-2">Daftar tokoh-tokoh utama di balik karya-karya legendaris Hollywood.</p>
+    <header class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+            <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">Pemain & Sutradara</h1>
+            <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 mt-2">Daftar tokoh-tokoh utama di balik karya-karya legendaris Hollywood.</p>
+        </div>
+        <!-- Search Sineas -->
+        <div class="relative w-full md:w-80 shrink-0">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
+            <input id="search-actors" class="w-full bg-[#201f20] border border-white/10 rounded-md py-2.5 pl-10 pr-3 text-sm text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari sineas..." type="text"/>
+        </div>
     </header>
 
     <!-- Actor Grid -->
     <div id="actors-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-        <!-- Loading indicator -->
-        <div id="loading" class="col-span-full text-center py-12 text-[#c9c5cb]">
-            <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
-            <p class="mt-2 font-['DM_Sans']">Memuat tokoh film...</p>
-        </div>
+        <!-- Film cards will go here -->
+    </div>
+    
+    <!-- Pagination Controls -->
+    <div id="pagination-controls" class="mt-12 flex flex-wrap justify-center items-center gap-2 font-['DM_Sans'] text-sm">
+        <!-- Dynamic page buttons -->
     </div>
 </main>
 {% endblock %}
@@ -32,63 +40,206 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const grid = document.getElementById("actors-grid");
+        const searchInput = document.getElementById("search-actors");
+        const paginationControls = document.getElementById("pagination-controls");
 
-        fetch("/api/actors/")
-            .then(res => res.json())
-            .then(actors => {
-                grid.textContent = "";
-                const results = actors.results || actors;
+        let currentPage = 1;
+        let isLoading = false;
 
-                if (results.length === 0) {
-                    grid.innerHTML = `<p class="col-span-full text-center text-[#c9c5cb] italic py-12">Tidak ada data aktor/tokoh tersedia.</p>`;
-                    return;
-                }
+        function fetchActors(page = 1) {
+            if (isLoading) return;
+            isLoading = true;
+            currentPage = page;
 
-                results.forEach(actor => {
-                    const article = document.createElement("article");
-                    article.className = "group bg-[#201f20] rounded-lg p-5 border border-white/5 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 cursor-pointer flex flex-col items-center text-center";
-                    article.addEventListener("click", () => {
-                        window.location.href = `/actors/${actor.id}/`;
-                    });
+            grid.innerHTML = "";
+            
+            // Initial loading inside grid
+            const initialLoading = document.createElement("div");
+            initialLoading.id = "initial-loading";
+            initialLoading.className = "col-span-full text-center py-12 text-[#c9c5cb]";
+            initialLoading.innerHTML = `<span class="material-symbols-outlined text-4xl animate-spin">sync</span><p class="mt-2 font-['DM_Sans']">Memuat tokoh film...</p>`;
+            grid.appendChild(initialLoading);
 
-                    // Circular Portrait Wrapper
-                    const portraitWrap = document.createElement("div");
-                    portraitWrap.className = "w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-[#715A5A] transition-all duration-300 group-hover:scale-105 shadow-lg shadow-white/5";
+            if (paginationControls) paginationControls.classList.add("hidden");
 
-                    if (actor.photo_path) {
-                        const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
-                        const img = document.createElement("img");
-                        img.className = "w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500";
-                        img.src = photoUrl;
-                        img.alt = actor.name;
-                        portraitWrap.appendChild(img);
-                    } else {
-                        // Placeholder untuk aktor tanpa foto
-                        portraitWrap.className += " bg-[#37353E] flex items-center justify-center";
-                        const icon = document.createElement("span");
-                        icon.className = "material-symbols-outlined text-5xl text-stone-600";
-                        icon.textContent = "help";
-                        portraitWrap.appendChild(icon);
+            const params = new URLSearchParams();
+            params.append("page", page);
+            params.append("ordering", "name");
+            if (searchInput && searchInput.value.trim()) {
+                params.append("search", searchInput.value.trim());
+            }
+
+            fetch(`/api/actors/?${params.toString()}`)
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    isLoading = false;
+                    const initialLoading = document.getElementById("initial-loading");
+                    if (initialLoading) initialLoading.remove();
+
+                    const results = data.results || [];
+                    const totalCount = data.count || results.length;
+
+                    grid.innerHTML = "";
+
+                    if (results.length === 0) {
+                        grid.innerHTML = `<p class="col-span-full text-center text-[#c9c5cb] italic py-12">Tidak ada data aktor/tokoh ditemukan.</p>`;
+                        if (paginationControls) paginationControls.innerHTML = "";
+                        return;
                     }
 
-                    const name = document.createElement("h3");
-                    name.className = "font-['DM_Sans'] text-base font-semibold text-white mb-1 truncate w-full";
-                    name.textContent = actor.name;
+                    results.forEach(actor => {
+                        const article = document.createElement("article");
+                        article.className = "group bg-[#201f20] rounded-lg p-5 border border-white/5 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 cursor-pointer flex flex-col items-center text-center";
+                        article.addEventListener("click", () => {
+                            window.location.href = `/actors/${actor.id}/`;
+                        });
 
-                    const origin = document.createElement("p");
-                    origin.className = "font-['DM_Sans'] text-xs text-[#D3DAD9]/50";
-                    origin.textContent = actor.birth_year ? `Lahir ${actor.birth_year}` : "Sineas";
+                        // Circular Portrait Wrapper
+                        const portraitWrap = document.createElement("div");
+                        portraitWrap.className = "w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-[#715A5A] transition-all duration-300 group-hover:scale-105 shadow-lg shadow-white/5";
 
-                    article.appendChild(portraitWrap);
-                    article.appendChild(name);
-                    article.appendChild(origin);
-                    grid.appendChild(article);
+                        if (actor.photo_path) {
+                            const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                            const img = document.createElement("img");
+                            img.className = "w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500";
+                            img.src = photoUrl;
+                            img.alt = actor.name;
+                            portraitWrap.appendChild(img);
+                        } else {
+                            portraitWrap.className += " bg-[#37353E] flex items-center justify-center";
+                            const icon = document.createElement("span");
+                            icon.className = "material-symbols-outlined text-5xl text-stone-600";
+                            icon.textContent = "help";
+                            portraitWrap.appendChild(icon);
+                        }
+
+                        const name = document.createElement("h3");
+                        name.className = "font-['DM_Sans'] text-base font-semibold text-white mb-1 truncate w-full";
+                        name.textContent = actor.name;
+
+                        const origin = document.createElement("p");
+                        origin.className = "font-['DM_Sans'] text-xs text-[#D3DAD9]/50";
+
+                        // Tentukan label peran dari filmography: Sutradara / Aktor / Aktris
+                        let roleLabel = "Aktor";
+                        const filmographies = actor.filmographies || [];
+                        const hasSutradara = filmographies.some(f => {
+                            const r = (f.role || "").toLowerCase();
+                            return r.includes("sutradara") || r.includes("director");
+                        });
+                        const hasPemeran = filmographies.some(f => {
+                            const r = (f.role || "").toLowerCase();
+                            return r.includes("pemeran") || r.includes("actor") || r.includes("cast");
+                        });
+
+                        if (hasSutradara && hasPemeran) {
+                            roleLabel = "Aktor & Sutradara";
+                        } else if (hasSutradara) {
+                            roleLabel = "Sutradara";
+                        } else if (hasPemeran) {
+                            roleLabel = "Aktor";
+                        }
+
+                        // Tambahkan tahun lahir jika ada
+                        origin.textContent = actor.birth_year
+                            ? `${roleLabel} · ${actor.birth_year}`
+                            : roleLabel;
+
+                        article.appendChild(portraitWrap);
+                        article.appendChild(name);
+                        article.appendChild(origin);
+                        grid.appendChild(article);
+                    });
+
+                    renderPagination(page, totalCount);
+                })
+                .catch(err => {
+                    isLoading = false;
+                    const initialLoading = document.getElementById("initial-loading");
+                    if (initialLoading) initialLoading.remove();
+                    console.error("Gagal memuat daftar aktor:", err);
+                    grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-12">Terjadi kesalahan saat memuat data.</p>`;
+                    if (paginationControls) paginationControls.innerHTML = "";
                 });
-            })
-            .catch(err => {
-                console.error("Gagal memuat daftar aktor:", err);
-                grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-12">Terjadi kesalahan saat memuat data.</p>`;
+        }
+
+        // Helper to render pagination controls
+        function renderPagination(page, totalCount) {
+            if (!paginationControls) return;
+            paginationControls.textContent = "";
+            paginationControls.classList.remove("hidden");
+
+            const totalPages = Math.ceil(totalCount / 12);
+            if (totalPages <= 1) return;
+
+            // Previous Button
+            const prevBtn = document.createElement("button");
+            prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
+                (page === 1 
+                    ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+                    : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+            prevBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_left</span>`;
+            if (page > 1) {
+                prevBtn.addEventListener("click", () => fetchActors(page - 1));
+            }
+            paginationControls.appendChild(prevBtn);
+
+            // Page Number Buttons (Sliding window of max 5 pages: e.g. 1-5, 2-6, etc.)
+            let startPage, endPage;
+            if (totalPages <= 5) {
+                startPage = 1;
+                endPage = totalPages;
+            } else {
+                if (page <= 3) {
+                    startPage = 1;
+                    endPage = 5;
+                } else if (page + 2 >= totalPages) {
+                    startPage = totalPages - 4;
+                    endPage = totalPages;
+                } else {
+                    startPage = page - 2;
+                    endPage = page + 2;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.className = "w-8 h-8 rounded border text-xs font-bold transition-all " + 
+                    (i === page 
+                        ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md" 
+                        : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+                pageBtn.textContent = i;
+                pageBtn.addEventListener("click", () => fetchActors(i));
+                paginationControls.appendChild(pageBtn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
+                (page === totalPages 
+                    ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+                    : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+            nextBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_right</span>`;
+            if (page < totalPages) {
+                nextBtn.addEventListener("click", () => fetchActors(page + 1));
+            }
+            paginationControls.appendChild(nextBtn);
+        }
+
+        // Live search listener
+        let searchTimeout;
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => fetchActors(1), 300);
             });
+        }
+
+        // Initial Load
+        fetchActors(1);
     });
 </script>
 {% endblock %}

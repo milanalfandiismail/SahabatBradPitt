@@ -40,3 +40,16 @@ def rating_saved(sender, instance, **kwargs):
 @receiver(post_delete, sender=Rating)
 def rating_deleted(sender, instance, **kwargs):
     update_film_avg_rating(instance.film)
+
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchlist')
+    film = models.ForeignKey(Film, on_delete=models.CASCADE, related_name='watchlisted_by')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'film')
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.film.title}"

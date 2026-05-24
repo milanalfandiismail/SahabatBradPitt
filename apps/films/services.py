@@ -188,9 +188,11 @@ class TMDBService:
                 title = cast.get("title")
                 character = cast.get("character") or "Aktor"
                 
-                # Filter berdasarkan rating - skip film dengan rating rendah
+                # Filter berdasarkan rating - skip film dengan rating rendah,
+                # namun jangan skip film yang belum dirilis/belum dinilai (vote_count == 0 atau vote_average == 0.0)
                 vote_average = cast.get("vote_average", 0.0)
-                if vote_average < min_rating:
+                vote_count = cast.get("vote_count", 0)
+                if vote_average < min_rating and vote_count > 0:
                     skipped_count += 1
                     logger.debug(f"Skip film '{title}' (rating {vote_average:.1f} < {min_rating})")
                     continue
@@ -240,9 +242,14 @@ class TMDBService:
 
                         # Ambil sutradara film dari credits
                         crew_list = detail_data.get("credits", {}).get("crew", [])
+                        director_name = None
+                        director_original_name = None
+                        director_tmdb_id = None
+                        director_photo = ""
                         for crew in crew_list:
                             if crew.get("job") == "Director":
                                 director_name = crew.get("name")
+                                director_original_name = crew.get("original_name")
                                 director_tmdb_id = crew.get("id")
                                 director_photo = crew.get("profile_path") or ""
                                 break
@@ -287,22 +294,57 @@ class TMDBService:
                     defaults={"role": f"Pemeran ({character})"}
                 )
 
-                # Sync all cast members dari film (limit top 30)
+                # Sync all cast members dari film (limit top 10)
                 cast_list_from_credits = detail_data.get("credits", {}).get("cast", [])
-                for cast_member in cast_list_from_credits[:30]:  # Limit 30 cast members
+                for cast_member in cast_list_from_credits[:10]:  # Limit 10 cast members
                     cast_tmdb_id = cast_member.get("id")
                     cast_name = cast_member.get("name")
+                    cast_original_name = cast_member.get("original_name")
                     cast_character = cast_member.get("character") or "Pemeran"
                     cast_photo = cast_member.get("profile_path") or ""
                     
+                    cast_native_name = ""
+                    if cast_original_name and cast_original_name != cast_name and not cast_original_name.isascii():
+                        cast_native_name = cast_original_name
+                    
                     if cast_tmdb_id and cast_name:
+                        # Cek apakah aktor sudah ada dengan bio asli
+                        cast_actor = Actor.objects.filter(tmdb_id=cast_tmdb_id).first()
+                        cast_bio = ""
+                        cast_birth_year = None
+                        
+                        if cast_actor and cast_actor.bio and not cast_actor.bio.startswith("Aktor/aktris"):
+                            cast_bio = cast_actor.bio
+                            cast_birth_year = cast_actor.birth_year
+                        else:
+                            # Fetch real bio dari API
+                            try:
+                                if rate_limiter:
+                                    rate_limiter.wait_if_needed()
+                                person_res = requests.get(f"{self.base_url}/person/{cast_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
+                                if person_res.status_code == 200:
+                                    p_data = person_res.json()
+                                    cast_bio = p_data.get("biography") or ""
+                                    if p_data.get("birthday"):
+                                        try:
+                                            cast_birth_year = int(p_data.get("birthday").split("-")[0])
+                                        except ValueError:
+                                            pass
+                            except Exception as ex:
+                                logger.warning(f"Gagal fetch bio untuk cast {cast_name}: {str(ex)}")
+                        
+                        if not cast_bio:
+                            cast_bio = f"Aktor/aktris yang bermain di {title}."
+
                         # Create/update actor
                         cast_actor, _ = Actor.objects.update_or_create(
                             tmdb_id=cast_tmdb_id,
                             defaults={
                                 "name": cast_name,
+                                "native_name": cast_native_name,
                                 "photo_path": cast_photo,
-                                "bio": f"Aktor/aktris yang bermain di {title}."
+                                "bio": cast_bio,
+                                "birth_year": cast_birth_year
                             }
                         )
                         
@@ -315,12 +357,45 @@ class TMDBService:
 
                 # Tambahkan sutradara ke Aktor dan hubungkan filmografi
                 if director_tmdb_id:
+                    director_native_name = ""
+                    if director_original_name and director_original_name != director_name and not director_original_name.isascii():
+                        director_native_name = director_original_name
+                    
+                    director_actor = Actor.objects.filter(tmdb_id=director_tmdb_id).first()
+                    dir_bio = ""
+                    dir_birth_year = None
+                    
+                    if director_actor and director_actor.bio and not director_actor.bio.startswith("Sutradara ternama"):
+                        dir_bio = director_actor.bio
+                        dir_birth_year = director_actor.birth_year
+                    else:
+                        # Fetch real bio dari API
+                        try:
+                            if rate_limiter:
+                                rate_limiter.wait_if_needed()
+                            person_res = requests.get(f"{self.base_url}/person/{director_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
+                            if person_res.status_code == 200:
+                                p_data = person_res.json()
+                                dir_bio = p_data.get("biography") or ""
+                                if p_data.get("birthday"):
+                                    try:
+                                        dir_birth_year = int(p_data.get("birthday").split("-")[0])
+                                    except ValueError:
+                                        pass
+                        except Exception:
+                            pass
+                    
+                    if not dir_bio:
+                        dir_bio = f"Sutradara ternama yang menyutradarai {title}."
+
                     director_actor, _ = Actor.objects.update_or_create(
                         tmdb_id=director_tmdb_id,
                         defaults={
                             "name": director_name,
+                            "native_name": director_native_name,
                             "photo_path": director_photo,
-                            "bio": f"Sutradara ternama yang menyutradarai {title}."
+                            "bio": dir_bio,
+                            "birth_year": dir_birth_year
                         }
                     )
                     Filmography.objects.update_or_create(
@@ -608,14 +683,20 @@ class TMDBService:
                 for cast_member in cast_list[:30]:
                     cast_tmdb_id = cast_member.get("id")
                     cast_name = cast_member.get("name")
+                    cast_original_name = cast_member.get("original_name")
                     cast_character = cast_member.get("character") or "Pemeran"
                     cast_photo = cast_member.get("profile_path") or ""
+                    
+                    cast_native_name = ""
+                    if cast_original_name and cast_original_name != cast_name and not cast_original_name.isascii():
+                        cast_native_name = cast_original_name
                     
                     if cast_tmdb_id and cast_name:
                         cast_actor, _ = Actor.objects.update_or_create(
                             tmdb_id=cast_tmdb_id,
                             defaults={
                                 "name": cast_name,
+                                "native_name": cast_native_name,
                                 "photo_path": cast_photo,
                                 "bio": f"Aktor/aktris yang bermain di {film.title}."
                             }
@@ -633,13 +714,19 @@ class TMDBService:
                     if crew.get("job") == "Director":
                         director_tmdb_id = crew.get("id")
                         director_name = crew.get("name")
+                        director_original_name = crew.get("original_name")
                         director_photo = crew.get("profile_path") or ""
+                        
+                        director_native_name = ""
+                        if director_original_name and director_original_name != director_name and not director_original_name.isascii():
+                            director_native_name = director_original_name
                         
                         if director_tmdb_id and director_name:
                             director_actor, _ = Actor.objects.update_or_create(
                                 tmdb_id=director_tmdb_id,
                                 defaults={
                                     "name": director_name,
+                                    "native_name": director_native_name,
                                     "photo_path": director_photo,
                                     "bio": f"Sutradara ternama yang menyutradarai {film.title}."
                                 }

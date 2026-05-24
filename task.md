@@ -265,3 +265,101 @@ Bagian ini dirancang sebagai peta rencana (*roadmap*) untuk membangun antarmuka 
   5. `if (!res.ok) throw new Error(...)` sebelum `.json()`
 - **Status**: ✅ Tidak ada lagi section yang stuck loading selamanya!
 
+
+## **Fase 19: Pagination, Active Navbar, & Watchlist Tab**
+- [x] `settings.py` — tambah REST_FRAMEWORK PageNumberPagination (PAGE_SIZE=12) (Done)
+- [x] `apps/ratings/models.py` — tambah model Watchlist (Done)
+- [x] `makemigrations ratings` + `migrate` (Done)
+- [x] `apps/ratings/serializers.py` — tambah WatchlistSerializer (Done)
+- [x] `apps/ratings/views.py` — tambah WatchlistViewSet (Done)
+- [x] `urls.py` — register WatchlistViewSet di router (Done)
+- [x] `templates/base.html` — active navbar via JS pathname matching (Done)
+- [x] `templates/film_list.html` — IntersectionObserver lazy load (12/batch) (Done)
+- [x] `templates/actor_list.html` — IntersectionObserver lazy load (20/batch) (Done)
+- [x] `templates/profile.html` — tab "Ulasan Saya" + "Watchlist" + watchlist grid (Done)
+
+### Session 2026-05-25 (Fase 19)
+- **Completed**: Fase 19 - Pagination, Active Navbar, & Watchlist
+- **Files Modified**:
+  - `config/settings/base.py`
+  - `apps/ratings/models.py`
+  - `apps/ratings/serializers.py`
+  - `apps/ratings/views.py`
+  - `apps/ratings/urls.py`
+  - `templates/base.html`
+  - `templates/film_list.html`
+  - `templates/film_detail.html`
+  - `templates/actor_list.html`
+  - `templates/profile.html`
+- **Status**: ✅ Fase 19 berhasil diimplementasikan sepenuhnya!
+
+
+## **Fase 20: Rombak Pagination, Hapus AI Recommendations & Perbaikan Layout**
+- [x] `templates/film_list.html` — Ganti IntersectionObserver dengan kontrol nomor halaman dinamis (Previous, 1, 2, 3..., Next) (Done)
+- [x] `templates/actor_list.html` — Ganti IntersectionObserver dengan kontrol nomor halaman dinamis (Done)
+- [x] `templates/base.html` — Hapus link menu "AI Recommendations" dari navbar utama (Done)
+- [x] `templates/home.html` — Hapus tombol kuesioner "AI Kuesioner" di Hero Banner (Done)
+- [x] `config/urls.py` — Hapus/komentari rute `'recommendations/'` (Done)
+- [x] `templates/home.html` — Tambahkan kelas `w-full` ke pembungkus `inner` card carousel agar tidak menciut ke 1/4 ukuran (Done)
+
+## **Fase 21: Perbaikan Pencarian Aktor, Penyelarasan Layout Hero, & Sinkronisasi Film Mendatang**
+- [x] `apps/actors/views.py` — Tambah filter pencarian `Q(name__icontains=search) | Q(native_name__icontains=search)` menggunakan `Q` objects (Done)
+- [x] `templates/actor_list.html` — Tambah validasi `res.ok` pada fetch data aktor agar dapat mendeteksi error HTTP (Done)
+- [x] `templates/home.html` — Pindahkan posisi text film di Hero Banner lebih ke kiri (`md:px-16` dan `max-w-full`) (Done)
+- [x] `templates/home.html` — Perbesar poster film hero backdrop di widescreen dengan `md:bg-[length:auto_115%] md:bg-[position:80%_center]` (Done)
+- [x] `apps/films/actor_config.py` — Tambah Ryan Gosling ke dalam `FEATURED_ACTORS` list (Done)
+- [x] `apps/films/services.py` — Ubah kondisi filter rating agar film mendatang (unreleased/unrated seperti Project Hail Mary) tidak di-skip dengan mengecek `vote_count > 0` (Done)
+- [x] Reset database SQLite: hapus `db.sqlite3` lama, jalankan ulang migrasi, dan sinkronkan data segar dari TMDB (Done)
+- [x] Dokumentasi: Update `task.md` dan `project_context.md` (Done)
+
+---
+
+## **Fase 22: Perbaikan Minor UI — Role Badge Full Text & Label Aktor Dinamis**
+- [x] `templates/film_detail.html` — Hapus pemotongan teks role badge cast card (substring 18 char dihapus, tampil full "Pemeran (John Lennon)") (Done)
+- [x] `templates/actor_detail.html` — Hapus pemotongan teks role badge filmography card (substring 16 char + class `truncate max-w-[70%]` dihapus, tampil full) (Done)
+- [x] `templates/actor_list.html` — Ganti label statis "Sineas" dengan label dinamis berbasis data `filmographies`: Sutradara / Aktor / Aktor & Sutradara · tahun lahir (Done)
+- [x] `templates/actor_list.html` — Tambahkan `ordering=name` pada API request untuk sort alphabetical (Done)
+- [x] `apps/actors/views.py` — Tambah `prefetch_related('filmographies__film')` untuk hindari N+1 query saat load daftar aktor (Done)
+
+### Session 2026-05-25 (Fase 22)
+- **Completed**: Fase 22 - Perbaikan Minor UI Role Badge & Label Aktor
+- **Files Modified**:
+  - `templates/film_detail.html` (hapus truncate 18 char di cast role badge)
+  - `templates/actor_detail.html` (hapus truncate 16 char + class truncate di filmography role badge)
+  - `templates/actor_list.html` (label dinamis Sutradara/Aktor/Aktor&Sutradara, ordering=name)
+  - `apps/actors/views.py` (prefetch_related filmographies__film)
+- **Status**: ✅ Role teks tampil penuh, label aktor dinamis, sorting alphabetical!
+
+## **Fase 23: Perombakan Layout Hero Section & Trending UI**
+- [x] `templates/home.html` � Ubah tata letak hero banner menjadi split layout (kiri: Teks informasi, kanan: Poster film ukuran penuh) untuk mengisi ruang kosong. (Done)
+- [x] `templates/home.html` � Hilangkan angka rank (1, 2, 3, 4, 5) besar pada kartu carousel "Trending This Week". (Done)
+- [x] `templates/trending.html` � Refactor kartu Rank 1, Rank 2, dan Rank 3 di bagian "Top Spotlight" menjadi layout horizontal dengan gambar orientasi poster (`aspect-[2/3]`) menggantikan orientasi lanskap (`aspect-video`) agar lebih rapi. (Done)
+
+### Session 2026-05-25 (Fase 23)
+- **Completed**: Fase 23 - Split Hero Layout & Poster Aspect Ratio untuk Trending
+- **Files Modified**:
+  - `templates/home.html`
+  - `templates/trending.html`
+- **Status**: ? Hero Section split layout & Trending page poster styling berhasil diimplementasikan!
+
+## **Fase 24: Limit Pagination Aktor & Poster Ulasan di Profile**
+- [x] `apps/actors/views.py` � Menambahkan kustomisasi `ActorPagination` dengan `page_size = 10` agar tampilan grid pada halaman/tab aktor memuat 10 kartu profil per halamannya, memberikan layout yang proporsional. (Done)
+- [x] `apps/ratings/serializers.py` � Menambahkan field `poster_path` dan `release_year` ke dalam `RatingSerializer` sehingga pada halaman Profile bagian "Film yang Saya Ulas", kartu film merender gambar poster resmi dari TMDB (dengan orientasi vertikal `aspect-[2/3]` yang rapi), tidak lagi fallback ke gambar lanskap placeholder default. (Done)
+
+### Session 2026-05-25 (Fase 24)
+- **Completed**: Fase 24 - Actor Limit & Profile Rating Poster Fix
+- **Files Modified**:
+  - `apps/actors/views.py`
+  - `apps/ratings/serializers.py`
+- **Status**: ? Limit 10 aktor berjalan baik, poster ulasan di profile konsisten rapi!
+
+## **Fase 25: Restrukturisasi Logika Sinkronisasi TMDB & Biografi Asli**
+- [x] `apps/films/services.py` � Mengubah logika `sync_actor_movies()` saat memproses `cast_list_from_credits`. Jumlah anggota cast yang disinkronkan dikurangi dari 30 menjadi 10 teratas per film untuk optimalisasi performa. (Done)
+- [x] `apps/films/services.py` � Mengimplementasikan penarikan Biografi asli (Real Biography) untuk setiap anggota cast dan sutradara dengan menembak API `/person/{id}` TMDB. Untuk mencegah *rate limit*, sistem terlebih dahulu mengecek apakah aktor sudah ada di database lokal dan memiliki bio asli. Jika tidak, barulah mengambil bio langsung dari TMDB dan membuang template fallback (`"Aktor/aktris yang bermain di..."`). (Done)
+- [x] Menghapus ulang database SQLite (`db.sqlite3`), menjalankan `migrate` baru, mereset password superuser (admin/admin123), dan menjalankan kembali `python manage.py sync_tmdb --all-actors` di latar belakang untuk mendapatkan *fresh start* dengan bio asli. (Done)
+
+### Session 2026-05-25 (Fase 25)
+- **Completed**: Fase 25 - Sinkronisasi Cast Terbatas & Real Bio TMDB
+- **Files Modified**:
+  - `apps/films/services.py`
+- **Status**: ? Sedang menyinkronkan data segar di background dengan bio asli...

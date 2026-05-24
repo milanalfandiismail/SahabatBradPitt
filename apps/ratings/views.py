@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from apps.ratings.models import Rating
-from apps.ratings.serializers import RatingSerializer
+from apps.ratings.models import Rating, Watchlist
+from apps.ratings.serializers import RatingSerializer, WatchlistSerializer
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -50,6 +50,39 @@ class RatingViewSet(viewsets.ModelViewSet):
             if exists:
                 return Response(
                     {"error": "Anda sudah pernah memberikan ulasan pada film ini. Silakan edit ulasan yang sudah ada."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return super().create(request, *args, **kwargs)
+
+
+class WatchlistViewSet(viewsets.ModelViewSet):
+    queryset = Watchlist.objects.all()
+    serializer_class = WatchlistSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        elif self.action == 'create':
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated(), IsOwnerOrReadOnly()]
+
+    def get_queryset(self):
+        qs = self.queryset
+        user_id = self.request.query_params.get('user', None)
+        if user_id:
+            qs = qs.filter(user__id=user_id)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        film_id = request.data.get('film')
+        if film_id:
+            exists = Watchlist.objects.filter(user=request.user, film_id=film_id).exists()
+            if exists:
+                return Response(
+                    {"error": "Film ini sudah ada di watchlist Anda."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return super().create(request, *args, **kwargs)

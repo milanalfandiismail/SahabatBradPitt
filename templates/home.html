@@ -4,31 +4,30 @@
 
 {% block content %}
 <!-- 1. HERO BANNER -->
-<header class="relative w-full h-screen overflow-hidden flex items-center pt-[80px]" id="hero-section">
-    <!-- Backdrop dinamis -->
-    <div class="absolute inset-0 w-full h-full z-0">
-        <div id="hero-backdrop" class="w-full h-full bg-cover bg-center transition-all duration-1000 ease-in-out" style="background-image: none; background-color: #141314;"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-[#141314] via-[#141314]/80 to-transparent"></div>
-        <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#37353E] to-transparent"></div>
-    </div>
+<header class="relative w-full h-screen overflow-hidden flex items-center pt-[80px] bg-[#141314]" id="hero-section">
+    <!-- Base Gradient -->
+    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#37353E] to-transparent z-0"></div>
+    
     <!-- Loading skeleton -->
-    <div id="hero-loading" class="absolute inset-0 z-20 flex items-end justify-start pb-24 px-6 md:px-12 max-w-[1440px] mx-auto w-full">
-        <div class="max-w-2xl w-full animate-pulse">
+    <div id="hero-loading" class="relative z-20 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-12 h-full py-12">
+        <div class="flex-1 w-full animate-pulse flex flex-col justify-center">
             <div class="h-5 w-40 bg-white/10 rounded-full mb-6"></div>
-            <div class="h-14 w-96 bg-white/10 rounded mb-4"></div>
-            <div class="h-4 w-full bg-white/10 rounded mb-2"></div>
-            <div class="h-4 w-3/4 bg-white/10 rounded mb-8"></div>
-            <div class="flex gap-4">
-                <div class="h-11 w-32 bg-white/10 rounded"></div>
-                <div class="h-11 w-32 bg-white/10 rounded"></div>
-            </div>
+            <div class="h-14 w-full bg-white/10 rounded mb-4"></div>
+            <div class="h-4 w-3/4 bg-white/10 rounded mb-2"></div>
+            <div class="h-4 w-1/2 bg-white/10 rounded mb-8"></div>
+            <div class="h-11 w-32 bg-white/10 rounded"></div>
+        </div>
+        <div class="flex-1 w-full animate-pulse flex justify-center md:justify-end items-center h-full">
+            <div class="w-[300px] md:w-[400px] aspect-[2/3] bg-white/5 rounded-lg shadow-2xl"></div>
         </div>
     </div>
+
     <!-- Dynamic hero content -->
-    <div id="hero-content" class="hidden relative z-10 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col justify-end pb-24 h-full font-['DM_Sans']">
-        <div class="max-w-2xl">
+    <div id="hero-content" class="hidden relative z-10 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 h-full font-['DM_Sans'] py-12">
+        <!-- Kiri: Teks -->
+        <div class="flex-1 w-full flex flex-col justify-center h-full">
             <!-- Meta badge -->
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#715A5A] text-xs mb-6 text-stone-300">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#715A5A] text-xs mb-6 text-stone-300 w-max">
                 <span class="material-symbols-outlined text-sm text-[#F5C518]" style="font-variation-settings: 'FILL' 1;">star</span>
                 <span id="hero-rating" class="text-[#D3DAD9] font-bold"></span>
                 <span class="w-1 h-1 rounded-full bg-stone-500"></span>
@@ -36,20 +35,20 @@
                 <span class="w-1 h-1 rounded-full bg-stone-500"></span>
                 <span id="hero-duration" class="text-[#D3DAD9]"></span>
             </span>
-            <h1 id="hero-title" class="font-['Playfair_Display'] text-5xl md:text-6xl text-white font-bold leading-tight mb-4 drop-shadow-xl"></h1>
-            <p id="hero-synopsis" class="text-sm text-stone-300 mb-8 max-w-xl leading-relaxed line-clamp-3"></p>
+            <h1 id="hero-title" class="font-['Playfair_Display'] text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-tight mb-4 drop-shadow-xl"></h1>
+            <p id="hero-synopsis" class="text-sm text-stone-300 mb-8 max-w-xl leading-relaxed line-clamp-4"></p>
             <div class="flex items-center gap-4">
-                <a id="hero-detail-btn" href="#" class="bg-[#C0392B] text-white px-6 py-3 rounded font-semibold text-sm flex items-center gap-2 hover:bg-[#A93226] hover:scale-[1.02] transition-all duration-300 shadow-lg">
+                <a id="hero-detail-btn" href="#" class="bg-[#C0392B] text-white px-6 py-3 rounded font-semibold text-sm flex items-center gap-2 hover:bg-[#A93226] hover:scale-[1.02] transition-all duration-300 shadow-lg w-max">
                     <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">info</span>
                     Detail Film
-                </a>
-                <a href="/recommendations/" class="bg-[#44444E] text-[#D3DAD9] px-6 py-3 rounded border border-white/5 font-semibold text-sm hover:bg-stone-700 hover:scale-[1.02] transition-all duration-300 flex items-center gap-2">
-                    <span class="material-symbols-outlined">psychology</span>
-                    AI Kuesioner
                 </a>
             </div>
             <!-- Hero dot indicators -->
             <div id="hero-dots" class="flex gap-2 mt-8"></div>
+        </div>
+        <!-- Kanan: Gambar -->
+        <div class="flex-1 w-full flex justify-center md:justify-end items-center h-full pb-8 md:pb-0">
+            <img id="hero-poster" src="" alt="Hero Poster" class="w-auto h-[60vh] md:h-[75vh] object-contain rounded-xl shadow-2xl transition-transform duration-700 ease-in-out hover:scale-[1.02]" />
         </div>
     </div>
 </header>
@@ -58,19 +57,21 @@
 <section class="py-16 bg-[#44444E] relative overflow-hidden">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 font-['DM_Sans']">
         <div class="flex items-center justify-between mb-8">
-            <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Trending This Week</h2>
-            <a class="text-xs font-semibold text-stone-300 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider" href="/trending/">
+            <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Trending This
+                Week</h2>
+            <a class="text-xs font-semibold text-stone-300 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
+                href="/trending/">
                 See all <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
         </div>
         <div id="trending-carousel" class="flex gap-6 overflow-x-auto pb-4" style="scrollbar-width: none;">
             <!-- Loading placeholder -->
             <div id="trending-loading" class="flex gap-6">
-                <div class="min-w-[200px] h-[300px] bg-white/5 rounded-lg animate-pulse"></div>
-                <div class="min-w-[200px] h-[300px] bg-white/5 rounded-lg animate-pulse"></div>
-                <div class="min-w-[200px] h-[300px] bg-white/5 rounded-lg animate-pulse"></div>
-                <div class="min-w-[200px] h-[300px] bg-white/5 rounded-lg animate-pulse"></div>
-                <div class="min-w-[200px] h-[300px] bg-white/5 rounded-lg animate-pulse"></div>
+                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
+                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
+                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
+                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
+                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
             </div>
         </div>
     </div>
@@ -80,20 +81,41 @@
 <section class="py-16 bg-[#37353E] relative">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 font-['DM_Sans']">
         <div class="flex items-center justify-between mb-8">
-            <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Featured Actors & Directors</h2>
-            <a class="text-xs font-semibold text-stone-300 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider" href="/actors/">
+            <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Featured
+                Actors & Directors</h2>
+            <a class="text-xs font-semibold text-stone-300 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-wider"
+                href="/actors/">
                 See all <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
         </div>
         <div id="actors-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             <!-- Loading skeleton -->
-            <div class="flex flex-col items-center gap-3 animate-pulse col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
-                <div class="flex flex-col items-center gap-3 animate-pulse"><div class="w-28 h-28 rounded-full bg-white/5"></div><div class="h-3 w-20 bg-white/5 rounded"></div></div>
+            <div
+                class="flex flex-col items-center gap-3 animate-pulse col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 animate-pulse">
+                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -105,14 +127,16 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Editor's Choice -->
             <div>
-                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">Editor's Choice</h2>
+                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">
+                    Editor's Choice</h2>
                 <div class="relative h-[380px]" id="editors-choice-container">
                     <div class="animate-pulse absolute inset-0 bg-white/5 rounded-lg"></div>
                 </div>
             </div>
             <!-- Top Rated -->
             <div>
-                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">Top Rated Movie</h2>
+                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">Top
+                    Rated Movie</h2>
                 <div class="relative h-[380px]" id="top-rated-container">
                     <div class="animate-pulse absolute inset-0 bg-white/5 rounded-lg"></div>
                 </div>
@@ -124,7 +148,7 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // 0. Fetch Hero Film (Top Popular Films — rotate hero)
         let heroFilms = [];
         let heroIndex = 0;
@@ -138,7 +162,7 @@
         }
 
         function renderHero(film) {
-            const backdrop = document.getElementById("hero-backdrop");
+            const heroPoster = document.getElementById("hero-poster");
             const heroContent = document.getElementById("hero-content");
             const heroLoading = document.getElementById("hero-loading");
 
@@ -151,9 +175,8 @@
             }
 
             if (posterUrl) {
-                backdrop.style.backgroundImage = `url('${posterUrl}')`;
-                backdrop.style.backgroundSize = "cover";
-                backdrop.style.backgroundPosition = "center top";
+                // Update image src directly instead of backdrop style
+                heroPoster.src = posterUrl;
             }
 
             // Populate text
@@ -172,11 +195,10 @@
             dotsEl.textContent = "";
             heroFilms.slice(0, 5).forEach((_, i) => {
                 const dot = document.createElement("button");
-                dot.className = `w-2 h-2 rounded-full transition-all duration-300 ${
-                    i === heroIndex
-                        ? "bg-[#C0392B] w-5"
-                        : "bg-white/30 hover:bg-white/60"
-                }`;
+                dot.className = `w-2 h-2 rounded-full transition-all duration-300 ${i === heroIndex
+                    ? "bg-[#C0392B] w-5"
+                    : "bg-white/30 hover:bg-white/60"
+                    }`;
                 dot.addEventListener("click", () => {
                     heroIndex = i;
                     renderHero(heroFilms[heroIndex]);
@@ -239,17 +261,13 @@
 
                 films.slice(0, 5).forEach((film, index) => {
                     const card = document.createElement("div");
-                    card.className = "relative min-w-[200px] md:min-w-[240px] flex-shrink-0 snap-start group cursor-pointer";
+                    card.className = "relative w-[200px] md:w-[240px] flex-shrink-0 snap-start group cursor-pointer";
                     card.addEventListener("click", () => {
                         window.location.href = `/movies/${film.id}/`;
                     });
 
-                    const num = document.createElement("div");
-                    num.className = "absolute -left-4 top-4 z-10 text-[80px] font-serif font-bold text-[#37353E] opacity-90 leading-none drop-shadow-lg group-hover:scale-110 transition-transform select-none";
-                    num.textContent = index + 1;
-
                     const inner = document.createElement("div");
-                    inner.className = "bg-[#37353E] rounded-lg overflow-hidden border border-white/5 group-hover:scale-[1.03] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 aspect-[2/3] relative";
+                    inner.className = "bg-[#37353E] rounded-lg overflow-hidden border border-white/5 group-hover:scale-[1.03] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 aspect-[2/3] relative w-full";
 
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400";
                     if (film.poster_path) {
@@ -268,7 +286,7 @@
 
                     const textWrap = document.createElement("div");
                     textWrap.className = "absolute bottom-0 left-0 p-4 w-full";
-                    
+
                     const title = document.createElement("h3");
                     title.className = "font-medium text-white text-sm md:text-base mb-1 truncate";
                     title.textContent = film.title;
@@ -280,7 +298,6 @@
                     textWrap.appendChild(meta);
 
                     inner.appendChild(textWrap);
-                    card.appendChild(num);
                     card.appendChild(inner);
                     carousel.appendChild(card);
                 });
@@ -441,12 +458,12 @@
 
             const meta = document.createElement("div");
             meta.className = "flex items-center gap-4 text-xs";
-            
+
             const star = document.createElement("span");
             star.className = "flex items-center text-[#F5C518] font-bold";
             star.innerHTML = `<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">star</span> ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}`;
             meta.appendChild(star);
-            
+
             if (film.genre && film.genre.length > 0) {
                 const genre = document.createElement("span");
                 genre.className = "text-[#D3DAD9] border border-white/10 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider";

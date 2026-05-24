@@ -79,6 +79,11 @@
                         <div id="cast-list" class="grid grid-cols-2 sm:grid-cols-4 gap-6">
                             <!-- Dynamic actor card entries -->
                         </div>
+                        <div id="cast-expand-container" class="mt-6 text-center hidden">
+                            <button id="cast-expand-btn" class="bg-[#715A5A]/30 hover:bg-[#715A5A]/50 border border-[#715A5A]/50 text-[#D3DAD9] px-6 py-2 rounded text-sm transition-all hover:scale-[1.02]">
+                                Lihat Semua Pemain & Sutradara
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -193,6 +198,100 @@
             submitBtn.classList.add("opacity-50", "cursor-not-allowed");
         }
 
+        // Watchlist Interactivity logic
+        let userWatchlistEntry = null;
+        const watchlistBtn = document.getElementById("watchlist-btn");
+
+        if (token) {
+            fetch("/api/auth/me/", {
+                headers: { "Authorization": `Token ${token}` }
+            })
+            .then(res => res.json())
+            .then(me => {
+                checkWatchlistState(me.id);
+            })
+            .catch(err => console.error("Error loading me info:", err));
+        }
+
+        function checkWatchlistState(userId) {
+            fetch(`/api/ratings/watchlist/?user=${userId}`)
+                .then(res => res.json())
+                .then(watchlist => {
+                    const results = watchlist.results || watchlist;
+                    userWatchlistEntry = results.find(item => item.film === parseInt(filmId));
+                    updateWatchlistButton();
+                });
+        }
+
+        function updateWatchlistButton() {
+            if (userWatchlistEntry) {
+                watchlistBtn.innerHTML = `<span class="material-symbols-outlined">done</span> Di Watchlist`;
+                watchlistBtn.className = "bg-[#715A5A]/30 border-[#715A5A] text-white px-6 py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2";
+            } else {
+                watchlistBtn.innerHTML = `<span class="material-symbols-outlined">add</span> Watchlist`;
+                watchlistBtn.className = "border border-[#D3DAD9]/30 hover:border-[#D3DAD9]/60 hover:bg-white/5 text-[#D3DAD9] px-6 py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2";
+            }
+        }
+
+        watchlistBtn.addEventListener("click", () => {
+            if (!token) {
+                alert("Silakan sign in terlebih dahulu untuk menambahkan film ke watchlist.");
+                window.location.href = "/login/";
+                return;
+            }
+
+            watchlistBtn.disabled = true;
+
+            if (userWatchlistEntry) {
+                // Remove from watchlist
+                fetch(`/api/ratings/watchlist/${userWatchlistEntry.id}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Token ${token}`
+                    }
+                })
+                .then(res => {
+                    watchlistBtn.disabled = false;
+                    if (res.ok) {
+                        userWatchlistEntry = null;
+                        updateWatchlistButton();
+                    } else {
+                        alert("Gagal menghapus dari watchlist.");
+                    }
+                })
+                .catch(err => {
+                    watchlistBtn.disabled = false;
+                    console.error(err);
+                });
+            } else {
+                // Add to watchlist
+                fetch("/api/ratings/watchlist/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Token ${token}`
+                    },
+                    body: JSON.stringify({ film: parseInt(filmId) })
+                })
+                .then(res => {
+                    watchlistBtn.disabled = false;
+                    if (!res.ok) {
+                        return res.json().then(err => { throw new Error(err.error || "Gagal menambah ke watchlist") });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    userWatchlistEntry = data;
+                    updateWatchlistButton();
+                })
+                .catch(err => {
+                    watchlistBtn.disabled = false;
+                    console.error(err);
+                    alert(err.message || "Gagal menambah ke watchlist.");
+                });
+            }
+        });
+
         // Fetch Main Film Details
         fetch(`/api/films/${filmId}/`)
             .then(res => {
@@ -258,6 +357,8 @@
         function fetchActors(id) {
             const castList = document.getElementById("cast-list");
             castList.textContent = "";
+            const expandContainer = document.getElementById("cast-expand-container");
+            if (expandContainer) expandContainer.classList.add("hidden");
 
             // Query actors matching this film ID via API (includes film_role annotation)
             fetch(`/api/actors/?film=${id}`)
@@ -272,59 +373,69 @@
                     // Update grid untuk tampung 8 aktor
                     castList.className = "grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4";
 
-                    results.slice(0, 8).forEach(actor => {
-                        const card = document.createElement("div");
-                        card.className = "flex flex-col items-center group cursor-pointer";
-                        card.addEventListener("click", () => {
-                            window.location.href = `/actors/${actor.id}/`;
-                        });
-
-                        // Foto aktor
-                        const wrapper = document.createElement("div");
-                        wrapper.className = "w-16 h-16 rounded-full overflow-hidden mb-2 border-2 border-transparent group-hover:border-[#715A5A] transition-colors shadow-lg";
+                    let showAll = false;
+                    
+                    function renderCast() {
+                        castList.textContent = "";
+                        const limit = showAll ? results.length : 8;
+                        const items = results.slice(0, limit);
                         
-                        if (actor.photo_path) {
-                            const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
-                            const img = document.createElement("img");
-                            img.className = "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0";
-                            img.src = photoUrl;
-                            img.alt = actor.name;
-                            wrapper.appendChild(img);
-                        } else {
-                            wrapper.className += " bg-[#37353E] flex items-center justify-center";
-                            const icon = document.createElement("span");
-                            icon.className = "material-symbols-outlined text-3xl text-stone-600";
-                            icon.textContent = "help";
-                            wrapper.appendChild(icon);
-                        }
+                        items.forEach(actor => {
+                            const card = document.createElement("div");
+                            card.className = "flex flex-col items-center group cursor-pointer";
+                            card.addEventListener("click", () => {
+                                window.location.href = `/actors/${actor.id}/`;
+                            });
 
-                        // Nama Latin
-                        const name = document.createElement("h4");
-                        name.className = "font-['DM_Sans'] text-xs text-[#D3DAD9] text-center mb-0.5 truncate w-full leading-tight";
-                        name.textContent = actor.name;
+                            // Foto aktor
+                            const wrapper = document.createElement("div");
+                            wrapper.className = "w-16 h-16 rounded-full overflow-hidden mb-2 border-2 border-transparent group-hover:border-[#715A5A] transition-colors shadow-lg";
+                            
+                            if (actor.photo_path) {
+                                const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
+                                const img = document.createElement("img");
+                                img.className = "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0";
+                                img.src = photoUrl;
+                                img.alt = actor.name;
+                                wrapper.appendChild(img);
+                            } else {
+                                wrapper.className += " bg-[#37353E] flex items-center justify-center";
+                                const icon = document.createElement("span");
+                                icon.className = "material-symbols-outlined text-3xl text-stone-600";
+                                icon.textContent = "help";
+                                wrapper.appendChild(icon);
+                            }
 
-                        // Nama native (Korea/Mandarin/Jepang dll) jika ada
-                        const nativeName = document.createElement("p");
-                        nativeName.className = "font-['DM_Sans'] text-[10px] text-[#D3DAD9]/50 text-center truncate w-full";
-                        if (actor.native_name) {
-                            nativeName.textContent = actor.native_name;
-                        }
+                            // Nama
+                            const name = document.createElement("h4");
+                            name.className = "font-['DM_Sans'] text-sm text-[#D3DAD9] text-center mb-0.5 truncate w-full leading-tight font-semibold";
+                            name.textContent = actor.name;
 
-                        // Badge role di film ini (Sutradara / Pemeran)
-                        const roleBadge = document.createElement("span");
-                        const roleText = actor.film_role || "Pemeran";
-                        const isSutradara = roleText.toLowerCase().includes("sutradara") || roleText.toLowerCase().includes("director");
-                        roleBadge.className = `mt-1 px-1.5 py-0.5 rounded text-[9px] font-semibold font-['DM_Sans'] ${isSutradara ? 'bg-[#C0392B]/20 text-[#C0392B]' : 'bg-[#715A5A]/20 text-[#D3DAD9]/70'}`;
-                        // Truncate role text
-                        const shortRole = roleText.length > 18 ? roleText.substring(0, 18) + "…" : roleText;
-                        roleBadge.textContent = shortRole;
+                            // Badge role di film ini (Sutradara / Pemeran)
+                            const roleBadge = document.createElement("span");
+                            const roleText = actor.film_role || "Pemeran";
+                            const isSutradara = roleText.toLowerCase().includes("sutradara") || roleText.toLowerCase().includes("director");
+                            roleBadge.className = `mt-1 px-2 py-0.5 rounded text-[11px] font-semibold font-['DM_Sans'] leading-snug text-center ${isSutradara ? 'bg-[#C0392B]/20 text-[#C0392B] border border-[#C0392B]/30' : 'bg-[#715A5A]/20 text-[#D3DAD9]/80 border border-[#715A5A]/30'}`;
+                            roleBadge.textContent = roleText;
 
-                        card.appendChild(wrapper);
-                        card.appendChild(name);
-                        if (actor.native_name) card.appendChild(nativeName);
-                        card.appendChild(roleBadge);
-                        castList.appendChild(card);
-                    });
+                            card.appendChild(wrapper);
+                            card.appendChild(name);
+                            card.appendChild(roleBadge);
+                            castList.appendChild(card);
+                        });
+                    }
+
+                    renderCast();
+
+                    if (results.length > 8) {
+                        const expandBtn = document.getElementById("cast-expand-btn");
+                        expandContainer.classList.remove("hidden");
+                        expandBtn.onclick = () => {
+                            showAll = !showAll;
+                            renderCast();
+                            expandBtn.textContent = showAll ? "Sembunyikan Tokoh" : "Lihat Semua Pemain & Sutradara";
+                        };
+                    }
                 });
         }
 

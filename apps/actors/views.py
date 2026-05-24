@@ -1,11 +1,16 @@
 from rest_framework import viewsets, permissions
-from django.db.models import Subquery, OuterRef, CharField
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Subquery, OuterRef, CharField, Q
 from apps.actors.models import Actor, Filmography
 from apps.actors.serializers import ActorSerializer
 
+class ActorPagination(PageNumberPagination):
+    page_size = 10
+
 class ActorViewSet(viewsets.ModelViewSet):
-    queryset = Actor.objects.all().order_by('name')
+    queryset = Actor.objects.all().prefetch_related('filmographies__film').order_by('name')
     serializer_class = ActorSerializer
+    pagination_class = ActorPagination
 
     def get_permissions(self):
         # RBAC: Read-only untuk tamu/regular, Admin untuk write
@@ -16,6 +21,11 @@ class ActorViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         
+        # Filter pencarian berdasarkan nama atau nama asli
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(Q(name__icontains=search) | Q(native_name__icontains=search))
+            
         # Filter berdasarkan genre khusus yang didukung aktor
         genre_id = self.request.query_params.get('genre', None)
         if genre_id:

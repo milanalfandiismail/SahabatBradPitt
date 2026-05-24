@@ -20,7 +20,6 @@ urlpatterns = [
     path('actors/', TemplateView.as_view(template_name='actor_list.html'), name='actor_list'),
     path('actors/<int:id>/', TemplateView.as_view(template_name='actor_detail.html'), name='actor_detail'),
     path('trending/', TemplateView.as_view(template_name='trending.html'), name='trending'),
-    path('recommendations/', TemplateView.as_view(template_name='recommendations.html'), name='recommendations'),
     path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
     path('signup/', TemplateView.as_view(template_name='signup.html'), name='signup'),
     path('profile/', TemplateView.as_view(template_name='profile.html'), name='profile'),

@@ -64,13 +64,13 @@ Sistem ini didesain memiliki integrasi langsung dengan **TMDB API** untuk mempop
     *   Mengakses endpoint `/genre/movie/list` untuk melaraskan seluruh daftar genre resmi.
     *   Mengakses endpoint `/person/{actor_id}/movie_credits` untuk menarik daftar filmografi aktor berdasarkan TMDB Person ID.
     *   Mengakses endpoint detail `/movie/{id}` secara rekursif untuk menyelaraskan durasi menit (*runtime*), daftar kru sutradara asli, dan perusahaan studio produksi resmi.
-    *   **Filter Rating Otomatis:** Hanya film dengan rating TMDB >= threshold (default: 7.0) yang disimpan ke database untuk menjaga kualitas katalog.
+    *   **Filter Rating Otomatis:** Hanya film dengan rating TMDB >= threshold (default: 7.0) yang disimpan ke database untuk menjaga kualitas katalog. Film yang belum memiliki rating (seperti film mendatang/unreleased dengan `vote_count = 0`, contohnya *Project Hail Mary* yang dibintangi Ryan Gosling) tidak di-skip agar data film mendatang tetap tersinkronisasi.
     *   **Rate Limiting Protection:** Delay 0.5 detik antar request untuk menghindari TMDB API rate limiting.
 
 *   **Arsitektur Multi-Actor Sync:**
     *   **Generic Actor Sync:** Method `sync_actor_movies(actor_id, actor_name, min_rating)` dapat menarik filmografi aktor manapun dari TMDB.
     *   **Batch Processing:** Method `sync_multiple_actors(actor_list, min_rating)` memproses multiple aktor sekaligus dengan logging progress real-time.
-    *   **Actor Configuration:** File `apps/films/actor_config.py` berisi daftar 13 aktor Hollywood terkenal (Brad Pitt, Leonardo DiCaprio, Tom Cruise, Robert Downey Jr., Christian Bale, Matt Damon, Denzel Washington, Morgan Freeman, Scarlett Johansson, Natalie Portman, Cate Blanchett, Meryl Streep, Jennifer Lawrence) dengan TMDB ID dan bio masing-masing.
+    *   **Actor Configuration:** File `apps/films/actor_config.py` berisi daftar 14 aktor Hollywood terkenal (Brad Pitt, Leonardo DiCaprio, Tom Cruise, Robert Downey Jr., Christian Bale, Matt Damon, Denzel Washington, Morgan Freeman, Scarlett Johansson, Natalie Portman, Cate Blanchett, Meryl Streep, Jennifer Lawrence, Ryan Gosling) dengan TMDB ID dan bio masing-masing.
     *   **Backward Compatibility:** Method `sync_brad_pitt_movies()` tetap tersedia sebagai wrapper untuk kompatibilitas dengan code existing.
 
 *   **Ketangguhan Hibrida (Fail-Safe Mock):**
@@ -87,8 +87,8 @@ Sistem ini didesain memiliki integrasi langsung dengan **TMDB API** untuk mempop
     *   **Custom Rating Threshold:** Gunakan `--min-rating` untuk set minimum rating (contoh: `--min-rating 7.5` untuk film top-tier)
 
 *   **Hasil Sinkronisasi (Status Terkini):**
-    *   **13 aktor Hollywood** telah disinkronkan ke database lokal
-    *   **487 film berkualitas tinggi** (rating >= 7.0) tersimpan dengan data lengkap (aktor, sutradara, studio, genre)
+    *   **14 aktor Hollywood** (termasuk Ryan Gosling) telah disinkronkan ke database lokal
+    *   **Katalog film lengkap** tersimpan dengan data lengkap (aktor, sutradara, studio, genre) termasuk film mendatang seperti *Project Hail Mary*
     *   Katalog premium siap digunakan untuk rekomendasi AI dan eksplorasi pengguna
 
 
@@ -233,5 +233,39 @@ Seluruh navigasi visual disajikan melalui Django **`TemplateView`** di `config/u
     *   Empty state check: `if (films.length === 0)` / `if (actors.length === 0)`
 
 *   **Helper `showEmptyCard(container, message)`:** Fungsi reusable untuk menampilkan empty/error card di section Editor's Choice dan Top Rated Movie dengan styling konsisten.
+
+---
+
+### I. Perbaikan Minor UI — Role Badge Full Text & Label Aktor Dinamis (Fase 22)
+
+*   **Role Badge Teks Penuh (film_detail.html):** Badge peran di cast card halaman detail film sebelumnya memotong teks setelah 18 karakter (misal: `"Pemeran (John Len…"`). Pemotongan ini dihapus sehingga teks role tampil penuh — `"Pemeran (John Lennon)"`. CSS diubah dari class truncate ke `leading-snug text-center` agar badge wrapping dengan rapi.
+
+*   **Role Badge Teks Penuh (actor_detail.html):** Badge peran di filmography card halaman detail aktor memiliki truncate 16 karakter + class `truncate max-w-[70%]`. Keduanya dihapus sehingga role tampil lengkap di setiap kartu filmografi.
+
+*   **Label Aktor Dinamis (actor_list.html):** Label statis `"Sineas"` yang generik diganti dengan label dinamis yang ditentukan dari data `filmographies` milik setiap aktor:
+    *   Jika ada role sutradara/director DAN pemeran/actor ? **"Aktor & Sutradara"**
+    *   Jika hanya role sutradara/director ? **"Sutradara"**
+    *   Jika hanya role pemeran/actor ? **"Aktor"**
+    *   Label diikuti tahun lahir jika tersedia — contoh: `"Sutradara · 1954"` atau `"Aktor · 1963"`
+
+*   **Sorting Alphabetical:** Parameter `ordering=name` ditambahkan pada API request di `actor_list.html`. Backend `ActorViewSet` sudah memiliki `order_by('name')` sebagai default queryset, sehingga list aktor selalu tampil secara konsisten sesuai urutan abjad nama.
+
+*   **Performa — Prefetch Related:** `ActorViewSet.queryset` di `apps/actors/views.py` ditambahkan `prefetch_related('filmographies__film')` untuk menghindari N+1 database query saat serializer mengakses data `filmographies` setiap aktor. Query yang sebelumnya O(N) menjadi O(1) dengan JOIN prefetch Django.
+
+---
+
+### J. Split Hero Layout & Trending Page Poster Styling (Fase 23)
+
+*   **Split Layout Hero Section (home.html):** Desain tata letak hero banner telah dirombak dari text-on-backdrop menjadi split layout. Teks kini rata kiri dan poster gambar (tanpa crop, menggunakan aspect ratio asli) diletakkan rata kanan. Struktur menggunakan flexbox `md:flex-row` dengan rasio 50:50 agar seimbang tanpa ruang kosong (whitespace) berlebih.
+*   **Penyederhanaan Trending Carousel (home.html):** Menghapus penanda angka urutan berukuran besar (1-5) pada kartu carousel Trending This Week untuk memberikan tampilan yang lebih bersih (clean) dan fokus pada sampul film.
+*   **Poster Styling di Trending Page (trending.html):** Orientasi gambar pada sorotan film (Top Spotlight) Rank 1, 2, dan 3 yang sebelumnya menggunakan crop lanskap (`aspect-video`) telah diperbaiki menjadi orientasi vertikal poster (`aspect-[2/3]`). Kartu Rank 2 dan 3 diubah tata letaknya dari bertumpuk menjadi horizontal flex (gambar di kiri, teks di kanan) agar rapi, mudah dibaca, dan menghargai orisinalitas poster film dari TMDB.
+
+---
+
+### K. Optimasi Sync TMDB & Biografi Aktor Asli (Fase 25)
+
+*   **Penyelarasan Limit Cast:** Untuk menghemat resource dan mengurangi *overhead* pada proses pemanggilan API TMDB, penarikan daftar pemeran (cast) per film dikurangi dari Top 30 menjadi **Top 10** (bersama dengan 1 sutradara). Hal ini menjamin katalog tetap kaya tanpa mengorbankan waktu sinkronisasi.
+*   **Penarikan Bio Asli (*Real Biography*):** Metode sinkronisasi dirombak agar tidak lagi menggunakan templat bio tiruan (misal: "Aktor/aktris yang bermain di..."). Setiap anggota cast dan sutradara yang masuk ke database akan dilakukan *fetching* biografi aslinya langsung dari endpoint `/person/{id}` di TMDB.
+*   **Pencegahan Redundansi API:** Agar tidak terjadi panggilan ganda (*API spamming* / *rate limiting*), sebelum menembak endpoint biografi personal, sistem mengecek *database* terlebih dahulu; jika aktor tersebut sudah pernah di-sync dan memiliki bio asli, tahap request dilewati, memberikan akselerasi siginifikan saat aktor yang sama bermain di banyak film.
 
 ---

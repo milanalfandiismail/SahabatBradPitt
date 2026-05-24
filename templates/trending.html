@@ -32,24 +32,24 @@
         <div id="spotlight-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
             <!-- Rank 1 Card -->
             <div id="rank-1-card" class="lg:col-span-12 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 shadow-2xl flex flex-col md:flex-row cursor-pointer">
-                <div class="md:w-3/5 relative aspect-video md:aspect-auto md:h-[450px] overflow-hidden">
-                    <img id="rank-1-img" alt="Spotlight Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" src=""/>
-                    <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#201f20] via-transparent to-transparent"></div>
-                    <div class="absolute top-6 left-6 z-20 flex items-center gap-2 bg-[#D3DAD9] text-[#141314] px-4 py-1.5 rounded-full font-bold shadow-lg text-xs">
+                <div class="md:w-[300px] shrink-0 relative aspect-[2/3] md:h-auto overflow-hidden bg-[#141314]">
+                    <img id="rank-1-img" alt="Spotlight Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" src=""/>
+                    <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#201f20] via-[#201f20]/20 to-transparent opacity-60"></div>
+                    <div class="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#D3DAD9] text-[#141314] px-3 py-1 rounded-full font-bold shadow-lg text-xs">
                         <span class="material-symbols-outlined text-sm">crown</span>
-                        <span class="font-serif">NO. 1 TRENDING</span>
+                        <span class="font-serif">NO. 1</span>
                     </div>
                 </div>
-                <div class="md:w-2/5 p-8 md:p-10 flex flex-col justify-center relative">
+                <div class="flex-1 p-6 md:p-10 flex flex-col justify-center relative">
                     <h3 id="rank-1-title" class="font-['Playfair_Display'] text-3xl lg:text-4xl text-[#D3DAD9] font-bold mb-4"></h3>
                     <div class="flex items-center gap-3 font-['DM_Sans'] text-stone-400 mb-6 text-xs uppercase tracking-wider">
                         <span class="px-2.5 py-0.5 rounded-full border border-[#715A5A] text-[#D3DAD9]">Film</span>
                         <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-sm text-[#715A5A]">star</span> <span id="rank-1-rating"></span></span>
                         <span id="rank-1-year"></span>
                     </div>
-                    <p id="rank-1-synopsis" class="text-stone-400 mb-8 text-sm leading-relaxed max-w-md"></p>
+                    <p id="rank-1-synopsis" class="text-stone-400 mb-8 text-sm leading-relaxed max-w-xl line-clamp-4"></p>
                     <div class="flex gap-4">
-                        <button id="rank-1-btn" class="flex-grow bg-[#715A5A] text-[#D3DAD9] py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#8A6E6E] hover:-translate-y-0.5 transition-all shadow-lg text-sm">
+                        <button id="rank-1-btn" class="w-max px-6 bg-[#715A5A] text-[#D3DAD9] py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#8A6E6E] hover:-translate-y-0.5 transition-all shadow-lg text-sm">
                             <span class="material-symbols-outlined">info</span> Selengkapnya
                         </button>
                     </div>
@@ -57,45 +57,45 @@
             </div>
 
             <!-- Rank 2 & 3 -->
-            <div id="rank-2-card" class="lg:col-span-6 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
-                <div class="aspect-video relative overflow-hidden bg-surface-dim">
+            <div id="rank-2-card" class="lg:col-span-6 flex flex-row group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
+                <div class="w-[160px] shrink-0 relative aspect-[2/3] overflow-hidden bg-[#141314]">
                     <img id="rank-2-img" alt="Rank 2 Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src=""/>
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#201f20] via-[#201f20]/30 to-transparent"></div>
-                    <div class="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#141314]/80 text-[#D3DAD9] px-3.5 py-1 rounded-full font-bold border border-white/5 text-xs">
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#201f20]/20 to-transparent"></div>
+                    <div class="absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 bg-[#141314]/90 text-[#D3DAD9] rounded-full font-bold border border-white/10 text-xs shadow-lg">
                         <span>#2</span>
                     </div>
                 </div>
-                <div class="p-6 relative -mt-10 z-10">
-                    <h3 id="rank-2-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl font-bold mb-2"></h3>
-                    <div class="flex items-center gap-2.5 font-['DM_Sans'] text-stone-400 mb-4 text-xs uppercase tracking-wider">
+                <div class="p-6 flex-1 flex flex-col justify-center">
+                    <h3 id="rank-2-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl md:text-2xl font-bold mb-2"></h3>
+                    <div class="flex flex-wrap items-center gap-2 font-['DM_Sans'] text-stone-400 mb-4 text-[11px] uppercase tracking-wider">
                         <span class="text-[#715A5A]">Film</span>
                         <span>•</span>
                         <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-xs">star</span> <span id="rank-2-rating"></span></span>
                         <span>•</span>
                         <span id="rank-2-year"></span>
                     </div>
-                    <p id="rank-2-synopsis" class="line-clamp-2 text-stone-400 text-xs leading-relaxed mb-6"></p>
+                    <p id="rank-2-synopsis" class="line-clamp-3 text-stone-400 text-xs leading-relaxed"></p>
                 </div>
             </div>
 
-            <div id="rank-3-card" class="lg:col-span-6 group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
-                <div class="aspect-video relative overflow-hidden bg-surface-dim">
+            <div id="rank-3-card" class="lg:col-span-6 flex flex-row group relative rounded-2xl overflow-hidden bg-[#201f20] border border-white/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl cursor-pointer">
+                <div class="w-[160px] shrink-0 relative aspect-[2/3] overflow-hidden bg-[#141314]">
                     <img id="rank-3-img" alt="Rank 3 Film" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src=""/>
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#201f20] via-[#201f20]/30 to-transparent"></div>
-                    <div class="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#141314]/80 text-[#D3DAD9] px-3.5 py-1 rounded-full font-bold border border-white/5 text-xs">
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#201f20]/20 to-transparent"></div>
+                    <div class="absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 bg-[#141314]/90 text-[#D3DAD9] rounded-full font-bold border border-white/10 text-xs shadow-lg">
                         <span>#3</span>
                     </div>
                 </div>
-                <div class="p-6 relative -mt-10 z-10">
-                    <h3 id="rank-3-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl font-bold mb-2"></h3>
-                    <div class="flex items-center gap-2.5 font-['DM_Sans'] text-stone-400 mb-4 text-xs uppercase tracking-wider">
+                <div class="p-6 flex-1 flex flex-col justify-center">
+                    <h3 id="rank-3-title" class="font-['Playfair_Display'] text-[#D3DAD9] text-xl md:text-2xl font-bold mb-2"></h3>
+                    <div class="flex flex-wrap items-center gap-2 font-['DM_Sans'] text-stone-400 mb-4 text-[11px] uppercase tracking-wider">
                         <span class="text-[#715A5A]">Film</span>
                         <span>•</span>
                         <span class="flex items-center gap-1 text-[#D3DAD9]"><span class="material-symbols-outlined text-xs">star</span> <span id="rank-3-rating"></span></span>
                         <span>•</span>
                         <span id="rank-3-year"></span>
                     </div>
-                    <p id="rank-3-synopsis" class="line-clamp-2 text-stone-400 text-xs leading-relaxed mb-6"></p>
+                    <p id="rank-3-synopsis" class="line-clamp-3 text-stone-400 text-xs leading-relaxed"></p>
                 </div>
             </div>
         </div>

@@ -14,6 +14,7 @@ class ActorSerializer(serializers.ModelSerializer):
     filmographies = FilmographySerializer(many=True, read_only=True)
     # film_role: role aktor di film tertentu, di-annotate oleh ViewSet saat ada filter ?film=
     film_role = serializers.CharField(read_only=True, default=None, allow_null=True)
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = Actor
@@ -22,3 +23,8 @@ class ActorSerializer(serializers.ModelSerializer):
             'bio', 'birth_year', 'photo_path',
             'genre_spec', 'filmographies', 'film_role'
         ]
+
+    def get_name(self, obj):
+        if obj.native_name:
+            return f"{obj.name} ({obj.native_name})"
+        return obj.name

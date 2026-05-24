@@ -119,10 +119,9 @@
             
             <!-- Navigation Links -->
             <div class="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
-                <a class="text-white font-['Noto_Serif'] text-lg border-b-2 border-[#715A5A] pb-0.5 hover:opacity-80 transition-all" href="/">Home</a>
-                <a class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all" href="/movies/">Movies</a>
-                <a class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all" href="/actors/">Actors</a>
-                <a class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all" href="/recommendations/">AI Recommendations</a>
+                <a id="nav-home" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/">Home</a>
+                <a id="nav-movies" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/movies/">Movies</a>
+                <a id="nav-actors" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/actors/">Actors</a>
             </div>
             
             <!-- Right Aligned Icons -->
@@ -167,6 +166,32 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const pathname = window.location.pathname;
+            
+            const links = {
+                'nav-home': '/',
+                'nav-movies': '/movies/',
+                'nav-actors': '/actors/'
+            };
+
+            Object.entries(links).forEach(([id, path]) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const isMatch = path === '/' ? pathname === '/' : pathname.startsWith(path);
+                    if (isMatch) {
+                        el.classList.remove("text-[#D3DAD9]/60");
+                        el.classList.add("text-white", "border-b-2", "border-[#715A5A]");
+                    } else {
+                        el.classList.add("text-[#D3DAD9]/60");
+                        el.classList.remove("text-white", "border-b-2", "border-[#715A5A]");
+                    }
+                }
+            });
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

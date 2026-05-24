@@ -15,11 +15,12 @@
         
         <!-- Film Grid -->
         <div id="film-grid" class="flex flex-col gap-6">
-            <!-- Loading indicator -->
-            <div id="loading" class="text-center py-12 text-[#c9c5cb]">
-                <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
-                <p class="mt-2 font-['DM_Sans']">Mengambil data film...</p>
-            </div>
+            <!-- Film cards will go here -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="mt-8 flex flex-wrap justify-center items-center gap-2 font-['DM_Sans'] text-sm">
+            <!-- Dynamic page buttons -->
         </div>
     </div>
     
@@ -144,12 +145,31 @@
             });
         }
 
+        let currentPage = 1;
+        let isLoading = false;
+
         // 2. Fetch and render films based on filters
-        function fetchFilms() {
-            filmGrid.textContent = "";
+        function fetchFilms(page = 1) {
+            if (isLoading) return;
+            isLoading = true;
+            currentPage = page;
             
+            filmGrid.innerHTML = "";
+            
+            // Add initial big loading indicator
+            const spinner = document.createElement("div");
+            spinner.id = "initial-loading";
+            spinner.className = "text-center py-12 text-[#c9c5cb]";
+            spinner.innerHTML = `<span class="material-symbols-outlined text-4xl animate-spin">sync</span><p class="mt-2 font-['DM_Sans']">Memuat film...</p>`;
+            filmGrid.appendChild(spinner);
+
+            // Hide pagination controls while loading
+            const paginationControls = document.getElementById("pagination-controls");
+            if (paginationControls) paginationControls.classList.add("hidden");
+
             // Build query params
             const params = new URLSearchParams();
+            params.append("page", page);
             if (searchInput.value.trim()) {
                 params.append("search", searchInput.value.trim());
             }
@@ -169,21 +189,20 @@
             const activeSort = document.querySelector('input[name="sort"]:checked').value;
             params.append("ordering", activeSort);
 
-            // Add loading indicator
-            const spinner = document.createElement("div");
-            spinner.className = "text-center py-12 text-[#c9c5cb]";
-            spinner.innerHTML = `<span class="material-symbols-outlined text-4xl animate-spin">sync</span><p class="mt-2 font-['DM_Sans']">Memuat film...</p>`;
-            filmGrid.appendChild(spinner);
-
             fetch(`/api/films/?${params.toString()}`)
                 .then(res => res.json())
                 .then(data => {
-                    filmGrid.textContent = "";
-                    const results = data.results || data;
-                    
-                    resultsCount.textContent = `Menampilkan ${results.length} hasil`;
+                    isLoading = false;
+                    const initialLoading = document.getElementById("initial-loading");
+                    if (initialLoading) initialLoading.remove();
+
+                    const results = data.results || [];
+                    const totalCount = data.count || results.length;
+
+                    filmGrid.innerHTML = "";
 
                     if (results.length === 0) {
+                        resultsCount.textContent = "Menampilkan 0 hasil";
                         const emptyState = document.createElement("div");
                         emptyState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";
                         emptyState.innerHTML = `
@@ -192,6 +211,7 @@
                             <p class="text-sm text-stone-500 mt-1">Coba sesuaikan kata kunci atau filter pencarian Anda.</p>
                         `;
                         filmGrid.appendChild(emptyState);
+                        if (paginationControls) paginationControls.innerHTML = "";
                         return;
                     }
 
@@ -205,7 +225,7 @@
                             posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                         }
 
-                        // Film card layout construction using document elements to prevent XSS
+                        // Film card layout construction
                         const thumbDiv = document.createElement("div");
                         thumbDiv.className = "w-[100px] sm:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden";
                         
@@ -230,7 +250,7 @@
 
                         const rankBadge = document.createElement("div");
                         rankBadge.className = "w-7 h-7 rounded-full bg-[#715A5A] flex items-center justify-center text-[#D3DAD9] font-bold text-xs shrink-0 shadow-md";
-                        rankBadge.textContent = `#${index + 1}`;
+                        rankBadge.textContent = `#${(page - 1) * 12 + index + 1}`;
                         titleHeader.appendChild(rankBadge);
                         mainInfoDiv.appendChild(titleHeader);
 
@@ -297,8 +317,15 @@
 
                         filmGrid.appendChild(card);
                     });
+
+                    const startIdx = (page - 1) * 12 + 1;
+                    const endIdx = Math.min(page * 12, totalCount);
+                    resultsCount.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
+                    
+                    renderPagination(page, totalCount);
                 })
                 .catch(err => {
+                    isLoading = false;
                     console.error("Gagal mengambil data film:", err);
                     filmGrid.textContent = "";
                     const errorState = document.createElement("div");
@@ -309,26 +336,91 @@
                         <p class="text-sm text-stone-500 mt-1">Terjadi kesalahan koneksi dengan server.</p>
                     `;
                     filmGrid.appendChild(errorState);
+                    if (paginationControls) paginationControls.innerHTML = "";
                 });
         }
 
-        // Live Filters Listeners
+        // Helper to render pagination controls
+        function renderPagination(page, totalCount) {
+            const container = document.getElementById("pagination-controls");
+            if (!container) return;
+            container.textContent = "";
+            container.classList.remove("hidden");
+
+            const totalPages = Math.ceil(totalCount / 12);
+            if (totalPages <= 1) return;
+
+            // Previous Button
+            const prevBtn = document.createElement("button");
+            prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
+                (page === 1 
+                    ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+                    : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+            prevBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_left</span>`;
+            if (page > 1) {
+                prevBtn.addEventListener("click", () => fetchFilms(page - 1));
+            }
+            container.appendChild(prevBtn);
+
+            // Page Number Buttons (Sliding window of max 5 pages: e.g. 1-5, 2-6, etc.)
+            let startPage, endPage;
+            if (totalPages <= 5) {
+                startPage = 1;
+                endPage = totalPages;
+            } else {
+                if (page <= 3) {
+                    startPage = 1;
+                    endPage = 5;
+                } else if (page + 2 >= totalPages) {
+                    startPage = totalPages - 4;
+                    endPage = totalPages;
+                } else {
+                    startPage = page - 2;
+                    endPage = page + 2;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.className = "w-8 h-8 rounded border text-xs font-bold transition-all " + 
+                    (i === page 
+                        ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md" 
+                        : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+                pageBtn.textContent = i;
+                pageBtn.addEventListener("click", () => fetchFilms(i));
+                container.appendChild(pageBtn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
+                (page === totalPages 
+                    ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+                    : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+            nextBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_right</span>`;
+            if (page < totalPages) {
+                nextBtn.addEventListener("click", () => fetchFilms(page + 1));
+            }
+            container.appendChild(nextBtn);
+        }
+
+        // Live Filters Listeners with page reset
         let searchTimeout;
         searchInput.addEventListener("input", () => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(fetchFilms, 300);
+            searchTimeout = setTimeout(() => fetchFilms(1), 300);
         });
 
-        yearFrom.addEventListener("input", fetchFilms);
-        yearTo.addEventListener("input", fetchFilms);
+        yearFrom.addEventListener("input", () => fetchFilms(1));
+        yearTo.addEventListener("input", () => fetchFilms(1));
 
         ratingSlider.addEventListener("input", () => {
             ratingVal.textContent = parseFloat(ratingSlider.value).toFixed(1);
-            fetchFilms();
+            fetchFilms(1);
         });
 
         document.querySelectorAll('input[name="sort"]').forEach(radio => {
-            radio.addEventListener("change", fetchFilms);
+            radio.addEventListener("change", () => fetchFilms(1));
         });
 
         // Reset Filter
@@ -341,11 +433,11 @@
             ratingVal.textContent = "0.0";
             document.querySelector('input[name="sort"][value="-popularity"]').checked = true;
             renderGenreChips();
-            fetchFilms();
+            fetchFilms(1);
         });
 
         // Initial Load
-        fetchFilms();
+        fetchFilms(1);
     });
 </script>
 {% endblock %}

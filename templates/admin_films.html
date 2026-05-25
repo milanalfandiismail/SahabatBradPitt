@@ -1067,6 +1067,7 @@
 
                         // Initialize Modules
                         const genresPromise = fetchGenres();
+                        fetchStats();
                         fetchFilms(1);
                         fetchActors(1);
                         if (data.is_superuser) fetchUsers();

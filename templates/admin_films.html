@@ -1,0 +1,2553 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Sahabat Bradpitt - Dedicated Admin Portal</title>
+
+    <!-- Scripts & Fonts CDNs -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="/static/css/toast.css" rel="stylesheet" />
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#141314",
+                        surface: "#201f20",
+                        surfaceHighlight: "#2b2a2a",
+                        primaryBrand: "#715A5A",
+                        primaryBrandHover: "#8A6E6E",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Premium custom scrollbars */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 999px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(113, 90, 90, 0.4);
+            border-radius: 999px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(113, 90, 90, 0.7);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-[#141314] text-stone-200 antialiased min-h-screen flex font-['DM_Sans'] select-none">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside
+        class="w-64 bg-[#201f20] border-r border-white/5 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-40">
+        <div>
+            <!-- Logo Header -->
+            <div class="px-6 py-8 border-b border-white/5">
+                <h2
+                    class="font-['Playfair_Display'] text-xl font-bold tracking-wider text-stone-100 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-500 fill-1"
+                        style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                    Sineas Portal
+                </h2>
+                <span
+                    class="text-[10px] font-bold text-amber-500/70 tracking-widest uppercase mt-1 block">ADMINISTRATION
+                    SYSTEM</span>
+            </div>
+
+            <!-- Nav Items -->
+            <nav class="p-4 flex flex-col gap-1.5">
+                <button id="sidebar-dashboard-btn"
+                    class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 hover:text-white bg-[#715A5A] text-white">
+                    <span class="material-symbols-outlined text-lg">dashboard</span>
+                    Dashboard
+                </button>
+                <button id="sidebar-movies-btn"
+                    class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">movie</span>
+                    Katalog Film
+                </button>
+                <button id="sidebar-actors-btn"
+                    class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">person</span>
+                    Sineas (Aktor)
+                </button>
+                <button id="sidebar-genres-btn"
+                    class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">category</span>
+                    Genre Kustom
+                </button>
+                <button id="sidebar-users-btn"
+                    class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">group</span>
+                    Pengguna & Peran
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sidebar Footer (Exit Portal Link) -->
+        <div class="p-4 border-t border-white/5">
+            <a href="/"
+                class="w-full px-4 py-3 rounded-lg text-left font-medium text-xs flex items-center justify-between text-stone-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all border border-white/5 bg-[#141314]/30 shadow-md">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">arrow_back</span>
+                    Kembali ke Website
+                </span>
+                <span class="material-symbols-outlined text-base">logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- TOAST NOTIFICATION SHELL -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="flex-grow overflow-y-auto p-8 lg:p-12 h-screen flex flex-col relative custom-scroll">
+
+        <!-- ACCESS CONTROL & LOADING SHIELD -->
+        <div id="admin-loading-shield"
+            class="absolute inset-0 bg-[#141314] z-50 flex flex-col items-center justify-center text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-5xl animate-spin text-[#715A5A]">sync</span>
+            <p class="mt-4 font-['DM_Sans'] text-base tracking-wide">Memverifikasi otorisasi admin...</p>
+        </div>
+
+        <!-- ACCESS DENIED SECTION -->
+        <div id="admin-access-denied"
+            class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center max-w-md mx-auto">
+            <span class="material-symbols-outlined text-6xl text-rose-500 mb-4">gpp_bad</span>
+            <h1 class="font-['Playfair_Display'] text-3xl font-bold text-stone-200">Akses Ditolak</h1>
+            <p class="font-['DM_Sans'] text-sm text-[#c9c5cb] mt-2 leading-relaxed">
+                Halaman ini hanya dapat diakses oleh administrator dan staf Sahabat Bradpitt. Akun Anda tidak memiliki
+                izin yang diperlukan.
+            </p>
+            <a href="/"
+                class="mt-6 px-6 py-2.5 rounded border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all font-medium text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">home</span> Kembali ke Beranda
+            </a>
+        </div>
+
+
+        <!-- ======================= 0. DASHBOARD SECTION ======================= -->
+        <div id="section-dashboard" class="flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Dashboard &
+                        Sinkronisasi</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Statistik publikasi film, sinkronisasi TMDB
+                        massal, dan kebijakan alur publikasi.</p>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
+                    <span
+                        class="text-[10px] font-bold text-[#c9c5cb]/50 tracking-wider font-['DM_Sans'] uppercase">Total
+                        Film</span>
+                    <span id="stat-total" class="font-['Playfair_Display'] text-3xl font-bold text-stone-100">0</span>
+                </div>
+                <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
+                    <span
+                        class="text-[10px] font-bold text-emerald-500/60 tracking-wider font-['DM_Sans'] uppercase">Published</span>
+                    <span id="stat-published"
+                        class="font-['Playfair_Display'] text-3xl font-bold text-emerald-400">0</span>
+                </div>
+                <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
+                    <span
+                        class="text-[10px] font-bold text-amber-500/60 tracking-wider font-['DM_Sans'] uppercase">Pending
+                        Approval</span>
+                    <span id="stat-pending" class="font-['Playfair_Display'] text-3xl font-bold text-amber-400">0</span>
+                </div>
+                <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
+                    <span
+                        class="text-[10px] font-bold text-stone-500/80 tracking-wider font-['DM_Sans'] uppercase">Drafts</span>
+                    <span id="stat-draft" class="font-['Playfair_Display'] text-3xl font-bold text-stone-300">0</span>
+                </div>
+                <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
+                    <span
+                        class="text-[10px] font-bold text-rose-500/60 tracking-wider font-['DM_Sans'] uppercase">Rejected</span>
+                    <span id="stat-rejected" class="font-['Playfair_Display'] text-3xl font-bold text-rose-400">0</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Interactive Panels -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- TMDB Parameter Sync -->
+                <div
+                    class="bg-[#201f20] rounded-lg p-6 border border-white/5 shadow-lg flex flex-col gap-5 lg:col-span-2">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-3xl text-amber-500">cloud_sync</span>
+                        <div class="flex flex-col">
+                            <h3 class="font-['DM_Sans'] text-base font-semibold text-stone-200">Sinkronisasi TMDB API
+                            </h3>
+                            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Tarik data filmography secara massal
+                                dari TMDB berdasarkan ID Aktor pilihan Anda.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="sync-actor-id"
+                                class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">TMDB ACTOR
+                                ID</label>
+                            <input id="sync-actor-id"
+                                class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                placeholder="Misal: 287 (Brad Pitt), 1198642 (IU)" type="text" value="287" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="sync-limit"
+                                class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">BATAS MAKSIMAL
+                                FILM</label>
+                            <input id="sync-limit"
+                                class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                placeholder="Kosongkan untuk mengambil semua" type="number" value="15" />
+                        </div>
+                    </div>
+
+                    <button id="sync-btn"
+                        class="mt-2 w-full px-6 py-3 rounded font-medium text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-2 shadow-md"
+                        type="button">
+                        <span class="material-symbols-outlined text-sm">cloud_download</span> Sinkronkan Sekarang
+                    </button>
+
+                    <div
+                        class="text-[10px] text-[#c9c5cb]/40 border-t border-white/5 pt-4 leading-relaxed flex flex-col gap-1.5 font-['DM_Sans']">
+                        <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-xs">info</span>
+                            Memasukkan ID TMDB Aktor baru akan otomatis membuat entitas Sineas baru dan mengaitkan
+                            karyanya ke katalog.</p>
+                    </div>
+                </div>
+
+                <!-- Policy Guidelines -->
+                <div class="bg-[#201f20] rounded-lg p-6 border border-white/5 shadow-lg flex flex-col gap-4">
+                    <h3
+                        class="font-['DM_Sans'] text-base font-semibold text-stone-200 flex items-center gap-2 border-b border-white/5 pb-3">
+                        <span class="material-symbols-outlined text-amber-500">lock_open</span> Alur Publikasi
+                    </h3>
+                    <div class="flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb]/70 leading-relaxed">
+                        <div class="flex gap-2.5">
+                            <span
+                                class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">1</span>
+                            <p>Setiap film baru akan masuk sebagai **Draft** terlebih dahulu.</p>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <span
+                                class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">2</span>
+                            <p>Lengkapi trailer, poster, lalu klik **"Submit for Approval"**.</p>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <span
+                                class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">3</span>
+                            <p>Hanya **Super Admin** yang bisa melakukan **Approve/Reject** publikasi film.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ======================= 1. MOVIES SECTION ======================= -->
+        <div id="section-movies" class="hidden flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Katalog &
+                        Manajemen Film</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tambah, sunting, ajukan persetujuan, atau
+                        hapus film dari database.</p>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 1.1: FILM LIST VIEW -->
+            <div id="view-manage" class="flex flex-col gap-6">
+                <!-- Controls Bar -->
+                <div
+                    class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+                    <!-- Search & Filters -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-[70%]">
+                        <!-- Search Box -->
+                        <div class="relative flex-grow flex items-center">
+                            <span id="manage-search-icon-btn"
+                                class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+                            <input id="manage-search"
+                                class="w-full bg-[#141314] border border-white/10 rounded-md py-2 pl-10 pr-[70px] text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                placeholder="Cari film berdasarkan judul..." type="text" />
+                            <button id="manage-search-submit-btn"
+                                class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] font-semibold px-2.5 py-1.5 rounded transition-all">Cari</button>
+                        </div>
+                        <!-- Status Filter -->
+                        <div class="w-full sm:w-[180px] shrink-0">
+                            <select id="manage-status-filter"
+                                class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none">
+                                <option value="">Semua Status</option>
+                                <option value="draft">Draft</option>
+                                <option value="pending_approval">Pending Approval</option>
+                                <option value="published">Published</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Add Button -->
+                    <button id="add-film-btn"
+                        class="w-full md:w-auto px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-1.5 shadow-md"
+                        type="button">
+                        <span class="material-symbols-outlined text-sm">add_circle</span> Tambah Film
+                    </button>
+                </div>
+
+                <!-- Table Content -->
+                <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+                    <div class="overflow-x-auto custom-scroll w-full">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                                    <th class="p-4 w-[80px] text-center">POSTER</th>
+                                    <th class="p-4 min-w-[200px]">JUDUL FILM</th>
+                                    <th class="p-4 w-[100px] text-center">TAHUN</th>
+                                    <th class="p-4 min-w-[150px]">GENRE</th>
+                                    <th class="p-4 w-[150px] text-center">STATUS</th>
+                                    <th class="p-4 w-[180px] text-center">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="films-table-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Helpers -->
+                    <div id="table-loading"
+                        class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+                        <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+                        <p class="text-xs">Memuat katalog...</p>
+                    </div>
+                    <div id="table-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">
+                        Tidak ada data film ditemukan.
+                    </div>
+
+                    <!-- Pagination -->
+                    <div
+                        class="px-6 py-4 bg-[#141314]/30 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <span id="manage-pagination-info" class="text-[11px] text-[#c9c5cb]/40 font-medium">Menampilkan
+                            0 film</span>
+                        <div id="manage-pagination-controls" class="flex items-center gap-1">
+                            <!-- Dynamic controls -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 1.2: FILM CRUD EDITOR FORM -->
+            <div id="view-editor"
+                class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+                <!-- Editor Title -->
+                <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                    <div class="flex flex-col">
+                        <h2 id="editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah
+                            Film Baru</h2>
+                        <p id="editor-subtitle" class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Lengkapi detail
+                            metadata film.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div id="editor-status-badge"></div>
+                        <button id="editor-back-btn"
+                            class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
+                            <span class="material-symbols-outlined text-base">close</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rejection Warning Banner -->
+                <div id="editor-rejection-alert"
+                    class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-md text-xs font-['DM_Sans'] flex items-start gap-3">
+                    <span class="material-symbols-outlined text-lg shrink-0 mt-0.5">warning</span>
+                    <div>
+                        <span class="font-bold">Alasan Penolakan Film:</span> <span id="rejection-reason-text"></span>
+                    </div>
+                </div>
+
+                <!-- Core Form Fields -->
+                <form id="film-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="event.preventDefault();">
+                    <!-- Left: Metadata inputs -->
+                    <div class="lg:col-span-2 flex flex-col gap-6">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="form-title"
+                                class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">JUDUL FILM
+                                *</label>
+                            <input id="form-title"
+                                class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all placeholder:text-stone-600"
+                                required type="text" />
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label for="form-synopsis"
+                                class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">SINOPSIS</label>
+                            <textarea id="form-synopsis" rows="4"
+                                class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all custom-scroll resize-none placeholder:text-stone-600"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="flex flex-col gap-1.5">
+                                <label for="form-year"
+                                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TAHUN RILIS
+                                    *</label>
+                                <input id="form-year"
+                                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                    required type="number" />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label for="form-duration"
+                                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DURASI
+                                    (MENIT)</label>
+                                <input id="form-duration"
+                                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                    type="number" />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label for="form-popularity"
+                                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">POPULARITAS
+                                    SCORE</label>
+                                <input id="form-popularity"
+                                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                                    type="number" />
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label for="form-trailer"
+                                class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TRAILER URL
+                                (YOUTUBE / DIRECT)</label>
+                            <input id="form-trailer"
+                                class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all placeholder:text-stone-600"
+                                placeholder="https://www.youtube.com/watch?v=..." type="url" />
+                        </div>
+
+                        <!-- Genre Checkbox grid -->
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">GENRE FILM
+                                (PILIH MINIMAL SATU) *</span>
+                            <div id="form-genres-container"
+                                class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                                <!-- Dynamic check fields -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Media File Uploads -->
+                    <div class="flex flex-col gap-6">
+                        <!-- Poster block -->
+                        <div class="flex flex-col gap-3">
+                            <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">POSTER UTAMA
+                                *</span>
+                            <div
+                                class="aspect-[2/3] bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                                <img id="form-poster-preview" alt="Poster Preview"
+                                    class="hidden w-full h-full object-cover" />
+                                <div id="form-poster-placeholder"
+                                    class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
+                                    <span class="material-symbols-outlined text-4xl">image</span>
+                                    <span class="text-[11px] font-semibold tracking-widest uppercase">Belum Ada
+                                        Gambar</span>
+                                </div>
+                            </div>
+                            <input id="form-poster-input" class="hidden" type="file"
+                                accept="image/jpeg,image/png,image/webp" />
+                            <button id="form-poster-trigger-btn"
+                                class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold"
+                                type="button">Unggah Poster</button>
+                        </div>
+
+                        <!-- Gallery section -->
+                        <div id="editor-gallery-section" class="flex flex-col gap-3 border-t border-white/5 pt-5">
+                            <div
+                                class="flex justify-between items-center text-[11px] font-bold text-stone-400 tracking-widest uppercase">
+                                <span>GALERI BACKDROP</span>
+                                <span id="gallery-image-count" class="text-amber-500">0/8</span>
+                            </div>
+                            <div id="editor-gallery-grid" class="grid grid-cols-4 gap-2">
+                                <!-- Dynamic backdrop thumb grid -->
+                            </div>
+                            <input id="form-gallery-input" class="hidden" type="file" multiple
+                                accept="image/jpeg,image/png,image/webp" />
+                            <button id="form-gallery-trigger-btn"
+                                class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1"
+                                type="button">
+                                <span class="material-symbols-outlined text-xs">add_photo_alternate</span> Unggah
+                                Backdrop
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-6">
+                    <button id="form-delete-btn"
+                        class="w-full sm:w-auto px-6 py-3 rounded font-semibold text-sm text-rose-400 border border-rose-500/10 hover:bg-rose-500/10 transition-all flex items-center justify-center gap-1.5"
+                        type="button">
+                        <span class="material-symbols-outlined text-sm">delete</span> Hapus Film
+                    </button>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <button id="form-cancel-btn"
+                            class="w-full sm:w-auto px-6 py-3 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm transition-all font-semibold"
+                            type="button">Batal</button>
+                        <button id="form-save-btn"
+                            class="w-full sm:w-auto px-6 py-3 rounded font-semibold text-sm text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-1.5 shadow-md"
+                            type="button">
+                            <span class="material-symbols-outlined text-sm">save</span> Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ======================= 2. ACTORS SECTION ======================= -->
+        <div id="section-actors" class="hidden flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Kelola Sineas
+                        (Aktor & Sutradara)</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tambah, edit, dan hapus profil sineas untuk
+                        filmography database.</p>
+                </div>
+                <button id="add-actor-btn"
+                    class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1 shadow-md"
+                    type="button">
+                    <span class="material-symbols-outlined text-sm">person_add</span> Tambah Sineas
+                </button>
+            </div>
+
+            <!-- Controls Bar -->
+            <div
+                class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col sm:flex-row justify-between items-center gap-4">
+                <!-- Search Box -->
+                <div class="relative w-full sm:w-[60%] flex items-center">
+                    <span id="actor-search-icon-btn"
+                        class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+                    <input id="actor-search"
+                        class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-[70px] text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                        placeholder="Cari sineas berdasarkan nama atau nama asli..." type="text" />
+                    <button id="actor-search-submit-btn"
+                        class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] font-semibold px-2.5 py-1.5 rounded transition-all">Cari</button>
+                </div>
+            </div>
+
+            <!-- Table of Actors -->
+            <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+                <div class="overflow-x-auto custom-scroll w-full">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="p-4 w-[80px] text-center">FOTO</th>
+                                <th class="p-4 min-w-[200px]">NAMA SINEAS</th>
+                                <th class="p-4 w-[120px] text-center">TMDB ID</th>
+                                <th class="p-4 w-[120px] text-center">TAHUN LAHIR</th>
+                                <th class="p-4 min-w-[250px]">BIOGRAFI</th>
+                                <th class="p-4 w-[120px] text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="actors-table-body">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="actors-loading"
+                    class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+                    <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+                    <p class="text-xs">Memuat data sineas...</p>
+                </div>
+                <div id="actors-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">
+                    Tidak ada data sineas ditemukan.
+                </div>
+
+                <!-- Pagination -->
+                <div
+                    class="px-6 py-4 bg-[#141314]/30 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <span id="actors-pagination-info" class="text-[11px] text-[#c9c5cb]/40 font-medium">Menampilkan 0
+                        sineas</span>
+                    <div id="actors-pagination-controls" class="flex items-center gap-1">
+                        <!-- Dynamic controls -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ======================= 3. GENRES SECTION ======================= -->
+        <div id="section-genres" class="hidden flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Katalog Genre
+                        Kustom</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Daftar genre kustom untuk memperkaya
+                        klasifikasi film.</p>
+                </div>
+                <button id="add-genre-btn"
+                    class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md"
+                    type="button">
+                    <span class="material-symbols-outlined text-sm">add_box</span> Tambah Genre
+                </button>
+            </div>
+
+            <!-- List Table -->
+            <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col max-w-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr
+                            class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                            <th class="p-4">NAMA GENRE</th>
+                            <th class="p-4 w-[120px] text-center">TMDB GENRE ID</th>
+                            <th class="p-4 w-[120px] text-center font-bold">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="genres-table-body">
+                        <!-- Dynamic list -->
+                    </tbody>
+                </table>
+
+                <div id="genres-loading"
+                    class="hidden py-10 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+                    <span class="material-symbols-outlined animate-spin text-2xl">sync</span>
+                </div>
+                <div id="genres-empty" class="hidden py-10 text-center text-[#c9c5cb]/40 italic text-xs">
+                    Tidak ada genre kustom tersedia.
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ======================= 4. USERS SECTION ======================= -->
+        <div id="section-users" class="hidden flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Otoritas
+                        Pengguna & Peran Admin</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Daftar pengguna terdaftar beserta modifikasi
+                        peran Staff (Admin) dan Super Admin (Superuser).</p>
+                </div>
+                <button id="add-user-btn"
+                    class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md"
+                    type="button">
+                    <span class="material-symbols-outlined text-sm">person_add</span> Tambah Pengguna / Admin
+                </button>
+            </div>
+
+            <!-- List Table -->
+            <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+                <div class="overflow-x-auto custom-scroll w-full">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="p-4">USERNAME</th>
+                                <th class="p-4">EMAIL</th>
+                                <th class="p-4 w-[150px] text-center">ROLE ADMIN (STAFF)</th>
+                                <th class="p-4 w-[150px] text-center">SUPER ADMIN</th>
+                                <th class="p-4 w-[120px] text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Dynamic list -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="users-loading"
+                    class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+                    <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+                </div>
+                <div id="users-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">
+                    Katalog pengguna kosong.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- ======================= MODAL: REJECTION FILM REASON ======================= -->
+    <div id="reject-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+        <div class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-8 flex flex-col gap-6 shadow-2xl">
+            <div class="flex items-center gap-2 text-rose-400 font-bold text-lg">
+                <span class="material-symbols-outlined">cancel</span>
+                <span>Tolak Publikasi Film</span>
+            </div>
+            <p class="text-sm text-[#c9c5cb] leading-relaxed">Masukkan alasan penolakan untuk film ini. Alasan ini akan
+                ditampilkan kepada Admin penyunting agar metadata film diperbaiki.</p>
+            <textarea id="reject-reason-input" rows="4"
+                class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all custom-scroll resize-none"
+                placeholder="Tulis alasan di sini..."></textarea>
+            <div class="flex justify-end gap-3">
+                <button id="reject-modal-cancel"
+                    class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold transition-all"
+                    type="button">Batal</button>
+                <button id="reject-modal-submit"
+                    class="px-5 py-2.5 rounded bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold transition-all flex items-center gap-1.5 shadow-md"
+                    type="button">
+                    <span class="material-symbols-outlined text-sm">send</span> Kirim Penolakan
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ======================= MODAL: ACTOR EDITOR ======================= -->
+    <div id="actor-editor-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+        <form id="actor-form"
+            class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-2xl p-8 flex flex-col gap-6 shadow-2xl"
+            onsubmit="event.preventDefault();">
+            <h3 id="actor-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Sineas
+                Baru</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-name"
+                        class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA SINEAS *</label>
+                    <input id="actor-form-name"
+                        class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                        required type="text" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-native-name"
+                        class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA ASLI (NATIVE
+                        NAME)</label>
+                    <input id="actor-form-native-name"
+                        class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                        placeholder="Misal: 송강, Wes Bentley" type="text" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-tmdb-id"
+                        class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TMDB PERSON ID</label>
+                    <input id="actor-form-tmdb-id"
+                        class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                        type="number" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-birth-year"
+                        class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TAHUN LAHIR</label>
+                    <input id="actor-form-birth-year"
+                        class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                        type="number" />
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="actor-form-photo-path"
+                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">PROFILE PHOTO
+                    PATH/URL</label>
+                <input id="actor-form-photo-path"
+                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                    placeholder="Misal: /vN6vR1810V46N38w1.jpg atau https://..." type="text" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="actor-form-bio"
+                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">BIOGRAFI SINEAS</label>
+                <textarea id="actor-form-bio" rows="4"
+                    class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none resize-none custom-scroll"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+                <button id="actor-editor-cancel-btn"
+                    class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold"
+                    type="button">Batal</button>
+                <button id="actor-editor-save-btn"
+                    class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md"
+                    type="submit">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Sineas
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- ======================= MODAL: GENRE EDITOR ======================= -->
+    <div id="genre-editor-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+        <form id="genre-form"
+            class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-md p-8 flex flex-col gap-6 shadow-2xl"
+            onsubmit="event.preventDefault();">
+            <h3 class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Genre Kustom</h3>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="genre-form-name" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA
+                    GENRE *</label>
+                <input id="genre-form-name"
+                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                    required type="text" />
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+                <button id="genre-editor-cancel-btn"
+                    class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold"
+                    type="button">Batal</button>
+                <button id="genre-editor-save-btn"
+                    class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md"
+                    type="submit">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Genre
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- ======================= MODAL: USER & ADMIN ROLES EDITOR ======================= -->
+    <div id="user-editor-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+        <form id="user-form"
+            class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-8 flex flex-col gap-6 shadow-2xl"
+            onsubmit="event.preventDefault();">
+            <h3 id="user-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah
+                Pengguna Baru</h3>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="user-form-username"
+                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">USERNAME *</label>
+                <input id="user-form-username"
+                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none disabled:opacity-100 disabled:cursor-not-allowed"
+                    required type="text" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="user-form-email"
+                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">EMAIL *</label>
+                <input id="user-form-email"
+                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                    required type="email" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label for="user-form-password"
+                    class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">KATA SANDI / PASSWORD
+                    *</label>
+                <input id="user-form-password"
+                    class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none"
+                    type="password" placeholder="Min. 8 karakter (Kosongkan bila tidak diedit)" />
+            </div>
+
+            <div class="flex flex-col gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md mt-1">
+                <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">MODIFIKASI OTORITAS
+                    PERAN</span>
+
+                <label
+                    class="flex items-center gap-3 cursor-pointer group text-[#c9c5cb] hover:text-white transition-all text-sm">
+                    <input id="user-form-is-staff" type="checkbox"
+                        class="border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 rounded transition-all" />
+                    <span class="text-stone-300">Staff Admin (Dapat CRUD katalog film & sineas)</span>
+                </label>
+
+                <label
+                    class="flex items-center gap-3 cursor-pointer group text-[#c9c5cb] hover:text-white transition-all text-sm">
+                    <input id="user-form-is-superuser" type="checkbox"
+                        class="border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 rounded transition-all" />
+                    <span class="text-stone-300">Super Admin / Superuser (Otoritas penuh & persetujuan publikasi)</span>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+                <button id="user-editor-cancel-btn"
+                    class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold"
+                    type="button">Batal</button>
+                <button id="user-editor-save-btn"
+                    class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md"
+                    type="submit">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+
+    <!-- ======================= JAVASCRIPT SYSTEM ======================= -->
+    <script src="/static/js/toast.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem('auth_token');
+
+            // View shells
+            const loadingShield = document.getElementById('admin-loading-shield');
+            const accessDenied = document.getElementById('admin-access-denied');
+
+            // Sidebar buttons
+            const sidebarDashboardBtn = document.getElementById('sidebar-dashboard-btn');
+            const sidebarMoviesBtn = document.getElementById('sidebar-movies-btn');
+            const sidebarActorsBtn = document.getElementById('sidebar-actors-btn');
+            const sidebarGenresBtn = document.getElementById('sidebar-genres-btn');
+            const sidebarUsersBtn = document.getElementById('sidebar-users-btn');
+
+            // Primary view containers
+            const sectionDashboard = document.getElementById('section-dashboard');
+            const sectionMovies = document.getElementById('section-movies');
+            const sectionActors = document.getElementById('section-actors');
+            const sectionGenres = document.getElementById('section-genres');
+            const sectionUsers = document.getElementById('section-users');
+
+            // Movie subviews
+            const viewManage = document.getElementById('view-manage');
+            const viewEditor = document.getElementById('view-editor');
+
+            // stats
+            const statTotal = document.getElementById('stat-total');
+            const statPublished = document.getElementById('stat-published');
+            const statPending = document.getElementById('stat-pending');
+            const statDraft = document.getElementById('stat-draft');
+            const statRejected = document.getElementById('stat-rejected');
+
+            // TMDB Sync inputs
+            const syncActorId = document.getElementById('sync-actor-id');
+            const syncLimit = document.getElementById('sync-limit');
+            const syncBtn = document.getElementById('sync-btn');
+
+            // Movie tables / empty
+            const filmsTableBody = document.getElementById('films-table-body');
+            const tableLoading = document.getElementById('table-loading');
+            const tableEmpty = document.getElementById('table-empty');
+            const managePaginationInfo = document.getElementById('manage-pagination-info');
+            const managePaginationControls = document.getElementById('manage-pagination-controls');
+            const manageSearch = document.getElementById('manage-search');
+            const manageStatusFilter = document.getElementById('manage-status-filter');
+            const addFilmBtn = document.getElementById('add-film-btn');
+
+            // Editor form
+            const filmForm = document.getElementById('film-form');
+            const editorTitle = document.getElementById('editor-title');
+            const editorSubtitle = document.getElementById('editor-subtitle');
+            const editorStatusBadge = document.getElementById('editor-status-badge');
+            const editorRejectionAlert = document.getElementById('editor-rejection-alert');
+            const rejectionReasonText = document.getElementById('rejection-reason-text');
+
+            const formTitle = document.getElementById('form-title');
+            const formSynopsis = document.getElementById('form-synopsis');
+            const formYear = document.getElementById('form-year');
+            const formDuration = document.getElementById('form-duration');
+            const formPopularity = document.getElementById('form-popularity');
+            const formTrailer = document.getElementById('form-trailer');
+            const formGenresContainer = document.getElementById('form-genres-container');
+
+            const formPosterPreview = document.getElementById('form-poster-preview');
+            const formPosterPlaceholder = document.getElementById('form-poster-placeholder');
+            const formPosterInput = document.getElementById('form-poster-input');
+            const formPosterTriggerBtn = document.getElementById('form-poster-trigger-btn');
+
+            const editorGallerySection = document.getElementById('editor-gallery-section');
+            const galleryImageCount = document.getElementById('gallery-image-count');
+            const editorGalleryGrid = document.getElementById('editor-gallery-grid');
+            const formGalleryInput = document.getElementById('form-gallery-input');
+            const formGalleryTriggerBtn = document.getElementById('form-gallery-trigger-btn');
+
+            const formDeleteBtn = document.getElementById('form-delete-btn');
+            const formCancelBtn = document.getElementById('form-cancel-btn');
+            const formSaveBtn = document.getElementById('form-save-btn');
+            const editorBackBtn = document.getElementById('editor-back-btn');
+
+            // Rejection modal
+            const rejectModal = document.getElementById('reject-modal');
+            const rejectReasonInput = document.getElementById('reject-reason-input');
+            const rejectModalCancel = document.getElementById('reject-modal-cancel');
+            const rejectModalSubmit = document.getElementById('reject-modal-submit');
+
+            // Actors management
+            const actorsTableBody = document.getElementById('actors-table-body');
+            const actorsLoading = document.getElementById('actors-loading');
+            const actorsEmpty = document.getElementById('actors-empty');
+            const actorsPaginationInfo = document.getElementById('actors-pagination-info');
+            const actorsPaginationControls = document.getElementById('actors-pagination-controls');
+            const addActorBtn = document.getElementById('add-actor-btn');
+            const actorSearch = document.getElementById('actor-search');
+            const actorSearchSubmitBtn = document.getElementById('actor-search-submit-btn');
+            const actorSearchIconBtn = document.getElementById('actor-search-icon-btn');
+            const actorEditorModal = document.getElementById('actor-editor-modal');
+            const actorForm = document.getElementById('actor-form');
+            const actorFormName = document.getElementById('actor-form-name');
+            const actorFormNativeName = document.getElementById('actor-form-native-name');
+            const actorFormTmdbId = document.getElementById('actor-form-tmdb-id');
+            const actorFormBirthYear = document.getElementById('actor-form-birth-year');
+            const actorFormPhotoPath = document.getElementById('actor-form-photo-path');
+            const actorFormBio = document.getElementById('actor-form-bio');
+            const actorEditorSaveBtn = document.getElementById('actor-editor-save-btn');
+            const actorEditorCancelBtn = document.getElementById('actor-editor-cancel-btn');
+            const actorEditorTitle = document.getElementById('actor-editor-title');
+
+            // Genres management
+            const genresTableBody = document.getElementById('genres-table-body');
+            const genresLoading = document.getElementById('genres-loading');
+            const genresEmpty = document.getElementById('genres-empty');
+            const addGenreBtn = document.getElementById('add-genre-btn');
+            const genreEditorModal = document.getElementById('genre-editor-modal');
+            const genreForm = document.getElementById('genre-form');
+            const genreFormName = document.getElementById('genre-form-name');
+            const genreEditorSaveBtn = document.getElementById('genre-editor-save-btn');
+            const genreEditorCancelBtn = document.getElementById('genre-editor-cancel-btn');
+
+            // Users management
+            const usersTableBody = document.getElementById('users-table-body');
+            const usersLoading = document.getElementById('users-loading');
+            const usersEmpty = document.getElementById('users-empty');
+            const addUserBtn = document.getElementById('add-user-btn');
+            const userEditorModal = document.getElementById('user-editor-modal');
+            const userForm = document.getElementById('user-form');
+            const userFormUsername = document.getElementById('user-form-username');
+            const userFormEmail = document.getElementById('user-form-email');
+            const userFormPassword = document.getElementById('user-form-password');
+            const userFormIsStaff = document.getElementById('user-form-is-staff');
+            const userFormIsSuperuser = document.getElementById('user-form-is-superuser');
+            const userEditorSaveBtn = document.getElementById('user-editor-save-btn');
+            const userEditorCancelBtn = document.getElementById('user-editor-cancel-btn');
+            const userEditorTitle = document.getElementById('user-editor-title');
+
+            // State variables
+            let currentUser = null;
+            let genresList = [];
+            let manageCurrentPage = 1;
+            let actorsCurrentPage = 1;
+            let selectedFilmId = null;
+            let selectedActorId = null;
+            let selectedUserId = null;
+            let currentFilmData = null;
+            let rejectModalFilmId = null;
+            let activeGalleryImages = [];
+            let stagedImageDeletions = [];
+            let actorsSearchQuery = "";
+
+            // Security Fail-Close Shield check
+            if (!token) {
+                window.location.href = '/login/?next=/admin-films/';
+                return;
+            }
+
+            // Authenticate & Verify Permissions
+            fetch('/api/auth/me/', {
+                headers: { 'Authorization': `Token ${token}` }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Otorisasi gagal");
+                    return res.json();
+                })
+                .then(data => {
+                    currentUser = data;
+                    if (data.is_staff || data.is_superuser) {
+                        loadingShield.classList.add('hidden');
+
+                        // Show sidebar users tab if superuser
+                        if (data.is_superuser) {
+                            sidebarUsersBtn.classList.remove('hidden');
+                        }
+
+                        // Initialize Modules
+                        const genresPromise = fetchGenres();
+                        fetchFilms(1);
+                        fetchActors(1);
+                        if (data.is_superuser) fetchUsers();
+
+                        // Check if edit parameter is present in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('edit')) {
+                            const editFilmId = parseInt(urlParams.get('edit'));
+                            if (editFilmId) {
+                                showPrimarySection('movies');
+                                genresPromise.then(() => {
+                                    openEditor(editFilmId);
+                                });
+                            }
+                        }
+                    } else {
+                        loadingShield.classList.add('hidden');
+                        accessDenied.classList.remove('hidden');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    loadingShield.classList.add('hidden');
+                    accessDenied.classList.remove('hidden');
+                });
+
+            // ======================= VIEW TOGGLE SYSTEM =======================
+            function showPrimarySection(sectionId) {
+                sectionDashboard.classList.add('hidden');
+                sectionMovies.classList.add('hidden');
+                sectionActors.classList.add('hidden');
+                sectionGenres.classList.add('hidden');
+                sectionUsers.classList.add('hidden');
+
+                // Clear highlights
+                const btnList = [sidebarDashboardBtn, sidebarMoviesBtn, sidebarActorsBtn, sidebarGenresBtn, sidebarUsersBtn];
+                btnList.forEach(btn => {
+                    btn.classList.remove('bg-[#715A5A]', 'text-white');
+                    btn.classList.add('text-stone-400');
+                });
+
+                if (sectionId === 'dashboard') {
+                    sectionDashboard.classList.remove('hidden');
+                    sidebarDashboardBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarDashboardBtn.classList.remove('text-stone-400');
+                    fetchStats();
+                } else if (sectionId === 'movies') {
+                    sectionMovies.classList.remove('hidden');
+                    sidebarMoviesBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarMoviesBtn.classList.remove('text-stone-400');
+                    // Reset to catalog list view
+                    showMoviesSubView('manage');
+                } else if (sectionId === 'actors') {
+                    sectionActors.classList.remove('hidden');
+                    sidebarActorsBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarActorsBtn.classList.remove('text-stone-400');
+                    fetchActors(actorsCurrentPage);
+                } else if (sectionId === 'genres') {
+                    sectionGenres.classList.remove('hidden');
+                    sidebarGenresBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarGenresBtn.classList.remove('text-stone-400');
+                    fetchGenres();
+                } else if (sectionId === 'users') {
+                    sectionUsers.classList.remove('hidden');
+                    sidebarUsersBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarUsersBtn.classList.remove('text-stone-400');
+                    fetchUsers();
+                }
+            }
+
+            sidebarDashboardBtn.addEventListener('click', () => showPrimarySection('dashboard'));
+            sidebarMoviesBtn.addEventListener('click', () => showPrimarySection('movies'));
+            sidebarActorsBtn.addEventListener('click', () => showPrimarySection('actors'));
+            sidebarGenresBtn.addEventListener('click', () => showPrimarySection('genres'));
+            sidebarUsersBtn.addEventListener('click', () => showPrimarySection('users'));
+
+            // Sub-view toggle for Movies (List vs CRUD Editor)
+            function showMoviesSubView(subview) {
+                viewManage.classList.add('hidden');
+                viewEditor.classList.add('hidden');
+
+                if (subview === 'manage') {
+                    viewManage.classList.remove('hidden');
+                    fetchFilms(manageCurrentPage);
+                } else if (subview === 'editor') {
+                    viewEditor.classList.remove('hidden');
+                }
+            }
+
+            // ======================= MODULE: MOVIES LOGIC =======================
+            function fetchStats() {
+                fetch('/api/films/stats/', {
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(stats => {
+                        statTotal.textContent = stats.total || 0;
+                        statPublished.textContent = stats.published || 0;
+                        statPending.textContent = stats.pending_approval || 0;
+                        statDraft.textContent = stats.draft || 0;
+                        statRejected.textContent = stats.rejected || 0;
+                    })
+                    .catch(err => console.error("Error loading stats:", err));
+            }
+
+            function fetchGenres() {
+                return fetch('/api/films/genres/')
+                    .then(res => res.json())
+                    .then(data => {
+                        genresList = Array.isArray(data) ? data : (data.results || []);
+                        renderFormGenres();
+                        if (!sectionGenres.classList.contains('hidden')) {
+                            renderGenresTable();
+                        }
+                    })
+                    .catch(err => console.error("Error loading genres:", err));
+            }
+
+            function renderFormGenres() {
+                formGenresContainer.textContent = "";
+                genresList.forEach(genre => {
+                    const label = document.createElement("label");
+                    label.className = "flex items-center gap-3 cursor-pointer group text-[#c9c5cb] hover:text-white transition-all text-xs";
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = genre.id;
+                    checkbox.className = "border-white/20 bg-[#141314] text-[#715A5A] focus:ring-[#715A5A] focus:ring-offset-0 rounded transition-all";
+                    checkbox.name = "genres-checkbox";
+
+                    const span = document.createElement("span");
+                    span.textContent = genre.name;
+
+                    label.appendChild(checkbox);
+                    label.appendChild(span);
+                    formGenresContainer.appendChild(label);
+                });
+            }
+
+            function fetchFilms(page = 1) {
+                manageCurrentPage = page;
+                filmsTableBody.textContent = "";
+                tableEmpty.classList.add('hidden');
+                tableLoading.classList.remove('hidden');
+
+                const params = new URLSearchParams();
+                params.append('page', page);
+                params.append('include_drafts', 'true');
+
+                if (manageSearch.value.trim()) {
+                    params.append('search', manageSearch.value.trim());
+                }
+                if (manageStatusFilter.value) {
+                    params.append('status', manageStatusFilter.value);
+                }
+
+                fetch(`/api/films/?${params.toString()}`, {
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        tableLoading.classList.add('hidden');
+                        const films = data.results || [];
+                        const totalCount = data.count || 0;
+
+                        if (films.length === 0) {
+                            tableEmpty.classList.remove('hidden');
+                            managePaginationInfo.textContent = "Menampilkan 0 film";
+                            managePaginationControls.textContent = "";
+                            return;
+                        }
+
+                        renderFilmsTable(films);
+
+                        const startIdx = (page - 1) * 12 + 1;
+                        const endIdx = Math.min(page * 12, totalCount);
+                        managePaginationInfo.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
+                        renderPagination(page, totalCount);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        tableLoading.classList.add('hidden');
+                        showToast('Gagal memuat daftar film.', 'error');
+                    });
+            }
+
+            function renderFilmsTable(films) {
+                filmsTableBody.textContent = "";
+                films.forEach(film => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+                    // Poster Column
+                    const tdPoster = document.createElement('td');
+                    tdPoster.className = "p-4 text-center align-middle shrink-0 w-[80px]";
+                    let posterUrl = "/static/images/placeholder-poster.jpg";
+                    if (film.poster_path) {
+                        posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
+                    }
+                    const img = document.createElement('img');
+                    img.src = posterUrl;
+                    img.className = "w-10 h-14 object-cover rounded shadow-md mx-auto";
+                    img.alt = film.title;
+                    tdPoster.appendChild(img);
+                    tr.appendChild(tdPoster);
+
+                    // Title
+                    const tdTitle = document.createElement('td');
+                    tdTitle.className = "p-4 font-medium text-stone-200 align-middle";
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = "block text-sm line-clamp-1";
+                    titleSpan.textContent = film.title;
+                    tdTitle.appendChild(titleSpan);
+                    tr.appendChild(tdTitle);
+
+                    // Year
+                    const tdYear = document.createElement('td');
+                    tdYear.className = "p-4 text-center text-stone-400 align-middle";
+                    tdYear.textContent = film.release_year || "N/A";
+                    tr.appendChild(tdYear);
+
+                    // Genres
+                    const tdGenres = document.createElement('td');
+                    tdGenres.className = "p-4 text-stone-400 align-middle";
+                    const genresWrapper = document.createElement('div');
+                    genresWrapper.className = "line-clamp-1 max-w-[200px] text-xs";
+                    const genresText = film.genre.map(g => typeof g === 'object' ? g.name : g).join(', ');
+                    genresWrapper.textContent = genresText || "None";
+                    tdGenres.appendChild(genresWrapper);
+                    tr.appendChild(tdGenres);
+
+                    // Status Badge
+                    const tdStatus = document.createElement('td');
+                    tdStatus.className = "p-4 text-center align-middle";
+                    const badge = document.createElement('span');
+                    badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ";
+
+                    if (film.status === 'published') {
+                        badge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
+                        badge.textContent = "Published";
+                    } else if (film.status === 'pending_approval') {
+                        badge.className += "bg-amber-500/10 text-amber-400 border border-amber-500/25";
+                        badge.textContent = "Pending Approval";
+                    } else if (film.status === 'rejected') {
+                        badge.className += "bg-rose-500/10 text-rose-400 border border-rose-500/25";
+                        badge.textContent = "Rejected";
+                    } else {
+                        badge.className += "bg-stone-500/10 text-stone-400 border border-white/10";
+                        badge.textContent = "Draft";
+                    }
+                    tdStatus.appendChild(badge);
+                    tr.appendChild(tdStatus);
+
+                    // Action Buttons
+                    const tdActions = document.createElement('td');
+                    tdActions.className = "p-4 text-center align-middle";
+
+                    const actionsWrapper = document.createElement('div');
+                    actionsWrapper.className = "flex items-center justify-center gap-1.5";
+
+                    // Edit
+                    const editBtn = document.createElement('button');
+                    editBtn.className = "w-8 h-8 rounded border border-white/10 text-[#c9c5cb] hover:border-white/30 hover:text-white transition-all flex items-center justify-center shadow-sm";
+                    editBtn.innerHTML = `<span class="material-symbols-outlined text-base">edit</span>`;
+                    editBtn.title = "Edit Film";
+                    editBtn.addEventListener('click', () => openEditor(film.id));
+                    actionsWrapper.appendChild(editBtn);
+
+                    // Submit for approval
+                    if (film.status === 'draft' || film.status === 'rejected') {
+                        const submitBtn = document.createElement('button');
+                        submitBtn.className = "w-8 h-8 rounded border border-white/10 text-amber-400 hover:border-amber-400/50 hover:bg-amber-500/10 transition-all flex items-center justify-center shadow-sm";
+                        submitBtn.innerHTML = `<span class="material-symbols-outlined text-base">send</span>`;
+                        submitBtn.title = "Submit for Approval";
+                        submitBtn.addEventListener('click', () => submitForApproval(film.id));
+                        actionsWrapper.appendChild(submitBtn);
+                    }
+
+                    // Approval controls for Super Admin
+                    if (currentUser.is_superuser && film.status === 'pending_approval') {
+                        const approveBtn = document.createElement('button');
+                        approveBtn.className = "w-8 h-8 rounded border border-emerald-500/20 text-emerald-400 hover:border-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center justify-center shadow-sm";
+                        approveBtn.innerHTML = `<span class="material-symbols-outlined text-base">check_circle</span>`;
+                        approveBtn.title = "Setujui Film";
+                        approveBtn.addEventListener('click', () => approveFilm(film.id));
+                        actionsWrapper.appendChild(approveBtn);
+
+                        const rejectBtn = document.createElement('button');
+                        rejectBtn.className = "w-8 h-8 rounded border border-rose-500/20 text-rose-400 hover:border-rose-400 hover:bg-rose-500/10 transition-all flex items-center justify-center shadow-sm";
+                        rejectBtn.innerHTML = `<span class="material-symbols-outlined text-base">cancel</span>`;
+                        rejectBtn.title = "Tolak Film";
+                        rejectBtn.addEventListener('click', () => openRejectModal(film.id));
+                        actionsWrapper.appendChild(rejectBtn);
+                    }
+
+                    // Delete Film
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = "w-8 h-8 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center shadow-sm";
+                    deleteBtn.innerHTML = `<span class="material-symbols-outlined text-base">delete</span>`;
+                    deleteBtn.title = "Hapus Film";
+                    deleteBtn.addEventListener('click', () => deleteFilm(film.id, film.title));
+                    actionsWrapper.appendChild(deleteBtn);
+
+                    tdActions.appendChild(actionsWrapper);
+                    tr.appendChild(tdActions);
+                    filmsTableBody.appendChild(tr);
+                });
+            }
+
+            const triggerManageSearch = () => {
+                fetchFilms(1);
+            };
+
+            const manageSearchSubmitBtn = document.getElementById("manage-search-submit-btn");
+            const manageSearchIconBtn = document.getElementById("manage-search-icon-btn");
+            if (manageSearchSubmitBtn) manageSearchSubmitBtn.addEventListener("click", triggerManageSearch);
+            if (manageSearchIconBtn) manageSearchIconBtn.addEventListener("click", triggerManageSearch);
+            manageSearch.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") triggerManageSearch();
+            });
+
+            manageStatusFilter.addEventListener('change', () => fetchFilms(1));
+
+            function renderPagination(page, totalCount) {
+                const container = managePaginationControls;
+                container.textContent = "";
+
+                const totalPages = Math.ceil(totalCount / 12);
+                if (totalPages <= 1) return;
+
+                // Prev
+                const prev = document.createElement('button');
+                prev.className = "flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5 transition-all text-xs " +
+                    (page === 1 ? "opacity-50 cursor-not-allowed pointer-events-none" : "");
+                prev.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_left</span>`;
+                prev.addEventListener('click', () => fetchFilms(page - 1));
+                container.appendChild(prev);
+
+                // Sliding Window
+                let start = Math.max(1, page - 2);
+                let end = Math.min(totalPages, start + 4);
+                if (end - start < 4) {
+                    start = Math.max(1, end - 4);
+                }
+
+                for (let i = start; i <= end; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = "w-7 h-7 rounded border text-xs font-bold transition-all " +
+                        (i === page
+                            ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md"
+                            : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => fetchFilms(i));
+                    container.appendChild(btn);
+                }
+
+                // Next
+                const next = document.createElement('button');
+                next.className = "flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5 transition-all text-xs " +
+                    (page === totalPages ? "opacity-50 cursor-not-allowed pointer-events-none" : "");
+                next.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_right</span>`;
+                next.addEventListener('click', () => fetchFilms(page + 1));
+                container.appendChild(next);
+            }
+
+            // Sync TMDB click
+            syncBtn.addEventListener('click', () => {
+                const actorIdVal = syncActorId.value.trim();
+                const limitVal = syncLimit.value.trim();
+
+                if (!actorIdVal) {
+                    showToast('Harap masukkan TMDB Actor ID.', 'warning');
+                    return;
+                }
+
+                syncBtn.disabled = true;
+                syncBtn.textContent = "";
+                const spinner = document.createElement('span');
+                spinner.className = "material-symbols-outlined animate-spin text-base";
+                spinner.textContent = "sync";
+                syncBtn.appendChild(spinner);
+                syncBtn.appendChild(document.createTextNode(" Mensinkronisasi..."));
+
+                fetch('/api/films/sync/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({
+                        actor_id: parseInt(actorIdVal),
+                        limit: limitVal ? parseInt(limitVal) : null
+                    })
+                })
+                    .then(res => {
+                        syncBtn.disabled = false;
+                        syncBtn.replaceChildren();
+                        const icon = document.createElement('span');
+                        icon.className = "material-symbols-outlined text-base";
+                        icon.textContent = "cloud_download";
+                        syncBtn.appendChild(icon);
+                        syncBtn.appendChild(document.createTextNode(" Sinkronkan Sekarang"));
+
+                        if (!res.ok) throw new Error("Gagal melakukan sinkronisasi");
+                        return res.json();
+                    })
+                    .then(data => {
+                        showToast(`Sinkronisasi sukses! Berhasil memproses ${data.synced_count} film baru ke database.`, 'success');
+                        fetchStats();
+                        fetchFilms(1);
+                        fetchActors(1);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast(err.message || 'Gagal melakukan sinkronisasi dengan TMDB.', 'error');
+                    });
+            });
+
+            function submitForApproval(filmId) {
+                fetch(`/api/films/${filmId}/submit-approval/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Film diserahkan ke Super Admin untuk persetujuan publikasi.', 'success');
+                        fetchFilms(manageCurrentPage);
+                    })
+                    .catch(() => showToast('Gagal submit approval film.', 'error'));
+            }
+
+            function approveFilm(filmId) {
+                fetch(`/api/films/${filmId}/approve/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Film berhasil disetujui dan terbit publik.', 'success');
+                        fetchFilms(manageCurrentPage);
+                    })
+                    .catch(() => showToast('Gagal menyetujui film.', 'error'));
+            }
+
+            function openRejectModal(filmId) {
+                rejectModalFilmId = filmId;
+                rejectReasonInput.value = "";
+                rejectModal.classList.remove('hidden');
+            }
+
+            rejectModalCancel.addEventListener('click', () => {
+                rejectModal.classList.add('hidden');
+                rejectModalFilmId = null;
+            });
+
+            rejectModalSubmit.addEventListener('click', () => {
+                const reason = rejectReasonInput.value.trim();
+                if (!reason) {
+                    showToast('Alasan wajib diisi.', 'warning');
+                    return;
+                }
+
+                rejectModalSubmit.disabled = true;
+                fetch(`/api/films/${rejectModalFilmId}/reject/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({ reason: reason })
+                })
+                    .then(res => {
+                        rejectModalSubmit.disabled = false;
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Film berhasil ditolak dan dikembalikan menjadi draft.', 'success');
+                        rejectModal.classList.add('hidden');
+                        rejectModalFilmId = null;
+                        fetchFilms(manageCurrentPage);
+                    })
+                    .catch(() => showToast('Gagal menolak film.', 'error'));
+            });
+
+            // CRUD Film - Editor Trigger
+            addFilmBtn.addEventListener('click', () => openEditor(null));
+
+            function openEditor(filmId) {
+                selectedFilmId = filmId;
+                filmForm.reset();
+
+                formPosterPreview.src = "";
+                formPosterPreview.classList.add('hidden');
+                formPosterPlaceholder.classList.remove('hidden');
+
+                document.querySelectorAll('input[name="genres-checkbox"]').forEach(cb => cb.checked = false);
+
+                if (selectedFilmId) {
+                    editorTitle.textContent = "Edit Film";
+                    editorSubtitle.textContent = "Ubah detail metadata dan unggah berkas galeri.";
+                    formDeleteBtn.classList.remove('hidden');
+                    editorGallerySection.classList.remove('hidden');
+
+                    fetch(`/api/films/${selectedFilmId}/`, {
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => res.json())
+                        .then(film => {
+                            currentFilmData = film;
+
+                            formTitle.value = film.title || "";
+                            formSynopsis.value = film.synopsis || "";
+                            formYear.value = film.release_year || "";
+                            formDuration.value = film.duration || "";
+                            formPopularity.value = Math.round(film.popularity) || 0;
+                            formTrailer.value = film.trailer_url || "";
+
+                            if (film.genre) {
+                                film.genre.forEach(genre => {
+                                    const genreId = typeof genre === 'object' ? genre.id : genre;
+                                    const cb = document.querySelector(`input[name="genres-checkbox"][value="${genreId}"]`);
+                                    if (cb) cb.checked = true;
+                                });
+                            }
+
+                            if (film.poster_path) {
+                                const posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                                formPosterPreview.src = posterUrl;
+                                formPosterPreview.classList.remove('hidden');
+                                formPosterPlaceholder.classList.add('hidden');
+                            }
+
+                            renderEditorStatusBadge(film.status);
+
+                            if (film.status === 'rejected' && film.rejection_reason) {
+                                rejectionReasonText.textContent = film.rejection_reason;
+                                editorRejectionAlert.classList.remove('hidden');
+                            } else {
+                                editorRejectionAlert.classList.add('hidden');
+                            }
+
+                            activeGalleryImages = film.images || [];
+                            stagedImageDeletions = [];
+                            renderGalleryGrid(activeGalleryImages);
+                            showMoviesSubView('editor');
+                        })
+                        .catch(() => showToast('Gagal memuat detail film.', 'error'));
+                } else {
+                    editorTitle.textContent = "Tambah Film Baru";
+                    editorSubtitle.textContent = "Tambahkan film baru ke database lokal secara manual.";
+                    formDeleteBtn.classList.add('hidden');
+                    editorGallerySection.classList.add('hidden');
+                    editorRejectionAlert.classList.add('hidden');
+
+                    activeGalleryImages = [];
+                    stagedImageDeletions = [];
+                    renderEditorStatusBadge('draft');
+                    showMoviesSubView('editor');
+                }
+            }
+
+            function renderEditorStatusBadge(status) {
+                editorStatusBadge.textContent = "";
+                const badge = document.createElement('span');
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ";
+
+                if (status === 'published') {
+                    badge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
+                    badge.textContent = "Published";
+                } else if (status === 'pending_approval') {
+                    badge.className += "bg-amber-500/10 text-amber-400 border border-amber-500/25";
+                    badge.textContent = "Pending Approval";
+                } else if (status === 'rejected') {
+                    badge.className += "bg-rose-500/10 text-rose-400 border border-rose-500/25";
+                    badge.textContent = "Rejected";
+                } else {
+                    badge.className += "bg-stone-500/10 text-stone-400 border border-white/10";
+                    badge.textContent = "Draft";
+                }
+                editorStatusBadge.appendChild(badge);
+            }
+
+            formCancelBtn.addEventListener('click', () => showMoviesSubView('manage'));
+            editorBackBtn.addEventListener('click', () => showMoviesSubView('manage'));
+            formPosterTriggerBtn.addEventListener('click', () => formPosterInput.click());
+
+            formPosterInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size / (1024 * 1024) > 5) {
+                        showToast('Maksimal ukuran poster adalah 5MB.', 'error');
+                        formPosterInput.value = "";
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        formPosterPreview.src = event.target.result;
+                        formPosterPreview.classList.remove('hidden');
+                        formPosterPlaceholder.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            formGalleryTriggerBtn.addEventListener('click', () => formGalleryInput.click());
+
+            formGalleryInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+
+                const existingCount = activeGalleryImages.length;
+                if (existingCount + files.length > 8) {
+                    showToast('Maksimal galeri backdrop adalah 8 gambar.', 'warning');
+                    formGalleryInput.value = "";
+                    return;
+                }
+
+                let uploadedCount = 0;
+                Array.from(files).forEach(file => {
+                    if (file.size / (1024 * 1024) > 5) {
+                        showToast(`File ${file.name} melebihi 5MB. Dilewati.`, 'warning');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    fetch(`/api/films/${selectedFilmId}/images/`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Token ${token}` },
+                        body: formData
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            return res.json();
+                        })
+                        .then((newImage) => {
+                            uploadedCount++;
+                            activeGalleryImages.push(newImage);
+                            if (uploadedCount === files.length) {
+                                showToast('Selesai mengunggah gambar galeri!', 'success');
+                                renderGalleryGrid(activeGalleryImages);
+                            }
+                        })
+                        .catch(() => showToast(`Gagal unggah ${file.name}`, 'error'));
+                });
+                formGalleryInput.value = "";
+            });
+
+            function renderGalleryGrid(images) {
+                editorGalleryGrid.textContent = "";
+                galleryImageCount.textContent = `${images.length}/8`;
+
+                if (images.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = "col-span-4 py-8 text-center text-[#c9c5cb]/40 italic text-[10px]";
+                    empty.textContent = "Galeri kosong.";
+                    editorGalleryGrid.appendChild(empty);
+                    return;
+                }
+
+                images.forEach(img => {
+                    const div = document.createElement('div');
+                    div.className = "aspect-video bg-black/35 rounded border border-white/5 relative overflow-hidden group shadow-sm";
+
+                    const image = document.createElement('img');
+                    image.className = "w-full h-full object-cover";
+                    image.src = img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/w300${img.file_path}`;
+                    image.alt = "Backdrop";
+                    div.appendChild(image);
+
+                    const deleteOverlay = document.createElement('button');
+                    deleteOverlay.className = "absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-rose-400 hover:text-rose-600";
+                    deleteOverlay.type = "button";
+                    deleteOverlay.innerHTML = `<span class="material-symbols-outlined text-lg">delete</span>`;
+                    deleteOverlay.addEventListener('click', () => deleteBackdrop(img.id));
+                    div.appendChild(deleteOverlay);
+
+                    editorGalleryGrid.appendChild(div);
+                });
+            }
+
+            function deleteBackdrop(imageId) {
+                activeGalleryImages = activeGalleryImages.filter(img => img.id !== imageId);
+                if (!stagedImageDeletions.includes(imageId)) {
+                    stagedImageDeletions.push(imageId);
+                }
+                renderGalleryGrid(activeGalleryImages);
+            }
+
+            formSaveBtn.addEventListener('click', () => {
+                const titleVal = formTitle.value.trim();
+                const synopsisVal = formSynopsis.value.trim();
+                const yearVal = formYear.value;
+                const durationVal = formDuration.value;
+                const popularityVal = formPopularity.value;
+                const trailerVal = formTrailer.value.trim();
+
+                const genreIds = Array.from(document.querySelectorAll('input[name="genres-checkbox"]:checked')).map(cb => parseInt(cb.value));
+
+                if (!titleVal || !yearVal) {
+                    showToast('Harap lengkapi judul dan tahun rilis.', 'warning');
+                    return;
+                }
+                if (genreIds.length === 0) {
+                    showToast('Pilih minimal satu genre.', 'warning');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('title', titleVal);
+                formData.append('synopsis', synopsisVal);
+                formData.append('release_year', parseInt(yearVal));
+                if (durationVal) formData.append('duration', parseInt(durationVal));
+                if (popularityVal) formData.append('popularity', parseFloat(popularityVal));
+                formData.append('trailer_url', trailerVal);
+
+                genreIds.forEach(id => formData.append('genre', id));
+
+                if (formPosterInput.files[0]) {
+                    formData.append('poster', formPosterInput.files[0]);
+                } else if (!selectedFilmId) {
+                    showToast('Harap unggah poster film.', 'warning');
+                    return;
+                }
+
+                formSaveBtn.disabled = true;
+                const url = selectedFilmId ? `/api/films/${selectedFilmId}/` : '/api/films/';
+                const method = selectedFilmId ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: { 'Authorization': `Token ${token}` },
+                    body: formData
+                })
+                    .then(res => {
+                        formSaveBtn.disabled = false;
+                        if (!res.ok) {
+                            return res.json().then(err => { throw new Error(err.error || 'Validasi server gagal'); });
+                        }
+                        return res.json();
+                    })
+                    .then((savedFilm) => {
+                        if (stagedImageDeletions.length > 0) {
+                            const filmIdToUse = selectedFilmId || savedFilm.id;
+                            const deletePromises = stagedImageDeletions.map(imageId => {
+                                return fetch(`/api/films/${filmIdToUse}/images/${imageId}/`, {
+                                    method: 'DELETE',
+                                    headers: { 'Authorization': `Token ${token}` }
+                                }).catch(err => console.error(`Gagal menghapus gambar ${imageId}:`, err));
+                            });
+
+                            Promise.all(deletePromises).then(() => {
+                                stagedImageDeletions = [];
+                                showToast('Film berhasil disimpan dan gambar galeri terhapus.', 'success');
+                                showMoviesSubView('manage');
+                            });
+                        } else {
+                            showToast('Film berhasil disimpan!', 'success');
+                            showMoviesSubView('manage');
+                        }
+                    })
+                    .catch(err => {
+                        formSaveBtn.disabled = false;
+                        console.error(err);
+                        showToast(err.message || 'Gagal menyimpan data film.', 'error');
+                    });
+            });
+
+            formDeleteBtn.addEventListener('click', () => {
+                const confirmToast = document.createElement('div');
+                confirmToast.className = "bg-[#201f20] border border-white/5 p-4 rounded-lg flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb] shadow-2xl fixed bottom-6 right-6 z-50 max-w-sm";
+
+                const p = document.createElement('p');
+                p.className = "font-medium text-stone-200";
+                p.textContent = `Apakah Anda yakin ingin menghapus '${currentFilmData.title}' secara permanen?`;
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex gap-2 justify-end";
+
+                const yesBtn = document.createElement('button');
+                yesBtn.className = "px-3 py-1 rounded text-white bg-rose-500 font-semibold";
+                yesBtn.textContent = "Hapus";
+                yesBtn.addEventListener('click', () => {
+                    fetch(`/api/films/${selectedFilmId}/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            showToast('Film berhasil terhapus.', 'success');
+                            showMoviesSubView('manage');
+                        })
+                        .catch(() => showToast('Gagal menghapus film.', 'error'));
+                    confirmToast.remove();
+                });
+
+                const noBtn = document.createElement('button');
+                noBtn.className = "px-3 py-1 rounded border border-white/10 text-[#c9c5cb]";
+                noBtn.textContent = "Batal";
+                noBtn.addEventListener('click', () => confirmToast.remove());
+
+                btnGroup.appendChild(noBtn);
+                btnGroup.appendChild(yesBtn);
+                confirmToast.appendChild(p);
+                confirmToast.appendChild(btnGroup);
+                document.body.appendChild(confirmToast);
+            });
+
+
+            // ======================= 2. MODULE: ACTORS LOGIC =======================
+            function fetchActors(page = 1) {
+                actorsCurrentPage = page;
+                actorsTableBody.textContent = "";
+                actorsEmpty.classList.add('hidden');
+                actorsLoading.classList.remove('hidden');
+
+                let url = `/api/actors/?page=${page}&ordering=name`;
+                if (actorsSearchQuery) {
+                    url += `&search=${encodeURIComponent(actorsSearchQuery)}`;
+                }
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        actorsLoading.classList.add('hidden');
+                        const results = data.results || [];
+                        const count = data.count || 0;
+
+                        if (results.length === 0) {
+                            actorsEmpty.classList.remove('hidden');
+                            actorsPaginationInfo.textContent = "Menampilkan 0 sineas";
+                            actorsPaginationControls.textContent = "";
+                            return;
+                        }
+
+                        renderActorsTable(results);
+
+                        const startIdx = (page - 1) * 10 + 1;
+                        const endIdx = Math.min(page * 10, count);
+                        actorsPaginationInfo.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${count} sineas`;
+                        renderActorsPagination(page, count);
+                    })
+                    .catch(() => {
+                        actorsLoading.classList.add('hidden');
+                        showToast('Gagal memuat data sineas.', 'error');
+                    });
+            }
+
+            function renderActorsTable(actors) {
+                actorsTableBody.textContent = "";
+                actors.forEach(actor => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+
+                    // Circular Avatar
+                    const tdPhoto = document.createElement('td');
+                    tdPhoto.className = "p-4 text-center align-middle shrink-0 w-[80px]";
+                    let photoUrl = "";
+                    if (actor.photo_path) {
+                        photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
+                    }
+                    const avatar = document.createElement('div');
+                    avatar.className = "w-10 h-10 rounded-full overflow-hidden border border-white/10 mx-auto bg-stone-700 flex items-center justify-center text-stone-500 shadow-md";
+                    if (photoUrl) {
+                        const img = document.createElement('img');
+                        img.src = photoUrl;
+                        img.className = "w-full h-full object-cover";
+                        avatar.appendChild(img);
+                    } else {
+                        avatar.innerHTML = `<span class="material-symbols-outlined text-xl">person</span>`;
+                    }
+                    tdPhoto.appendChild(avatar);
+                    tr.appendChild(tdPhoto);
+
+                    // Name
+                    const tdName = document.createElement('td');
+                    tdName.className = "p-4 font-semibold text-stone-200 text-sm align-middle";
+                    tdName.textContent = actor.name;
+                    tr.appendChild(tdName);
+
+                    // TMDB ID
+                    const tdTmdb = document.createElement('td');
+                    tdTmdb.className = "p-4 text-center text-stone-400 align-middle";
+                    tdTmdb.textContent = actor.tmdb_id || "Manual";
+                    tr.appendChild(tdTmdb);
+
+                    // Birth Year
+                    const tdBirth = document.createElement('td');
+                    tdBirth.className = "p-4 text-center text-stone-400 align-middle";
+                    tdBirth.textContent = actor.birth_year || "N/A";
+                    tr.appendChild(tdBirth);
+
+                    // Bio
+                    const tdBio = document.createElement('td');
+                    tdBio.className = "p-4 text-stone-400 align-middle";
+                    const bioWrapper = document.createElement('div');
+                    bioWrapper.className = "line-clamp-2 max-w-sm text-xs leading-relaxed";
+                    bioWrapper.textContent = actor.bio || "-";
+                    tdBio.appendChild(bioWrapper);
+                    tr.appendChild(tdBio);
+
+                    // Action buttons
+                    const tdActions = document.createElement('td');
+                    tdActions.className = "p-4 text-center align-middle";
+
+                    const actionsWrapper = document.createElement('div');
+                    actionsWrapper.className = "flex items-center justify-center gap-1.5";
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = "w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-white/40 hover:text-white transition-all flex items-center justify-center shadow-sm";
+                    editBtn.innerHTML = `<span class="material-symbols-outlined text-sm">edit</span>`;
+                    editBtn.addEventListener('click', () => openActorEditor(actor));
+                    actionsWrapper.appendChild(editBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = "w-7 h-7 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center shadow-sm";
+                    deleteBtn.innerHTML = `<span class="material-symbols-outlined text-sm">delete</span>`;
+                    deleteBtn.addEventListener('click', () => deleteActor(actor.id, actor.name));
+                    actionsWrapper.appendChild(deleteBtn);
+
+                    tdActions.appendChild(actionsWrapper);
+                    tr.appendChild(tdActions);
+                    actorsTableBody.appendChild(tr);
+                });
+            }
+
+            function renderActorsPagination(page, totalCount) {
+                const container = actorsPaginationControls;
+                container.textContent = "";
+
+                const totalPages = Math.ceil(totalCount / 10);
+                if (totalPages <= 1) return;
+
+                // Prev
+                const prev = document.createElement('button');
+                prev.className = "flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:bg-white/5 transition-all text-xs " +
+                    (page === 1 ? "opacity-50 cursor-not-allowed pointer-events-none" : "");
+                prev.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_left</span>`;
+                prev.addEventListener('click', () => fetchActors(page - 1));
+                container.appendChild(prev);
+
+                // Sliding window
+                let start = Math.max(1, page - 2);
+                let end = Math.min(totalPages, start + 4);
+                if (end - start < 4) start = Math.max(1, end - 4);
+
+                for (let i = start; i <= end; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = "w-7 h-7 rounded border text-xs font-bold transition-all " +
+                        (i === page
+                            ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md"
+                            : "border-white/10 text-stone-300 hover:bg-white/5");
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => fetchActors(i));
+                    container.appendChild(btn);
+                }
+
+                // Next
+                const next = document.createElement('button');
+                next.className = "flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:bg-white/5 transition-all text-xs " +
+                    (page === totalPages ? "opacity-50 cursor-not-allowed pointer-events-none" : "");
+                next.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_right</span>`;
+                next.addEventListener('click', () => fetchActors(page + 1));
+                container.appendChild(next);
+            }
+
+            // Actor CRUD handlers
+            addActorBtn.addEventListener('click', () => openActorEditor(null));
+            actorEditorCancelBtn.addEventListener('click', () => actorEditorModal.classList.add('hidden'));
+
+            function openActorEditor(actor) {
+                actorForm.reset();
+                if (actor) {
+                    selectedActorId = actor.id;
+                    actorEditorTitle.textContent = "Sunting Profil Sineas";
+
+                    let baseName = actor.name;
+                    if (actor.name && actor.name.includes('(')) {
+                        baseName = actor.name.split('(')[0].trim();
+                    }
+
+                    actorFormName.value = baseName;
+                    actorFormNativeName.value = actor.native_name || "";
+                    actorFormTmdbId.value = actor.tmdb_id || "";
+                    actorFormBirthYear.value = actor.birth_year || "";
+                    actorFormPhotoPath.value = actor.photo_path || "";
+                    actorFormBio.value = actor.bio || "";
+                } else {
+                    selectedActorId = null;
+                    actorEditorTitle.textContent = "Tambah Sineas Baru";
+                }
+                actorEditorModal.classList.remove('hidden');
+            }
+
+            actorForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = actorFormName.value.trim();
+                const nativeName = actorFormNativeName.value.trim();
+                const tmdbId = actorFormTmdbId.value;
+                const birthYear = actorFormBirthYear.value;
+                const photoPath = actorFormPhotoPath.value.trim();
+                const bio = actorFormBio.value.trim();
+
+                if (!name) return;
+
+                const payload = {
+                    name: name,
+                    native_name: nativeName,
+                    tmdb_id: tmdbId ? parseInt(tmdbId) : null,
+                    birth_year: birthYear ? parseInt(birthYear) : null,
+                    photo_path: photoPath,
+                    bio: bio
+                };
+
+                const url = selectedActorId ? `/api/actors/${selectedActorId}/` : '/api/actors/';
+                const method = selectedActorId ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Profil Sineas berhasil disimpan!', 'success');
+                        actorEditorModal.classList.add('hidden');
+                        fetchActors(actorsCurrentPage);
+                    })
+                    .catch(() => showToast('Gagal menyimpan profil Sineas.', 'error'));
+            });
+
+            function deleteActor(id, name) {
+                const confirmToast = document.createElement('div');
+                confirmToast.className = "bg-[#201f20] border border-rose-500/20 p-4 rounded-lg flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb] shadow-2xl fixed bottom-6 right-6 z-50 max-w-sm";
+
+                const p = document.createElement('p');
+                p.className = "font-medium text-stone-200";
+                p.textContent = `Hapus Sineas '${name}' dari database secara permanen?`;
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex gap-2 justify-end";
+
+                const yesBtn = document.createElement('button');
+                yesBtn.className = "px-3 py-1 rounded text-white bg-rose-500 font-semibold";
+                yesBtn.textContent = "Ya, Hapus";
+                yesBtn.addEventListener('click', () => {
+                    fetch(`/api/actors/${id}/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            showToast('Sineas terhapus.', 'success');
+                            fetchActors(actorsCurrentPage);
+                        })
+                        .catch(() => showToast('Gagal menghapus sineas.', 'error'));
+                    confirmToast.remove();
+                });
+
+                const noBtn = document.createElement('button');
+                noBtn.className = "px-3 py-1 rounded border border-white/10 text-[#c9c5cb]";
+                noBtn.textContent = "Batal";
+                noBtn.addEventListener('click', () => confirmToast.remove());
+
+                btnGroup.appendChild(noBtn);
+                btnGroup.appendChild(yesBtn);
+                confirmToast.appendChild(p);
+                confirmToast.appendChild(btnGroup);
+                document.body.appendChild(confirmToast);
+            }
+
+            function deleteFilm(id, title) {
+                const confirmToast = document.createElement('div');
+                confirmToast.className = "bg-[#201f20] border border-rose-500/20 p-4 rounded-lg flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb] shadow-2xl fixed bottom-6 right-6 z-50 max-w-sm";
+
+                const p = document.createElement('p');
+                p.className = "font-medium text-stone-200";
+                p.textContent = `Hapus Film '${title}' dari database secara permanen?`;
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex gap-2 justify-end";
+
+                const yesBtn = document.createElement('button');
+                yesBtn.className = "px-3 py-1 rounded text-white bg-rose-500 font-semibold";
+                yesBtn.textContent = "Ya, Hapus";
+                yesBtn.addEventListener('click', () => {
+                    fetch(`/api/films/${id}/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            showToast('Film berhasil dihapus.', 'success');
+                            fetchFilms(manageCurrentPage);
+                        })
+                        .catch(() => showToast('Gagal menghapus film.', 'error'));
+                    confirmToast.remove();
+                });
+
+                const noBtn = document.createElement('button');
+                noBtn.className = "px-3 py-1 rounded border border-white/10 text-[#c9c5cb]";
+                noBtn.textContent = "Batal";
+                noBtn.addEventListener('click', () => confirmToast.remove());
+
+                btnGroup.appendChild(noBtn);
+                btnGroup.appendChild(yesBtn);
+                confirmToast.appendChild(p);
+                confirmToast.appendChild(btnGroup);
+                document.body.appendChild(confirmToast);
+            }
+
+            // Sineas (Actor) Search Event Listeners
+            function submitActorSearch() {
+                actorsSearchQuery = actorSearch.value.trim();
+                fetchActors(1);
+            }
+            if (actorSearchSubmitBtn) {
+                actorSearchSubmitBtn.addEventListener('click', submitActorSearch);
+            }
+            if (actorSearchIconBtn) {
+                actorSearchIconBtn.addEventListener('click', submitActorSearch);
+            }
+            if (actorSearch) {
+                actorSearch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitActorSearch();
+                    }
+                });
+            }
+
+
+            // ======================= 3. MODULE: GENRES LOGIC =======================
+            function renderGenresTable() {
+                genresTableBody.textContent = "";
+                genresEmpty.classList.add('hidden');
+
+                if (genresList.length === 0) {
+                    genresEmpty.classList.remove('hidden');
+                    return;
+                }
+
+                genresList.forEach(genre => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+
+                    const tdName = document.createElement('td');
+                    tdName.className = "p-4 font-semibold text-stone-200 text-sm align-middle";
+                    tdName.textContent = genre.name;
+                    tr.appendChild(tdName);
+
+                    const tdTmdb = document.createElement('td');
+                    tdTmdb.className = "p-4 text-center text-stone-400 align-middle";
+                    tdTmdb.textContent = genre.tmdb_genre_id || "Custom";
+                    tr.appendChild(tdTmdb);
+
+                    const tdActions = document.createElement('td');
+                    tdActions.className = "p-4 text-center align-middle";
+
+                    const actionsWrapper = document.createElement('div');
+                    actionsWrapper.className = "flex items-center justify-center";
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = "w-7 h-7 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center shadow-sm";
+                    deleteBtn.innerHTML = `<span class="material-symbols-outlined text-sm">delete</span>`;
+                    deleteBtn.addEventListener('click', () => deleteGenre(genre.id, genre.name));
+                    actionsWrapper.appendChild(deleteBtn);
+
+                    tdActions.appendChild(actionsWrapper);
+                    tr.appendChild(tdActions);
+                    genresTableBody.appendChild(tr);
+                });
+            }
+
+            addGenreBtn.addEventListener('click', () => {
+                genreForm.reset();
+                genreEditorModal.classList.remove('hidden');
+            });
+            genreEditorCancelBtn.addEventListener('click', () => genreEditorModal.classList.add('hidden'));
+
+            genreForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = genreFormName.value.trim();
+                if (!name) return;
+
+                fetch('/api/films/genres/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({ name: name })
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Genre Kustom berhasil ditambahkan!', 'success');
+                        genreEditorModal.classList.add('hidden');
+                        fetchGenres();
+                    })
+                    .catch(() => showToast('Gagal menambahkan genre kustom.', 'error'));
+            });
+
+            function deleteGenre(id, name) {
+                const confirmToast = document.createElement('div');
+                confirmToast.className = "bg-[#201f20] border border-rose-500/20 p-4 rounded-lg flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb] shadow-2xl fixed bottom-6 right-6 z-50 max-w-sm";
+
+                const p = document.createElement('p');
+                p.className = "font-medium text-stone-200";
+                p.textContent = `Hapus Genre '${name}'? Film yang terkait tidak akan terhapus namun relasi genrenya akan lepas.`;
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex gap-2 justify-end";
+
+                const yesBtn = document.createElement('button');
+                yesBtn.className = "px-3 py-1 rounded text-white bg-rose-500 font-semibold";
+                yesBtn.textContent = "Hapus";
+                yesBtn.addEventListener('click', () => {
+                    fetch(`/api/films/genres/${id}/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            showToast('Genre terhapus.', 'success');
+                            fetchGenres();
+                        })
+                        .catch(() => showToast('Gagal menghapus genre.', 'error'));
+                    confirmToast.remove();
+                });
+
+                const noBtn = document.createElement('button');
+                noBtn.className = "px-3 py-1 rounded border border-white/10 text-[#c9c5cb]";
+                noBtn.textContent = "Batal";
+                noBtn.addEventListener('click', () => confirmToast.remove());
+
+                btnGroup.appendChild(noBtn);
+                btnGroup.appendChild(yesBtn);
+                confirmToast.appendChild(p);
+                confirmToast.appendChild(btnGroup);
+                document.body.appendChild(confirmToast);
+            }
+
+
+            // ======================= 4. MODULE: USERS LOGIC (SUPERUSER ONLY) =======================
+            function fetchUsers() {
+                usersTableBody.textContent = "";
+                usersEmpty.classList.add('hidden');
+                usersLoading.classList.remove('hidden');
+
+                fetch('/api/auth/users/', {
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        usersLoading.classList.add('hidden');
+                        const users = Array.isArray(data) ? data : (data.results || []);
+
+                        if (users.length === 0) {
+                            usersEmpty.classList.remove('hidden');
+                            return;
+                        }
+
+                        renderUsersTable(users);
+                    })
+                    .catch(() => {
+                        usersLoading.classList.add('hidden');
+                        showToast('Gagal memuat daftar pengguna.', 'error');
+                    });
+            }
+
+            function renderUsersTable(users) {
+                usersTableBody.textContent = "";
+                users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+
+                    // Username
+                    const tdUsername = document.createElement('td');
+                    tdUsername.className = "p-4 font-semibold text-stone-200 text-sm align-middle";
+                    tdUsername.textContent = user.username;
+                    tr.appendChild(tdUsername);
+
+                    // Email
+                    const tdEmail = document.createElement('td');
+                    tdEmail.className = "p-4 text-stone-400 align-middle";
+                    tdEmail.textContent = user.email || "-";
+                    tr.appendChild(tdEmail);
+
+                    // is_staff badge
+                    const tdStaff = document.createElement('td');
+                    tdStaff.className = "p-4 text-center align-middle";
+                    const staffBadge = document.createElement('span');
+                    staffBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ";
+                    if (user.is_staff) {
+                        staffBadge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                        staffBadge.textContent = "Admin";
+                    } else {
+                        staffBadge.className += "bg-stone-500/10 text-stone-500";
+                        staffBadge.textContent = "Regular";
+                    }
+                    tdStaff.appendChild(staffBadge);
+                    tr.appendChild(tdStaff);
+
+                    // is_superuser badge
+                    const tdSuper = document.createElement('td');
+                    tdSuper.className = "p-4 text-center align-middle";
+                    const superBadge = document.createElement('span');
+                    superBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ";
+                    if (user.is_superuser) {
+                        superBadge.className += "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                        superBadge.textContent = "Super Admin";
+                    } else {
+                        superBadge.className += "bg-stone-500/10 text-stone-500";
+                        superBadge.textContent = "-";
+                    }
+                    tdSuper.appendChild(superBadge);
+                    tr.appendChild(tdSuper);
+
+                    // Actions
+                    const tdActions = document.createElement('td');
+                    tdActions.className = "p-4 text-center align-middle";
+
+                    const actionsWrapper = document.createElement('div');
+                    actionsWrapper.className = "flex items-center justify-center gap-1.5";
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = "w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-white/40 hover:text-white transition-all flex items-center justify-center shadow-sm";
+                    editBtn.innerHTML = `<span class="material-symbols-outlined text-sm">edit</span>`;
+                    editBtn.addEventListener('click', () => openUserEditor(user));
+                    actionsWrapper.appendChild(editBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = "w-7 h-7 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center shadow-sm";
+                    deleteBtn.innerHTML = `<span class="material-symbols-outlined text-sm">delete</span>`;
+                    deleteBtn.addEventListener('click', () => deleteUser(user.id, user.username));
+                    actionsWrapper.appendChild(deleteBtn);
+
+                    tdActions.appendChild(actionsWrapper);
+                    tr.appendChild(tdActions);
+                    usersTableBody.appendChild(tr);
+                });
+            }
+
+            addUserBtn.addEventListener('click', () => openUserEditor(null));
+            userEditorCancelBtn.addEventListener('click', () => userEditorModal.classList.add('hidden'));
+
+            function openUserEditor(user) {
+                userForm.reset();
+                if (user) {
+                    selectedUserId = user.id;
+                    userEditorTitle.textContent = "Sunting Otoritas Pengguna";
+
+                    userFormUsername.value = user.username;
+                    userFormUsername.disabled = true;
+                    userFormEmail.value = user.email || "";
+                    userFormPassword.placeholder = "Ketik password baru (biarkan kosong jika tidak diubah)";
+                    userFormIsStaff.checked = user.is_staff;
+                    userFormIsSuperuser.checked = user.is_superuser;
+                } else {
+                    selectedUserId = null;
+                    userEditorTitle.textContent = "Tambah Pengguna / Admin Baru";
+                    userFormUsername.disabled = false;
+                    userFormPassword.placeholder = "Kata sandi wajib diisi";
+                }
+                userEditorModal.classList.remove('hidden');
+            }
+
+            userForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = userFormUsername.value.trim();
+                const email = userFormEmail.value.trim();
+                const password = userFormPassword.value;
+                const isStaff = userFormIsStaff.checked;
+                const isSuperuser = userFormIsSuperuser.checked;
+
+                if (!username || !email) {
+                    showToast('Username dan Email wajib diisi.', 'warning');
+                    return;
+                }
+                if (!selectedUserId && !password) {
+                    showToast('Kata sandi wajib diisi untuk pengguna baru.', 'warning');
+                    return;
+                }
+
+                const payload = {
+                    username: username,
+                    email: email,
+                    is_staff: isStaff,
+                    is_superuser: isSuperuser
+                };
+                if (password) payload.password = password;
+
+                const url = selectedUserId ? `/api/auth/users/${selectedUserId}/` : '/api/auth/users/';
+                const method = selectedUserId ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.json().then(err => {
+                                const msg = err.error || err.detail || 'Gagal menyimpan perubahan pengguna.';
+                                throw new Error(msg);
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(() => {
+                        showToast('Data otoritas pengguna berhasil disimpan!', 'success');
+                        userEditorModal.classList.add('hidden');
+                        fetchUsers();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast(err.message || 'Gagal menyimpan perubahan pengguna.', 'error');
+                    });
+            });
+
+            function deleteUser(id, username) {
+                const confirmToast = document.createElement('div');
+                confirmToast.className = "bg-[#201f20] border border-rose-500/20 p-4 rounded-lg flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb] shadow-2xl fixed bottom-6 right-6 z-50 max-w-sm";
+
+                const p = document.createElement('p');
+                p.className = "font-medium text-stone-200";
+                p.textContent = `Hapus pengguna '${username}' secara permanen? Aksi ini tidak dapat dibatalkan.`;
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = "flex gap-2 justify-end";
+
+                const yesBtn = document.createElement('button');
+                yesBtn.className = "px-3 py-1 rounded text-white bg-rose-500 font-semibold";
+                yesBtn.textContent = "Hapus";
+                yesBtn.addEventListener('click', () => {
+                    fetch(`/api/auth/users/${id}/`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Token ${token}` }
+                    })
+                        .then(res => {
+                            if (!res.ok) {
+                                return res.json().then(err => { throw new Error(err.error || 'Gagal menghapus pengguna.'); });
+                            }
+                            showToast('Pengguna terhapus.', 'success');
+                            fetchUsers();
+                        })
+                        .catch(err => showToast(err.message || 'Gagal menghapus pengguna.', 'error'));
+                    confirmToast.remove();
+                });
+
+                const noBtn = document.createElement('button');
+                noBtn.className = "px-3 py-1 rounded border border-white/10 text-[#c9c5cb]";
+                noBtn.textContent = "Batal";
+                noBtn.addEventListener('click', () => confirmToast.remove());
+
+                btnGroup.appendChild(noBtn);
+                btnGroup.appendChild(yesBtn);
+                confirmToast.appendChild(p);
+                confirmToast.appendChild(btnGroup);
+                document.body.appendChild(confirmToast);
+            }
+        });
+    </script>
+</body>
+
+</html>

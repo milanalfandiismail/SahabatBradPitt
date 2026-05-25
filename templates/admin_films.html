@@ -1158,16 +1158,27 @@
 
             // ======================= MODULE: MOVIES LOGIC =======================
             function fetchStats() {
-                fetch('/api/films/stats/', {
-                    headers: { 'Authorization': `Token ${token}` }
-                })
+                fetch('/api/films/stats/')
                     .then(res => res.json())
                     .then(stats => {
-                        statTotal.textContent = stats.total || 0;
-                        statPublished.textContent = stats.published || 0;
-                        statPending.textContent = stats.pending_approval || 0;
-                        statDraft.textContent = stats.draft || 0;
-                        statRejected.textContent = stats.rejected || 0;
+                        // Update total films
+                        statTotal.textContent = stats.total_films || 0;
+                        
+                        // Extract status counts from by_status array
+                        let published = 0, pending = 0, draft = 0, rejected = 0;
+                        if (stats.by_status && Array.isArray(stats.by_status)) {
+                            stats.by_status.forEach(item => {
+                                if (item.status === 'published') published = item.count;
+                                else if (item.status === 'pending_approval') pending = item.count;
+                                else if (item.status === 'draft') draft = item.count;
+                                else if (item.status === 'rejected') rejected = item.count;
+                            });
+                        }
+                        
+                        statPublished.textContent = published;
+                        statPending.textContent = pending;
+                        statDraft.textContent = draft;
+                        statRejected.textContent = rejected;
                     })
                     .catch(err => console.error("Error loading stats:", err));
             }

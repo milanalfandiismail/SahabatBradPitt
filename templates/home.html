@@ -189,6 +189,12 @@
             document.getElementById("hero-synopsis").textContent =
                 film.synopsis || "Film berkualitas tinggi dari katalog sinema premium.";
             document.getElementById("hero-detail-btn").href = `/movies/${film.id}/`;
+            
+            // Display genres if available
+            if (film.genre_display && film.genre_display.length > 0) {
+                const genreNames = film.genre_display.map(g => g.name || g).join(", ");
+                document.getElementById("hero-year").textContent = `${film.release_year || ""} • ${genreNames}`;
+            }
 
             // Dot indicators
             const dotsEl = document.getElementById("hero-dots");
@@ -293,8 +299,16 @@
                     textWrap.appendChild(title);
 
                     const meta = document.createElement("div");
-                    meta.className = "flex items-center gap-2 text-xs text-stone-400";
-                    meta.innerHTML = `<span class="flex items-center text-[#F5C518]"><span class="material-symbols-outlined text-[10px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span> ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}</span> <span>${film.release_year}</span>`;
+                    meta.className = "flex items-center gap-2 text-xs text-stone-400 flex-wrap";
+                    let metaHTML = `<span class="flex items-center text-[#F5C518]"><span class="material-symbols-outlined text-[10px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span> ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}</span> <span>${film.release_year}</span>`;
+                    
+                    // Add genres if available
+                    if (film.genre_display && film.genre_display.length > 0) {
+                        const genreNames = film.genre_display.map(g => g.name || g).join(", ");
+                        metaHTML += ` <span class="text-[#D3DAD9]">${genreNames}</span>`;
+                    }
+                    
+                    meta.innerHTML = metaHTML;
                     textWrap.appendChild(meta);
 
                     inner.appendChild(textWrap);
@@ -464,10 +478,14 @@
             star.innerHTML = `<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">star</span> ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}`;
             meta.appendChild(star);
 
-            if (film.genre && film.genre.length > 0) {
+            if (film.genre_display && film.genre_display.length > 0) {
                 const genre = document.createElement("span");
                 genre.className = "text-[#D3DAD9] border border-white/10 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider";
-                genre.textContent = typeof film.genre[0] === 'object' ? film.genre[0].name : film.genre[0];
+                // Extract genre name from object or use as string
+                const genreName = Array.isArray(film.genre_display) 
+                    ? (film.genre_display[0].name || film.genre_display[0])
+                    : (film.genre_display.name || film.genre_display);
+                genre.textContent = genreName;
                 meta.appendChild(genre);
             }
             textWrap.appendChild(meta);

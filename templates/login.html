@@ -75,13 +75,13 @@
                 </button>
             </form>
 
-            <div class="relative flex items-center justify-center my-2 text-xs">
+            <div id="or-separator" class="relative flex items-center justify-center my-2 text-xs">
                 <div class="w-full border-t border-white/10 absolute"></div>
                 <span class="px-3 bg-[#44444E] relative z-10 text-stone-500 font-['DM_Sans']">atau</span>
             </div>
 
             <!-- Sign Up Redirect -->
-            <p class="text-center font-['DM_Sans'] text-sm text-stone-400">
+            <p id="signup-redirect-box" class="text-center font-['DM_Sans'] text-sm text-stone-400">
                 Belum memiliki akun? 
                 <a class="text-[#715A5A] font-semibold hover:underline ml-1" href="/signup/">Sign Up</a>
             </p>
@@ -104,6 +104,21 @@
         // Redirect if already authenticated
         if (localStorage.getItem("auth_token")) {
             window.location.href = "/profile/";
+        }
+
+        // Hide registration links if logging in as admin (redirected from admin portal)
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('next') && params.get('next').includes('admin')) {
+            const signupBox = document.getElementById("signup-redirect-box");
+            const orSeparator = document.getElementById("or-separator");
+            if (signupBox) signupBox.classList.add("hidden");
+            if (orSeparator) orSeparator.classList.add("hidden");
+
+            // Update page instructions to target staff/admin context
+            const desc = document.querySelector(".w-full.lg\\:w-1\\/2 p.text-sm");
+            if (desc) {
+                desc.textContent = "Sign in dengan kredensial staff atau superadmin Anda untuk mengelola portal.";
+            }
         }
 
         form.addEventListener("submit", function(e) {

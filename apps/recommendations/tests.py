@@ -52,12 +52,11 @@ class RecommendationSystemTestCase(TestCase):
 
     def test_expert_system_filtering(self):
         """Menguji aturan logika filter IF-THEN dari Sistem Pakar."""
-        # Uji filter mood 'santai' (mengambil genre Komedi)
+        # Uji filter genre
         preferences = {
-            "mood": "santai",
+            "genres": [self.comedy.id],
             "era": "2010s",
-            "duration": "pendek",
-            "min_rating": 7.0
+            "duration": "pendek"
         }
         candidates = ExpertSystemFilter.get_candidates(preferences)
         self.assertIn(self.film3, candidates)
@@ -67,29 +66,27 @@ class RecommendationSystemTestCase(TestCase):
         """Menguji bahwa skor preferensi TOPSIS bernilai logis di rentang [0, 1]."""
         candidates = Film.objects.all()
         preferences = {
-            "mood": "sedih",  # Mengambil Drama
+            "focus": "rating",
             "genres": [],
             "era": "90s",
-            "duration": "sedang",
-            "min_rating": 5.0
+            "duration": "sedang"
         }
         results = TopsisSPK.calculate_scores(candidates, preferences)
         
         self.assertTrue(len(results) > 0)
         for res in results:
-            score = res["score"]
+            score = res["topsis_score"]
             self.assertGreaterEqual(score, 0.0)
             self.assertLessEqual(score, 1.0)
             # Pastikan teks reasoning berhasil dibuat
-            self.assertTrue(len(res["reason"]) > 0)
+            self.assertTrue(len(res["reasoning"]) > 0)
 
     def test_recommendation_api_anonymous(self):
         """Menguji endpoint API rekomendasi untuk pengguna tanpa autentikasi (tamu)."""
         payload = {
-            "mood": "santai",
+            "focus": "popular",
             "era": "2010s",
-            "duration": "pendek",
-            "min_rating": 6.0
+            "duration": "pendek"
         }
         response = self.client.post("/api/recommendations/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -105,10 +102,9 @@ class RecommendationSystemTestCase(TestCase):
         """Menguji endpoint API rekomendasi untuk pengguna terdaftar."""
         self.client.force_authenticate(user=self.user)
         payload = {
-            "mood": "sedih",
+            "focus": "genre",
             "era": "90s",
-            "duration": "sedang",
-            "min_rating": 8.0
+            "duration": "sedang"
         }
         response = self.client.post("/api/recommendations/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

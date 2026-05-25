@@ -140,7 +140,12 @@
                 document.getElementById("rank-1-img").src = poster1;
                 document.getElementById("rank-1-title").textContent = f1.title;
                 document.getElementById("rank-1-rating").textContent = f1.avg_rating ? parseFloat(f1.avg_rating).toFixed(1) : "N/A";
-                document.getElementById("rank-1-year").textContent = f1.release_year;
+                let rank1YearText = f1.release_year || "";
+                if (f1.genre_display && f1.genre_display.length > 0) {
+                    const genreNames = f1.genre_display.map(g => g.name || g).join(", ");
+                    rank1YearText += ` • ${genreNames}`;
+                }
+                document.getElementById("rank-1-year").textContent = rank1YearText;
                 document.getElementById("rank-1-synopsis").textContent = f1.synopsis || "Sinopsis tidak tersedia.";
                 document.getElementById("backdrop-banner").style.backgroundImage = `url('${poster1}')`;
                 
@@ -159,7 +164,12 @@
                     document.getElementById("rank-2-img").src = poster2;
                     document.getElementById("rank-2-title").textContent = f2.title;
                     document.getElementById("rank-2-rating").textContent = f2.avg_rating ? parseFloat(f2.avg_rating).toFixed(1) : "N/A";
-                    document.getElementById("rank-2-year").textContent = f2.release_year;
+                    let rank2YearText = f2.release_year || "";
+                    if (f2.genre_display && f2.genre_display.length > 0) {
+                        const genreNames = f2.genre_display.map(g => g.name || g).join(", ");
+                        rank2YearText += ` • ${genreNames}`;
+                    }
+                    document.getElementById("rank-2-year").textContent = rank2YearText;
                     document.getElementById("rank-2-synopsis").textContent = f2.synopsis || "Sinopsis tidak tersedia.";
                     
                     document.getElementById("rank-2-card").addEventListener("click", () => {
@@ -176,7 +186,12 @@
                     document.getElementById("rank-3-img").src = poster3;
                     document.getElementById("rank-3-title").textContent = f3.title;
                     document.getElementById("rank-3-rating").textContent = f3.avg_rating ? parseFloat(f3.avg_rating).toFixed(1) : "N/A";
-                    document.getElementById("rank-3-year").textContent = f3.release_year;
+                    let rank3YearText = f3.release_year || "";
+                    if (f3.genre_display && f3.genre_display.length > 0) {
+                        const genreNames = f3.genre_display.map(g => g.name || g).join(", ");
+                        rank3YearText += ` • ${genreNames}`;
+                    }
+                    document.getElementById("rank-3-year").textContent = rank3YearText;
                     document.getElementById("rank-3-synopsis").textContent = f3.synopsis || "Sinopsis tidak tersedia.";
                     
                     document.getElementById("rank-3-card").addEventListener("click", () => {
@@ -226,7 +241,12 @@
                     title.textContent = film.title;
                     const meta = document.createElement("p");
                     meta.className = "font-['DM_Sans'] text-xs text-stone-500 uppercase tracking-wider";
-                    meta.textContent = `${film.release_year} • ${film.duration ? film.duration + ' menit' : 'N/A'}`;
+                    let metaText = `${film.release_year} • ${film.duration ? film.duration + ' menit' : 'N/A'}`;
+                    if (film.genre_display && film.genre_display.length > 0) {
+                        const genreNames = film.genre_display.map(g => g.name || g).join(", ");
+                        metaText += ` • ${genreNames}`;
+                    }
+                    meta.textContent = metaText;
                     mid.appendChild(title);
                     mid.appendChild(meta);
 

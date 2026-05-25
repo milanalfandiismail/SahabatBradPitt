@@ -5,6 +5,7 @@ from apps.films.models import Film, Genre
 from apps.films.serializers import FilmSerializer, GenreSerializer
 from django.db.models import Q, Count, Avg, Sum
 from apps.films.services import TMDBService
+from apps.users.permissions import IsAdminOrSuperadmin, IsSuperadmin
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by('name')
@@ -20,10 +21,13 @@ class FilmViewSet(viewsets.ModelViewSet):
     serializer_class = FilmSerializer
 
     def get_permissions(self):
-        # Otorisasi RBAC: Tamu/Regular user hanya read-only, Admin bisa write
-        if self.action in ['list', 'retrieve', 'search', 'similar']:
+        """Override permissions based on action"""
+        if self.action in ['list', 'retrieve', 'search', 'similar', 'stats']:
             return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
+        elif self.action in ['approve', 'reject']:
+            return [IsSuperadmin()]
+        else:
+            return [IsAdminOrSuperadmin()]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -278,12 +282,19 @@ class FilmViewSet(viewsets.ModelViewSet):
     def manage_images_post(self, request, pk=None):
         """
         POST /api/films/<id>/images/
-        Unggah foto galeri (backdrop) secara terproteksi (Hanya Admin).
+        Unggah foto galeri (backdrop atau poster) secara terproteksi (Hanya Admin).
+        Body: form-data dengan 'image' file dan 'image_type' (backdrop atau poster)
         """
         film = self.get_object()
         file_obj = request.FILES.get('image')
+        image_type = request.data.get('image_type', 'backdrop')
+        
         if not file_obj:
             return Response({"error": "File gambar tidak ditemukan dalam request."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validasi image_type
+        if image_type not in ['backdrop', 'poster']:
+            return Response({"error": "image_type harus 'backdrop' atau 'poster'."}, status=status.HTTP_400_BAD_REQUEST)
         
         # Validasi ukuran file (5MB limit)
         if file_obj.size > 5 * 1024 * 1024:
@@ -302,8 +313,13 @@ class FilmViewSet(viewsets.ModelViewSet):
         from apps.films.models import FilmImage
         
         filename = f"{uuid.uuid4()}{ext}"
-        # Simpan ke media/films/backdrops/
-        relative_path = os.path.join('films', 'backdrops', filename)
+        
+        # Simpan ke media/films/backdrops/ atau media/films/posters/ berdasarkan image_type
+        if image_type == 'poster':
+            relative_path = os.path.join('films', 'posters', filename)
+        else:
+            relative_path = os.path.join('films', 'backdrops', filename)
+        
         saved_path = default_storage.save(relative_path, ContentFile(file_obj.read()))
         
         # Simpan record FilmImage
@@ -313,7 +329,7 @@ class FilmViewSet(viewsets.ModelViewSet):
         film_image = FilmImage.objects.create(
             film=film,
             file_path=file_path_value,
-            image_type='backdrop'
+            image_type=image_type
         )
         
         from apps.films.serializers import FilmImageSerializer
@@ -345,4 +361,109 @@ class FilmViewSet(viewsets.ModelViewSet):
                 
         film_image.delete()
         return Response({"message": "Gambar galeri berhasil dihapus."}, status=status.HTTP_200_OK)
+    
+    def perform_create(self, serializer):
+        """Set created_by and status based on user role"""
+        user = self.request.user
+        is_superadmin = user.groups.filter(name='Superadmin').exists()
+        
+        serializer.save(
+            created_by=user,
+            updated_by=user,
+            is_local_edit=True,
+            status='published' if is_superadmin else 'pending_approval'
+        )
+    
+    def perform_update(self, serializer):
+        """Set updated_by and status based on user role"""
+        user = self.request.user
+        is_superadmin = user.groups.filter(name='Superadmin').exists()
+        
+        # If Admin is editing, set to pending_approval
+        if not is_superadmin:
+            serializer.save(
+                updated_by=user,
+                is_local_edit=True,
+                status='pending_approval'
+            )
+        else:
+            serializer.save(updated_by=user)
+    
+    def perform_destroy(self, instance):
+        """
+        DELETE /api/films/<id>/
+        Hapus film dan file lokal yang terkait (poster & backdrops).
+        File external dari TMDB tidak dihapus karena disimpan di CDN TMDB.
+        """
+        import os
+        from django.core.files.storage import default_storage
+        from apps.films.models import FilmImage
+        
+        # Hapus semua FilmImage yang terkait dengan film ini
+        film_images = FilmImage.objects.filter(film=instance)
+        for film_image in film_images:
+            file_path_val = film_image.file_path
+            # Hanya hapus file jika merupakan path lokal (/media/...)
+            # File external dari TMDB tidak akan dihapus
+            if file_path_val.startswith('/media/'):
+                # Ambil path relatif storage (buang prefix '/media/')
+                storage_path = file_path_val.replace('/media/', '', 1)
+                if default_storage.exists(storage_path):
+                    default_storage.delete(storage_path)
+            
+            # Hapus record FilmImage dari database
+            film_image.delete()
+        
+        # Hapus film dari database
+        instance.delete()
+    
+    @action(detail=True, methods=['post'], url_path='approve', permission_classes=[IsSuperadmin])
+    def approve(self, request, pk=None):
+        """
+        POST /api/films/<id>/approve/
+        Approve a pending film (Superadmin only).
+        """
+        film = self.get_object()
+        
+        if film.status != 'pending_approval':
+            return Response(
+                {"error": "Film ini tidak dalam status pending approval."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        film.status = 'published'
+        film.rejection_reason = ''
+        film.save()
+        
+        serializer = self.get_serializer(film)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='reject', permission_classes=[IsSuperadmin])
+    def reject(self, request, pk=None):
+        """
+        POST /api/films/<id>/reject/
+        Reject a pending film (Superadmin only).
+        Body: {"rejection_reason": "..."}
+        """
+        film = self.get_object()
+        rejection_reason = request.data.get('rejection_reason', '')
+        
+        if film.status != 'pending_approval':
+            return Response(
+                {"error": "Film ini tidak dalam status pending approval."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not rejection_reason:
+            return Response(
+                {"error": "Alasan penolakan harus diisi."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        film.status = 'rejected'
+        film.rejection_reason = rejection_reason
+        film.save()
+        
+        serializer = self.get_serializer(film)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

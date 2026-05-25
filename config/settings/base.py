@@ -117,3 +117,6 @@ REST_FRAMEWORK = {
 TMDB_API_KEY = config('TMDB_API_KEY', default='')
 TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
+
+# YouTube Data API Settings
+YOUTUBE_API_KEY = config('YOUTUBE_API_KEY', default='')

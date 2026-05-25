@@ -21,37 +21,36 @@
         <div
             class="bg-[#201f20] rounded-xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-6 font-['DM_Sans']">
             <!-- Badge Preferensi Akun -->
-            <div id="preferences-badge" class="hidden bg-[#715A5A]/10 border border-[#715A5A]/30 rounded-lg p-3 text-stone-300 text-xs flex items-center gap-2 mb-2">
+            <div id="preferences-badge"
+                class="hidden bg-[#715A5A]/10 border border-[#715A5A]/30 rounded-lg p-3 text-stone-300 text-xs flex items-center gap-2 mb-2">
                 <span class="material-symbols-outlined text-[#F5C518] text-base">push_pin</span>
                 <span>Menggunakan preferensi akun Anda sebagai nilai default awal.</span>
             </div>
 
-            <!-- Mood Pilihan -->
+            <!-- Focus Pilihan -->
             <div class="flex flex-col gap-2">
-                <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">1. Bagaimana Suasana Hati
-                    Anda?</label>
-                <div class="grid grid-cols-2 gap-3 mt-1" id="mood-selector">
+                <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">1. Fokus Rekomendasi
+                    (AI)</label>
+                <div class="grid grid-cols-2 gap-3 mt-1" id="focus-selector">
                     <button type="button"
-                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 mood-btn text-sm"
-                        data-mood="santai">
-                        <span class="material-symbols-outlined text-sm text-green-400">sentiment_satisfied</span> Santai
-                        / Gembira
+                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm"
+                        data-focus="rating">
+                        <span class="material-symbols-outlined text-sm text-green-400">star</span> Rating Tertinggi
                     </button>
                     <button type="button"
-                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 mood-btn text-sm"
-                        data-mood="tegang">
-                        <span class="material-symbols-outlined text-sm text-red-400">gavel</span> Tegang / Misterius
+                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm"
+                        data-focus="popular">
+                        <span class="material-symbols-outlined text-sm text-red-400">trending_up</span> Paling Populer
                     </button>
                     <button type="button"
-                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 mood-btn text-sm"
-                        data-mood="sedih">
-                        <span class="material-symbols-outlined text-sm text-blue-400">sentiment_very_dissatisfied</span>
-                        Sedih / Melankolis
+                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm"
+                        data-focus="genre">
+                        <span class="material-symbols-outlined text-sm text-blue-400">category</span> Sesuai Genre
                     </button>
                     <button type="button"
-                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 mood-btn text-sm"
-                        data-mood="semangat">
-                        <span class="material-symbols-outlined text-sm text-yellow-400">bolt</span> Bersemangat / Heroik
+                        class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm border-[#715A5A] bg-[#715A5A]/20"
+                        data-focus="balanced">
+                        <span class="material-symbols-outlined text-sm text-yellow-400">balance</span> Seimbang
                     </button>
                 </div>
             </div>
@@ -103,16 +102,7 @@
                 </div>
             </div>
 
-            <!-- Rating minimum -->
-            <div class="flex flex-col gap-2">
-                <div class="flex justify-between text-xs font-bold tracking-wider text-stone-400 uppercase">
-                    <span>5. Rating Rerata Minimum</span>
-                    <span id="min-rating-val" class="text-[#F5C518] font-bold">0.0</span>
-                </div>
-                <input id="min-rating-slider"
-                    class="w-full accent-[#715A5A] h-1 bg-[#141314] rounded-lg appearance-none cursor-pointer mt-1"
-                    max="10" min="0" step="0.5" type="range" value="0" />
-            </div>
+
 
             <!-- Submit Button -->
             <button id="recommend-btn"
@@ -126,8 +116,8 @@
     <section class="w-full lg:w-[55%] flex flex-col gap-6">
         <div class="flex items-center gap-4 mb-4">
             <div class="w-8 h-[1px] bg-white/10"></div>
-            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] font-bold tracking-wide">Top 5 Hasil
-                Pemeringkatan</h2>
+            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] font-bold tracking-wide">Hasil
+                Pemeringkatan AI</h2>
         </div>
 
         <div id="results-placeholder"
@@ -152,6 +142,12 @@
         <div id="recommendations-feed" class="hidden flex flex-col gap-6">
             <!-- dynamically populated movie results -->
         </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls"
+            class="mt-8 flex flex-wrap justify-center items-center gap-2 font-['DM_Sans'] text-sm hidden">
+            <!-- Dynamic page buttons -->
+        </div>
     </section>
 </main>
 {% endblock %}
@@ -161,13 +157,11 @@
     document.addEventListener("DOMContentLoaded", function () {
         const genresGrid = document.getElementById("genres-grid");
 
-        let selectedMood = null;
+        let selectedFocus = "balanced";
         let selectedGenres = [];
         let selectedEra = null;
         let selectedDuration = null;
 
-        const minRatingSlider = document.getElementById("min-rating-slider");
-        const minRatingVal = document.getElementById("min-rating-val");
 
         const recommendBtn = document.getElementById("recommend-btn");
         const resultsPlaceholder = document.getElementById("results-placeholder");
@@ -175,16 +169,12 @@
         const feed = document.getElementById("recommendations-feed");
 
         // 1. Interactive selectors binding
-        const moodBtns = document.querySelectorAll(".mood-btn");
-        moodBtns.forEach(btn => {
+        const focusBtns = document.querySelectorAll(".focus-btn");
+        focusBtns.forEach(btn => {
             btn.addEventListener("click", () => {
-                moodBtns.forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20"));
-                if (selectedMood === btn.getAttribute("data-mood")) {
-                    selectedMood = null;
-                } else {
-                    selectedMood = btn.getAttribute("data-mood");
-                    btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
-                }
+                focusBtns.forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20"));
+                selectedFocus = btn.getAttribute("data-focus");
+                btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
             });
         });
 
@@ -214,9 +204,6 @@
             });
         });
 
-        minRatingSlider.addEventListener("input", () => {
-            minRatingVal.textContent = parseFloat(minRatingSlider.value).toFixed(1);
-        });
 
         // 2. Load user preferences & available genres as select chips
         const token = localStorage.getItem("auth_token");
@@ -235,16 +222,17 @@
                 .then(user => {
                     if (user.preferences) {
                         savedPreferences = user.preferences;
-                        
+
                         // Show badge
                         const badge = document.getElementById("preferences-badge");
                         if (badge) badge.classList.remove("hidden");
 
-                        // Auto-select Mood
-                        if (savedPreferences.pref_mood) {
-                            selectedMood = savedPreferences.pref_mood;
-                            const moodBtn = document.querySelector(`.mood-btn[data-mood="${selectedMood}"]`);
-                            if (moodBtn) moodBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
+                        // Auto-select Focus
+                        if (savedPreferences.pref_focus) {
+                            selectedFocus = savedPreferences.pref_focus;
+                            document.querySelectorAll(".focus-btn").forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20"));
+                            const focusBtn = document.querySelector(`.focus-btn[data-focus="${selectedFocus}"]`);
+                            if (focusBtn) focusBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
                         }
 
                         // Auto-select Era
@@ -261,11 +249,7 @@
                             if (durationBtn) durationBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white");
                         }
 
-                        // Auto-select Min Rating
-                        if (savedPreferences.pref_min_rating !== undefined && savedPreferences.pref_min_rating !== null) {
-                            minRatingSlider.value = savedPreferences.pref_min_rating;
-                            minRatingVal.textContent = parseFloat(savedPreferences.pref_min_rating).toFixed(1);
-                        }
+
                     }
                 })
                 .catch(err => {
@@ -283,7 +267,8 @@
                 .then(res => res.json())
                 .then(genres => {
                     genresGrid.textContent = "";
-                    genres.forEach(genre => {
+                    const genreList = Array.isArray(genres) ? genres : (genres.results || []);
+                    genreList.forEach(genre => {
                         const chip = document.createElement("button");
                         chip.type = "button";
                         chip.className = "px-3 py-1.5 rounded-full border border-white/10 text-stone-400 text-xs hover:border-[#715A5A] transition-all";
@@ -316,11 +301,10 @@
             resultsLoading.classList.remove("hidden");
 
             const bodyData = {
-                mood: selectedMood || "",
+                focus: selectedFocus || "balanced",
                 genres: selectedGenres,
                 era: selectedEra || "",
-                duration: selectedDuration || "",
-                min_rating: parseFloat(minRatingSlider.value)
+                duration: selectedDuration || ""
             };
 
             const token = localStorage.getItem("auth_token");
@@ -331,6 +315,9 @@
                 headers["Authorization"] = `Token ${token}`;
             }
 
+            let allRecommendations = [];
+            let currentRecPage = 1;
+
             fetch("/api/recommendations/", {
                 method: "POST",
                 headers: headers,
@@ -339,125 +326,16 @@
                 .then(res => res.json())
                 .then(data => {
                     resultsLoading.classList.add("hidden");
-                    feed.classList.remove("hidden");
-                    feed.textContent = "";
-
-                    const results = data.results;
-                    if (!results || results.length === 0) {
-                        const empty = document.createElement("div");
-                        empty.className = "bg-[#201f20] rounded-xl p-12 border border-white/5 text-center text-stone-500 font-['DM_Sans'] h-[300px] flex flex-col justify-center items-center";
-
-                        const emptyIcon = document.createElement("span");
-                        emptyIcon.className = "material-symbols-outlined text-5xl text-stone-600 mb-3";
-                        emptyIcon.textContent = "gavel";
-
-                        const emptyTitle = document.createElement("h3");
-                        emptyTitle.className = "text-stone-300 font-medium";
-                        emptyTitle.textContent = "Kandidat Kosong";
-
-                        const emptyDesc = document.createElement("p");
-                        emptyDesc.className = "text-xs text-stone-500 mt-2 max-w-xs";
-                        emptyDesc.textContent = "Sistem Pakar tidak menemukan kecocokan bahkan setelah melonggarkan filter. Silakan turunkan minimal rating Anda.";
-
-                        empty.appendChild(emptyIcon);
-                        empty.appendChild(emptyTitle);
-                        empty.appendChild(emptyDesc);
-                        feed.appendChild(empty);
-                        return;
-                    }
-
-                    results.forEach((item, index) => {
-                        const card = document.createElement("div");
-                        card.className = "bg-[#201f20] rounded-xl p-5 border border-white/5 flex flex-col sm:flex-row items-center sm:items-stretch gap-5 shadow-2xl relative hover:scale-[1.01] transition-all cursor-pointer";
-                        card.addEventListener("click", () => {
-                            window.location.href = `/movies/${item.id}/`;
-                        });
-
-                        // Rank Indicator Badge
-                        const badge = document.createElement("div");
-                        badge.className = "absolute -left-3 -top-3 w-8 h-8 rounded-full bg-[#715A5A] text-white flex items-center justify-center font-serif text-sm font-bold shadow-lg border border-white/10";
-                        badge.textContent = `#${index + 1}`;
-                        card.appendChild(badge);
-
-                        // Image Poster
-                        const posterWrap = document.createElement("div");
-                        posterWrap.className = "w-20 h-28 sm:w-28 sm:h-40 rounded-lg overflow-hidden shrink-0 bg-surface-dim shadow-md";
-
-                        let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300";
-                        if (item.poster_path) {
-                            pUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
-                        }
-                        const img = document.createElement("img");
-                        img.className = "w-full h-full object-cover";
-                        img.src = pUrl;
-                        img.alt = item.title;
-                        posterWrap.appendChild(img);
-
-                        const content = document.createElement("div");
-                        content.className = "flex-grow flex flex-col gap-2 justify-center min-w-0";
-
-                        const titleRow = document.createElement("div");
-                        titleRow.className = "flex justify-between items-start gap-4 min-w-0 w-full";
-
-                        const titleCol = document.createElement("div");
-                        titleCol.className = "min-w-0 flex-1";
-
-                        const title = document.createElement("h3");
-                        title.className = "font-['Playfair_Display'] text-xl font-bold text-white line-clamp-1 truncate";
-                        title.textContent = item.title;
-                        titleCol.appendChild(title);
-                        titleRow.appendChild(titleCol);
-
-                        // Match Percentage based on TOPSIS Score
-                        const matchPercent = document.createElement("div");
-                        matchPercent.className = "px-2 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-green-400 font-bold text-[11px] shrink-0";
-
-                        const scoreVal = item.topsis_score ? (item.topsis_score * 100).toFixed(0) : "N/A";
-                        matchPercent.textContent = `${scoreVal}% MATCH`;
-                        titleRow.appendChild(matchPercent);
-                        content.appendChild(titleRow);
-
-                        const meta = document.createElement("div");
-                        meta.className = "flex items-center gap-2 text-stone-400 text-xs font-['DM_Sans']";
-
-                        const starSpan = document.createElement("span");
-                        starSpan.className = "material-symbols-outlined text-xs text-[#F5C518]";
-                        starSpan.style.fontVariationSettings = "'FILL' 1";
-                        starSpan.textContent = "star";
-                        meta.appendChild(starSpan);
-
-                        const ratingSpan = document.createElement("span");
-                        ratingSpan.className = "text-stone-300 font-medium";
-                        ratingSpan.textContent = item.avg_rating ? parseFloat(item.avg_rating).toFixed(1) : 'N/A';
-                        meta.appendChild(ratingSpan);
-
-                        meta.appendChild(document.createTextNode(" • "));
-
-                        const yearSpan = document.createElement("span");
-                        yearSpan.textContent = item.release_year;
-                        meta.appendChild(yearSpan);
-
-                        meta.appendChild(document.createTextNode(" • "));
-
-                        const durationSpan = document.createElement("span");
-                        durationSpan.textContent = item.duration ? `${item.duration} menit` : 'N/A';
-                        meta.appendChild(durationSpan);
-                        content.appendChild(meta);
-
-                        const reason = document.createElement("p");
-                        reason.className = "text-stone-400 text-xs leading-relaxed mt-2 p-3 rounded bg-[#141314]/50 border border-white/5 font-['DM_Sans']";
-                        reason.textContent = item.reasoning || "Direkomendasikan karena kesesuaian parameter rating tinggi dan bobot popularitas TOPSIS.";
-                        content.appendChild(reason);
-
-                        card.appendChild(posterWrap);
-                        card.appendChild(content);
-                        feed.appendChild(card);
-                    });
+                    allRecommendations = data.results || [];
+                    currentRecPage = 1;
+                    renderRecommendationsPage();
                 })
                 .catch(err => {
                     console.error("Gagal mendapatkan rekomendasi:", err);
                     resultsLoading.classList.add("hidden");
                     feed.classList.remove("hidden");
+                    const paginationCtrls = document.getElementById("pagination-controls");
+                    if (paginationCtrls) paginationCtrls.classList.add("hidden");
 
                     feed.textContent = "";
                     const errorState = document.createElement("p");
@@ -465,6 +343,205 @@
                     errorState.textContent = "Gagal menghubungkan ke mesin AI rekomendasi.";
                     feed.appendChild(errorState);
                 });
+
+            function renderRecommendationsPage() {
+                const paginationCtrls = document.getElementById("pagination-controls");
+                feed.classList.remove("hidden");
+                feed.textContent = "";
+
+                if (!allRecommendations || allRecommendations.length === 0) {
+                    if (paginationCtrls) paginationCtrls.classList.add("hidden");
+
+                    const empty = document.createElement("div");
+                    empty.className = "bg-[#201f20] rounded-xl p-12 border border-white/5 text-center text-stone-500 font-['DM_Sans'] h-[300px] flex flex-col justify-center items-center";
+
+                    const emptyIcon = document.createElement("span");
+                    emptyIcon.className = "material-symbols-outlined text-5xl text-stone-600 mb-3";
+                    emptyIcon.textContent = "gavel";
+
+                    const emptyTitle = document.createElement("h3");
+                    emptyTitle.className = "text-stone-300 font-medium";
+                    emptyTitle.textContent = "Kandidat Kosong";
+
+                    const emptyDesc = document.createElement("p");
+                    emptyDesc.className = "text-xs text-stone-500 mt-2 max-w-xs";
+                    emptyDesc.textContent = "Sistem Pakar tidak menemukan kecocokan bahkan setelah melonggarkan filter. Silakan turunkan minimal rating Anda.";
+
+                    empty.appendChild(emptyIcon);
+                    empty.appendChild(emptyTitle);
+                    empty.appendChild(emptyDesc);
+                    feed.appendChild(empty);
+                    return;
+                }
+
+                // Client-side Paginate: 5 items per page
+                const itemsPerPage = 5;
+                const totalItems = allRecommendations.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+                const startIndex = (currentRecPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+                const pageItems = allRecommendations.slice(startIndex, endIndex);
+
+                pageItems.forEach((item, index) => {
+                    const globalIndex = startIndex + index;
+                    const card = document.createElement("div");
+                    card.className = "bg-[#201f20] rounded-xl p-5 border border-white/5 flex flex-col sm:flex-row items-center sm:items-stretch gap-5 shadow-2xl relative hover:scale-[1.01] transition-all cursor-pointer";
+                    card.addEventListener("click", () => {
+                        window.location.href = `/movies/${item.id}/`;
+                    });
+
+                    // Rank Indicator Badge
+                    const badge = document.createElement("div");
+                    badge.className = "absolute -left-3 -top-3 w-8 h-8 rounded-full bg-[#715A5A] text-white flex items-center justify-center font-serif text-sm font-bold shadow-lg border border-white/10";
+                    badge.textContent = `#${globalIndex + 1}`;
+                    card.appendChild(badge);
+
+                    // Image Poster
+                    const posterWrap = document.createElement("div");
+                    posterWrap.className = "w-20 h-28 sm:w-28 sm:h-40 rounded-lg overflow-hidden shrink-0 bg-surface-dim shadow-md";
+
+                    let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300";
+                    if (item.poster_path) {
+                        pUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                    }
+                    const img = document.createElement("img");
+                    img.className = "w-full h-full object-cover";
+                    img.src = pUrl;
+                    img.alt = item.title;
+                    posterWrap.appendChild(img);
+
+                    const content = document.createElement("div");
+                    content.className = "flex-grow flex flex-col gap-2 justify-center min-w-0";
+
+                    const titleRow = document.createElement("div");
+                    titleRow.className = "flex justify-between items-start gap-4 min-w-0 w-full";
+
+                    const titleCol = document.createElement("div");
+                    titleCol.className = "min-w-0 flex-1";
+
+                    const title = document.createElement("h3");
+                    title.className = "font-['Playfair_Display'] text-xl font-bold text-white line-clamp-1 truncate";
+                    title.textContent = item.title;
+                    titleCol.appendChild(title);
+                    titleRow.appendChild(titleCol);
+
+                    // Match Percentage based on TOPSIS Score
+                    const matchPercent = document.createElement("div");
+                    matchPercent.className = "px-2 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-green-400 font-bold text-[11px] shrink-0";
+
+                    const scoreVal = item.topsis_score ? (item.topsis_score * 100).toFixed(0) : "N/A";
+                    matchPercent.textContent = `${scoreVal}% MATCH`;
+                    titleRow.appendChild(matchPercent);
+                    content.appendChild(titleRow);
+
+                    const meta = document.createElement("div");
+                    meta.className = "flex items-center gap-2 text-stone-400 text-xs font-['DM_Sans']";
+
+                    const starSpan = document.createElement("span");
+                    starSpan.className = "material-symbols-outlined text-xs text-[#F5C518]";
+                    starSpan.style.fontVariationSettings = "'FILL' 1";
+                    starSpan.textContent = "star";
+                    meta.appendChild(starSpan);
+
+                    const ratingSpan = document.createElement("span");
+                    ratingSpan.className = "text-stone-300 font-medium";
+                    ratingSpan.textContent = item.avg_rating ? parseFloat(item.avg_rating).toFixed(1) : 'N/A';
+                    meta.appendChild(ratingSpan);
+
+                    meta.appendChild(document.createTextNode(" • "));
+
+                    const yearSpan = document.createElement("span");
+                    yearSpan.textContent = item.release_year;
+                    meta.appendChild(yearSpan);
+
+                    meta.appendChild(document.createTextNode(" • "));
+
+                    const durationSpan = document.createElement("span");
+                    durationSpan.textContent = item.duration ? `${item.duration} menit` : 'N/A';
+                    meta.appendChild(durationSpan);
+                    content.appendChild(meta);
+
+                    const reason = document.createElement("p");
+                    reason.className = "text-stone-400 text-xs leading-relaxed mt-2 p-3 rounded bg-[#141314]/50 border border-white/5 font-['DM_Sans']";
+                    reason.textContent = item.reasoning || "Direkomendasikan karena kesesuaian parameter rating tinggi dan bobot popularitas TOPSIS.";
+                    content.appendChild(reason);
+
+                    card.appendChild(posterWrap);
+                    card.appendChild(content);
+                    feed.appendChild(card);
+                });
+
+                // Render Pagination Controls
+                renderPaginationControls(totalPages);
+            }
+
+            function renderPaginationControls(totalPages) {
+                const container = document.getElementById("pagination-controls");
+                if (!container) return;
+                container.textContent = "";
+
+                if (totalPages <= 1) {
+                    container.classList.add("hidden");
+                    return;
+                }
+
+                container.classList.remove("hidden");
+
+                // Previous Button
+                const prevBtn = document.createElement("button");
+                prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+                    (currentRecPage === 1
+                        ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
+                        : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-[#715A5A]/10");
+                prevBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_left</span>`;
+                if (currentRecPage > 1) {
+                    prevBtn.addEventListener("click", () => {
+                        currentRecPage = currentRecPage - 1;
+                        renderRecommendationsPage();
+                        feed.scrollIntoView({ behavior: 'smooth' });
+                    });
+                }
+                container.appendChild(prevBtn);
+
+                // Page numbers
+                let startPage = Math.max(1, currentRecPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement("button");
+                    pageBtn.className = "w-8 h-8 rounded border transition-all " +
+                        (i === currentRecPage
+                            ? "bg-[#715A5A] text-white border-[#715A5A] font-semibold"
+                            : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-[#715A5A]/10");
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener("click", () => {
+                        currentRecPage = i;
+                        renderRecommendationsPage();
+                        feed.scrollIntoView({ behavior: 'smooth' });
+                    });
+                    container.appendChild(pageBtn);
+                }
+
+                // Next Button
+                const nextBtn = document.createElement("button");
+                nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+                    (currentRecPage === totalPages
+                        ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
+                        : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-[#715A5A]/10");
+                nextBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_right</span>`;
+                if (currentRecPage < totalPages) {
+                    nextBtn.addEventListener("click", () => {
+                        currentRecPage = currentRecPage + 1;
+                        renderRecommendationsPage();
+                        feed.scrollIntoView({ behavior: 'smooth' });
+                    });
+                }
+                container.appendChild(nextBtn);
+            }
         });
     });
 </script>

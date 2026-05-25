@@ -23,34 +23,24 @@ class RecommendationAPIView(APIView):
         if request.user.is_authenticated and hasattr(request.user, 'profile'):
             profile = request.user.profile
             saved_prefs = {
-                "mood": profile.pref_mood or "",
+                "focus": profile.pref_focus or "",
                 "genres": list(profile.pref_genres.values_list('id', flat=True)),
                 "era": profile.pref_era or "",
-                "duration": profile.pref_duration or "",
-                "min_rating": profile.pref_min_rating or 0.0
+                "duration": profile.pref_duration or ""
             }
 
         # Merge: input kuesioner eksplisit override preferensi tersimpan
-        mood = data.get("mood") or saved_prefs.get("mood", "")
+        focus = data.get("focus") or saved_prefs.get("focus", "")
         genres = data.get("genres") if data.get("genres") else saved_prefs.get("genres", [])
         era = data.get("era") or saved_prefs.get("era", "")
         duration = data.get("duration") or saved_prefs.get("duration", "")
-        min_rating = data.get("min_rating", None)
-        
-        if min_rating is None:
-            min_rating = saved_prefs.get("min_rating", 0.0)
-
-        try:
-            min_rating = float(min_rating)
-        except (ValueError, TypeError):
-            min_rating = 0.0
 
         preferences = {
-            "mood": mood,
+            "focus": focus,
             "genres": genres,
             "era": era,
             "duration": duration,
-            "min_rating": min_rating
+            "user_id": request.user.id if request.user.is_authenticated else None
         }
 
         # 1. Jalankan Sistem Pakar (Filter Kandidat)
@@ -64,9 +54,6 @@ class RecommendationAPIView(APIView):
 
         # 2. Jalankan SPK TOPSIS (Pemeringkatan)
         ranked_results = TopsisSPK.calculate_scores(candidates, preferences)
-        
-        # Ambil Top 5
-        top_5_results = ranked_results[:5]
 
         # 3. Log transaksi ke RecommendationLog (Otomatis deteksi login)
         log_user = request.user if request.user.is_authenticated else None
@@ -74,11 +61,11 @@ class RecommendationAPIView(APIView):
         RecommendationLog.objects.create(
             user=log_user,
             input_data=preferences,
-            results=top_5_results
+            results=ranked_results
         )
 
         return Response({
             "message": f"Berhasil menghitung rekomendasi hibrida dari {candidates.count()} kandidat film.",
-            "results": top_5_results
+            "results": ranked_results
         }, status=status.HTTP_200_OK)
 

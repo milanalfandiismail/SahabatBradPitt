@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet"/>
+    <link href="/static/css/toast.css" rel="stylesheet"/>
     
     <script id="tailwind-config">
         tailwind.config = {
@@ -122,7 +123,8 @@
                 <a id="nav-home" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/">Home</a>
                 <a id="nav-movies" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/movies/">Movies</a>
                 <a id="nav-actors" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/actors/">Actors</a>
-                <a id="nav-recommendations" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5" href="/recommendations/"><span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">psychology</span>AI Rec</a>
+                <a id="nav-recommendations" class="hidden text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5" href="/recommendations/"><span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">psychology</span>AI Rec</a>
+                <a id="nav-admin" class="hidden text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5" href="/admin-films/"><span class="material-symbols-outlined text-base">settings</span>Manage</a>
             </div>
             
             <!-- Right Aligned Icons -->
@@ -131,7 +133,9 @@
                     <span class="material-symbols-outlined text-2xl">search</span>
                 </a>
                 <a href="/profile/" class="text-[#D3DAD9] hover:text-white transition-all">
-                    <span class="material-symbols-outlined text-2xl">account_circle</span>
+                    <div id="navbar-avatar" class="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#37353E]">
+                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"/>
+                    </div>
                 </a>
             </div>
         </div>
@@ -168,14 +172,59 @@
         </div>
     </footer>
 
+    <script src="/static/js/toast.js"></script>
     <script>
+        // Check authentication status and show/hide AI Rec & Manage tabs, update navbar avatar
         document.addEventListener("DOMContentLoaded", function() {
+            const token = localStorage.getItem('auth_token');
+            const aiRecLink = document.getElementById('nav-recommendations');
+            const adminLink = document.getElementById('nav-admin');
+            const navbarAvatarImg = document.getElementById('navbar-avatar-img');
+            
+            if (token) {
+                // User is logged in, show AI Rec tab
+                if (aiRecLink) {
+                    aiRecLink.classList.remove('hidden');
+                    aiRecLink.classList.add('flex');
+                }
+                
+                // Fetch and display user details
+                fetch('/api/auth/me/', {
+                    headers: { 'Authorization': `Token ${token}` }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.profile && data.profile.avatar_url) {
+                        navbarAvatarImg.src = data.profile.avatar_url;
+                    }
+                    // Show admin link if user is staff or superuser
+                    if (data.is_staff || data.is_superuser) {
+                        if (adminLink) {
+                            adminLink.classList.remove('hidden');
+                            adminLink.classList.add('flex');
+                        }
+                    }
+                })
+                .catch(err => console.error('Error loading user profile:', err));
+            } else {
+                // User is not logged in, hide tabs
+                if (aiRecLink) {
+                    aiRecLink.classList.add('hidden');
+                    aiRecLink.classList.remove('flex');
+                }
+                if (adminLink) {
+                    adminLink.classList.add('hidden');
+                    adminLink.classList.remove('flex');
+                }
+            }
+            
             const pathname = window.location.pathname;
             
             const links = {
                 'nav-home': '/',
                 'nav-movies': '/movies/',
-                'nav-actors': '/actors/'
+                'nav-actors': '/actors/',
+                'nav-admin': '/admin-films/'
             };
 
             Object.entries(links).forEach(([id, path]) => {

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +26,9 @@ urlpatterns = [
     path('signup/', TemplateView.as_view(template_name='signup.html'), name='signup'),
     path('profile/', TemplateView.as_view(template_name='profile.html'), name='profile'),
     path('recommendations/', TemplateView.as_view(template_name='recommendations.html'), name='recommendations'),
+    path('admin-films/', TemplateView.as_view(template_name='admin_films.html'), name='admin_films'),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

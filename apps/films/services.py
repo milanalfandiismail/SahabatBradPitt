@@ -4,7 +4,7 @@ import time
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.conf import settings
-from apps.films.models import Film, Genre
+from apps.films.models import Film, Genre, FilmImage
 from apps.actors.models import Actor, Filmography
 from apps.festivals.models import Studio
 from apps.films.actor_config import FEATURED_ACTORS, DEFAULT_MIN_RATING, API_REQUEST_DELAY
@@ -47,6 +47,45 @@ class TMDBService:
         self.headers = {
             "accept": "application/json",
         }
+
+    def _is_asian_or_non_latin(self, person_data, name, original_name=None):
+        """
+        Menentukan apakah seorang aktor/sutradara berasal dari daerah non-Latin
+        (seperti Korea, China, Jepang, dll) agar terhindar dari memberikan
+        nama native non-Latin untuk aktor Barat (seperti Wes Bentley).
+        """
+        # 1. Jika nama utama atau original_name mengandung non-ASCII, maka pasti non-Latin
+        if name and not name.isascii():
+            return True
+        if original_name and not original_name.isascii():
+            return True
+            
+        # 2. Cek tempat lahir (place_of_birth)
+        place_of_birth = person_data.get("place_of_birth") or ""
+        pob_lower = place_of_birth.lower()
+        non_latin_keywords = [
+            "korea", "china", "japan", "taiwan", "hong kong", "macau", 
+            "singapore", "thailand", "vietnam", "tokyo", "seoul", "beijing",
+            "shanghai", "taipei", "bangkok", "viet nam"
+        ]
+        if any(kw in pob_lower for kw in non_latin_keywords):
+            return True
+            
+        # 3. Jika lahir di barat, kemungkinan besar bukan native Asia Timur (kecuali nama non-ASCII)
+        western_countries = [
+            "usa", "united states", "uk", "united kingdom", "england", "canada", 
+            "australia", "france", "germany", "italy", "spain", "sweden", 
+            "norway", "denmark", "ireland", "new zealand"
+        ]
+        if any(country in pob_lower for country in western_countries):
+            return False
+            
+        # 4. Fallback jika also_known_as mengandung karakter non-ASCII
+        also_known_as = person_data.get("also_known_as", [])
+        if any(alt and not alt.isascii() for alt in also_known_as):
+            return True
+            
+        return False
 
     def is_configured(self):
         return bool(self.api_key) and self.api_key != "your_tmdb_api_key_here"
@@ -96,7 +135,7 @@ class TMDBService:
             logger.exception(f"Error saat memproses genre TMDB: {str(e)}")
         return []
 
-    def sync_actor_movies(self, actor_id, actor_name=None, min_rating=DEFAULT_MIN_RATING, rate_limiter=None):
+    def sync_actor_movies(self, actor_id, actor_name=None, min_rating=DEFAULT_MIN_RATING, rate_limiter=None, limit=None):
         """
         Menarik daftar filmografi aktor dari TMDB berdasarkan actor_id.
         Mempopulerkan data Film, Actor, Filmography, dan Studio secara otomatis.
@@ -107,6 +146,7 @@ class TMDBService:
             actor_name (str, optional): Nama aktor untuk logging. Jika None, akan diambil dari TMDB.
             min_rating (float): Minimum rating film yang akan disimpan (default: 7.0)
             rate_limiter (TMDBRateLimiter, optional): Rate limiter untuk multithread sync
+            limit (int, optional): Batasan jumlah film yang disinkronisasi
         
         Returns:
             int: Jumlah film yang berhasil disinkronkan
@@ -117,14 +157,15 @@ class TMDBService:
             logger.warning(f"TMDB API Key tidak dikonfigurasi. Membuat mock data film {actor_name or 'aktor'}.")
             return self._create_mock_data()
 
-        url = f"{self.base_url}/person/{actor_id}/movie_credits"
+        # Gunakan combined_credits untuk menarik Film dan Serial TV (K-Drama) sekaligus
+        url = f"{self.base_url}/person/{actor_id}/combined_credits"
         params = {"api_key": self.api_key, "language": "id-ID"}
         try:
             if rate_limiter:
                 rate_limiter.wait_if_needed()
             response = requests.get(url, headers=self.headers, params=params, timeout=15)
             if response.status_code != 200:
-                logger.error(f"Gagal menarik filmografi {actor_name or f'actor ID {actor_id}'}: status {response.status_code}")
+                logger.error(f"Gagal menarik gabungan karya {actor_name or f'actor ID {actor_id}'}: status {response.status_code}")
                 return 0
 
             credits_data = response.json()
@@ -132,6 +173,8 @@ class TMDBService:
             
             # Urutkan berdasarkan popularitas film agar memprioritaskan film-film terkenal
             cast_list = sorted(cast_list, key=lambda x: x.get("popularity", 0), reverse=True)
+            if limit is not None:
+                cast_list = cast_list[:limit]
 
             # Ambil detail aktor secara dinamis dari TMDB
             bio = f"Aktor/aktris terkenal Hollywood"
@@ -156,13 +199,21 @@ class TMDBService:
                         except ValueError:
                             pass
                     
-                    # Deteksi nama native (non-Latin) dari also_known_as
-                    # Contoh: 송강 (Korea), 章子怡 (Mandarin), 渡辺謙 (Jepang), etc.
-                    also_known_as = person_data.get("also_known_as", [])
-                    for alt_name in also_known_as:
-                        if alt_name and not alt_name.isascii():
-                            native_name = alt_name
-                            break
+                    # Deteksi nama native (non-Latin) atau nama latin secara timbal-balik dari also_known_as
+                    if self._is_asian_or_non_latin(person_data, fetched_actor_name):
+                        also_known_as = person_data.get("also_known_as", [])
+                        if fetched_actor_name.isascii():
+                            # Nama utama berbentuk latin (ASCII), cari nama asli non-latin
+                            for alt_name in also_known_as:
+                                if alt_name and not alt_name.isascii():
+                                    native_name = alt_name
+                                    break
+                        else:
+                            # Nama utama non-latin (Hanzi/Hangul/dll), cari nama latin (ASCII)
+                            for alt_name in also_known_as:
+                                if alt_name and alt_name.isascii():
+                                    native_name = alt_name
+                                    break
                     
                     if native_name:
                         logger.info(f"Nama native ditemukan untuk {fetched_actor_name}: {native_name}")
@@ -184,8 +235,40 @@ class TMDBService:
             synced_count = 0
             skipped_count = 0
             for cast in cast_list:
+                media_type = cast.get("media_type", "movie")
                 movie_id = cast.get("id")
-                title = cast.get("title")
+                
+                # Filter / Skip serial TV/acara TV yang beraliran non-fiksi/non-drama (reality, news, talk, soap, dokumenter TV)
+                # 99: Documentary, 10763: News, 10764: Reality, 10766: Soap, 10767: Talk
+                if media_type == "tv":
+                    genre_ids = cast.get("genre_ids", [])
+                    skipped_tv_genres = {99, 10763, 10764, 10766, 10767}
+                    if any(g_id in skipped_tv_genres for g_id in genre_ids):
+                        logger.info(f"Skip non-fiction TV Show '{cast.get('name') or cast.get('original_name')}' (News/Reality/Talk/Soap/Documentary TV)")
+                        continue
+                
+                # Sesuaikan field judul dan rilis berdasarkan tipe media (Film vs Serial TV)
+                if media_type == "tv":
+                    title = cast.get("name")
+                    original_title = cast.get("original_name")
+                    release_date = cast.get("first_air_date", "")
+                    movie_detail_url = f"{self.base_url}/tv/{movie_id}"
+                else:
+                    title = cast.get("title")
+                    original_title = cast.get("original_title")
+                    release_date = cast.get("release_date", "")
+                    movie_detail_url = f"{self.base_url}/movie/{movie_id}"
+                    
+                # Format judul agar menyertakan nama lokal jika aslinya non-Latin
+                if title and original_title and title != original_title:
+                    if not title.isascii() or not original_title.isascii():
+                        if title.isascii():
+                            title = f"{title} ({original_title})"
+                        elif original_title.isascii():
+                            title = f"{original_title} ({title})"
+                        else:
+                            title = f"{title} ({original_title})"
+                    
                 character = cast.get("character") or "Aktor"
                 
                 # Filter berdasarkan rating - skip film dengan rating rendah,
@@ -194,14 +277,15 @@ class TMDBService:
                 vote_count = cast.get("vote_count", 0)
                 if vote_average < min_rating and vote_count > 0:
                     skipped_count += 1
-                    logger.debug(f"Skip film '{title}' (rating {vote_average:.1f} < {min_rating})")
+                    logger.debug(f"Skip {media_type} '{title}' (rating {vote_average:.1f} < {min_rating})")
                     continue
 
-                # Ambil detail lengkap film (termasuk runtime dan studio produksi)
-                movie_detail_url = f"{self.base_url}/movie/{movie_id}"
-                detail_params = {"api_key": self.api_key, "language": "id-ID", "append_to_response": "credits"}
+                # Ambil detail lengkap film/serial tv (termasuk runtime, studio produksi, dan videos)
+                detail_params = {"api_key": self.api_key, "language": "id-ID", "append_to_response": "credits,images,videos", "include_image_language": "id,en,null"}
                 
-                runtime = cast.get("runtime") or 120
+                runtime = 120
+                if media_type == "tv":
+                    runtime = 45 # Default episode runtime untuk serial tv
                 synopsis = cast.get("overview", "")
                 studios = []
                 director_name = "Sutradara"
@@ -214,8 +298,37 @@ class TMDBService:
                     detail_res = requests.get(movie_detail_url, headers=self.headers, params=detail_params, timeout=10)
                     if detail_res.status_code == 200:
                         detail_data = detail_res.json()
-                        runtime = detail_data.get("runtime") or runtime
+                        if media_type == "tv":
+                            # Untuk TV Show, durasi diambil dari episode_run_time list, default 45 menit
+                            run_times = detail_data.get("episode_run_time", [])
+                            runtime = run_times[0] if run_times else 45
+                            
+                            # Cek ulang genre dari detail respon TV untuk memastikan dokumenter/talkshow TV dll tidak lolos
+                            genres_data = detail_data.get("genres", [])
+                            genre_ids_detail = [g.get("id") for g in genres_data if g.get("id")]
+                            skipped_tv_genres = {99, 10763, 10764, 10766, 10767}
+                            if any(g_id in skipped_tv_genres for g_id in genre_ids_detail):
+                                logger.info(f"Skip non-fiction TV Show '{title}' (News/Reality/Talk/Soap/Documentary TV)")
+                                continue
+                        else:
+                            runtime = detail_data.get("runtime") or runtime
                         synopsis = detail_data.get("overview") or synopsis
+
+                        # Fallback judul Bahasa Inggris (Latin) jika judul utama non-ASCII (Hangul/Hanzi/dll)
+                        if title and not title.isascii():
+                            try:
+                                en_params = {"api_key": self.api_key, "language": "en-US"}
+                                if rate_limiter:
+                                    rate_limiter.wait_if_needed()
+                                en_res = requests.get(movie_detail_url, headers=self.headers, params=en_params, timeout=10)
+                                if en_res.status_code == 200:
+                                    en_data = en_res.json()
+                                    en_title = en_data.get("name") if media_type == "tv" else en_data.get("title")
+                                    if en_title and en_title.isascii() and en_title != title and en_title not in title:
+                                        # Jika didapatkan judul latin, format menjadi Latin (Lokal)
+                                        title = f"{en_title} ({title})"
+                            except Exception as en_title_ex:
+                                logger.warning(f"Gagal mengambil judul EN fallback: {str(en_title_ex)}")
 
                         # Fallback sinopsis Bahasa Inggris kalau overview ID kosong
                         if not synopsis:
@@ -253,24 +366,40 @@ class TMDBService:
                                 director_tmdb_id = crew.get("id")
                                 director_photo = crew.get("profile_path") or ""
                                 break
+                        
+                        # Fallback untuk Serial TV (Created By / Creator)
+                        if not director_name and media_type == "tv":
+                            created_by = detail_data.get("created_by", [])
+                            if created_by:
+                                creator = created_by[0]
+                                director_name = creator.get("name")
+                                director_original_name = creator.get("original_name") or director_name
+                                director_tmdb_id = creator.get("id")
+                                director_photo = creator.get("profile_path") or ""
                 except Exception as ex:
                     logger.warning(f"Gagal mengambil detail film TMDB ID {movie_id}: {str(ex)}")
 
                 # Simpan/update model Film
-                release_date = cast.get("release_date", "")
                 release_year = None
                 if release_date:
                     try:
                         release_year = int(release_date.split("-")[0])
                     except ValueError:
                         pass
+                
+                # Generate trailer URL menggunakan YouTube service
+                from apps.films.youtube_service import YouTubeTrailerService
+                youtube_service = YouTubeTrailerService()
+                tmdb_videos = detail_data.get("videos", {}).get("results", [])
+                trailer_url = youtube_service.search_trailer(title, release_year, tmdb_videos)
+                
                 film, _ = Film.objects.update_or_create(
                     tmdb_id=movie_id,
                     defaults={
                         "title": title,
                         "synopsis": synopsis,
                         "release_year": release_year,
-                        "trailer_url": f"https://www.youtube.com/results?search_query={title.replace(' ', '+')}+official+trailer",
+                        "trailer_url": trailer_url,
                         "poster_path": cast.get("poster_path") or "",
                         "duration": runtime,
                         "popularity": cast.get("popularity", 0.0),
@@ -286,17 +415,40 @@ class TMDBService:
                         film.genre.add(genre)
                     except Genre.DoesNotExist:
                         pass
+                
+                # Sync Backdrops (Gallery)
+                # Clear old images untuk film ini terlebih dahulu
+                FilmImage.objects.filter(film=film).delete()
+                
+                images_data = detail_data.get("images", {})
+                backdrops = images_data.get("backdrops", [])
+                
+                # Simpan maksimal 8 backdrop terbaik
+                for backdrop in backdrops[:8]:
+                    file_path = backdrop.get("file_path")
+                    if file_path:
+                        FilmImage.objects.update_or_create(
+                            film=film,
+                            file_path=file_path,
+                            defaults={"image_type": "backdrop"}
+                        )
 
                 # Hubungkan aktor ke filmografi film ini
+                cast_list_from_credits = detail_data.get("credits", {}).get("cast", [])
+                actor_order = 99
+                for c in cast_list_from_credits:
+                    if c.get("id") == current_actor.tmdb_id:
+                        actor_order = c.get("order", 0)
+                        break
                 Filmography.objects.update_or_create(
                     actor=current_actor,
                     film=film,
-                    defaults={"role": f"Pemeran ({character})"}
+                    defaults={"role": f"Pemeran ({character})", "order": actor_order}
                 )
 
-                # Sync all cast members dari film (limit top 10)
+                # Sync all cast members dari film (limit top 100)
                 cast_list_from_credits = detail_data.get("credits", {}).get("cast", [])
-                for cast_member in cast_list_from_credits[:10]:  # Limit 10 cast members
+                for idx, cast_member in enumerate(cast_list_from_credits[:100]):  # Limit 100 cast members
                     cast_tmdb_id = cast_member.get("id")
                     cast_name = cast_member.get("name")
                     cast_original_name = cast_member.get("original_name")
@@ -304,8 +456,26 @@ class TMDBService:
                     cast_photo = cast_member.get("profile_path") or ""
                     
                     cast_native_name = ""
-                    if cast_original_name and cast_original_name != cast_name and not cast_original_name.isascii():
-                        cast_native_name = cast_original_name
+                    if cast_original_name and cast_original_name != cast_name:
+                        if not cast_original_name.isascii() or not cast_name.isascii():
+                            cast_native_name = cast_original_name
+                            
+                    # Jika nama utama non-latin dan belum punya padanan latin, cari di TMDB person detail
+                    if not cast_native_name and not cast_name.isascii():
+                        try:
+                            if rate_limiter:
+                                rate_limiter.wait_if_needed()
+                            person_res = requests.get(f"{self.base_url}/person/{cast_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
+                            if person_res.status_code == 200:
+                                p_data = person_res.json()
+                                if self._is_asian_or_non_latin(p_data, cast_name):
+                                    also_known_as = p_data.get("also_known_as", [])
+                                    for alt_name in also_known_as:
+                                        if alt_name and alt_name.isascii():
+                                            cast_native_name = alt_name
+                                            break
+                        except Exception as ex:
+                            logger.warning(f"Gagal fetch Latin name untuk {cast_name}: {str(ex)}")
                     
                     if cast_tmdb_id and cast_name:
                         # Cek apakah aktor sudah ada dengan bio asli
@@ -316,7 +486,7 @@ class TMDBService:
                         if cast_actor and cast_actor.bio and not cast_actor.bio.startswith("Aktor/aktris"):
                             cast_bio = cast_actor.bio
                             cast_birth_year = cast_actor.birth_year
-                        else:
+                        elif idx < 5:  # Hanya tarik bio asli dari API untuk top 5 cast utama
                             # Fetch real bio dari API
                             try:
                                 if rate_limiter:
@@ -330,6 +500,21 @@ class TMDBService:
                                             cast_birth_year = int(p_data.get("birthday").split("-")[0])
                                         except ValueError:
                                             pass
+                                    
+                                    # Deteksi also_known_as jika non-Latin origin
+                                    if self._is_asian_or_non_latin(p_data, cast_name, cast_original_name):
+                                        also_known_as = p_data.get("also_known_as", [])
+                                        if not cast_native_name:
+                                            if cast_name.isascii():
+                                                for alt_name in also_known_as:
+                                                    if alt_name and not alt_name.isascii():
+                                                        cast_native_name = alt_name
+                                                        break
+                                            else:
+                                                for alt_name in also_known_as:
+                                                    if alt_name and alt_name.isascii():
+                                                        cast_native_name = alt_name
+                                                        break
                             except Exception as ex:
                                 logger.warning(f"Gagal fetch bio untuk cast {cast_name}: {str(ex)}")
                         
@@ -348,11 +533,12 @@ class TMDBService:
                             }
                         )
                         
-                        # Create filmography relation
+                        # Create filmography relation dengan order
+                        cast_order = cast_member.get("order", idx)
                         Filmography.objects.update_or_create(
                             actor=cast_actor,
                             film=film,
-                            defaults={"role": f"Pemeran ({cast_character})"}
+                            defaults={"role": f"Pemeran ({cast_character})", "order": cast_order}
                         )
 
                 # Tambahkan sutradara ke Aktor dan hubungkan filmografi
@@ -362,26 +548,48 @@ class TMDBService:
                         director_native_name = director_original_name
                     
                     director_actor = Actor.objects.filter(tmdb_id=director_tmdb_id).first()
-                    dir_bio = ""
-                    dir_birth_year = None
                     
-                    if director_actor and director_actor.bio and not director_actor.bio.startswith("Sutradara ternama"):
-                        dir_bio = director_actor.bio
-                        dir_birth_year = director_actor.birth_year
-                    else:
-                        # Fetch real bio dari API
+                    # Cek apakah butuh detail dari API (jika belum ada native_name untuk Asia Timur, atau belum ada bio)
+                    need_api_call = False
+                    if not director_native_name and not director_name.isascii():
+                        need_api_call = True
+                    elif not director_actor or not director_actor.bio or director_actor.bio.startswith("Sutradara ternama"):
+                        need_api_call = True
+                        
+                    dir_bio = director_actor.bio if director_actor else ""
+                    dir_birth_year = director_actor.birth_year if director_actor else None
+                    if director_actor and director_actor.native_name:
+                        director_native_name = director_actor.native_name
+                    
+                    if need_api_call:
+                        # Fetch real bio/details dari API
                         try:
                             if rate_limiter:
                                 rate_limiter.wait_if_needed()
                             person_res = requests.get(f"{self.base_url}/person/{director_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
                             if person_res.status_code == 200:
                                 p_data = person_res.json()
-                                dir_bio = p_data.get("biography") or ""
+                                dir_bio = p_data.get("biography") or dir_bio
                                 if p_data.get("birthday"):
                                     try:
                                         dir_birth_year = int(p_data.get("birthday").split("-")[0])
                                     except ValueError:
                                         pass
+                                
+                                # Deteksi also_known_as jika non-Latin origin
+                                if self._is_asian_or_non_latin(p_data, director_name, director_original_name):
+                                    also_known_as = p_data.get("also_known_as", [])
+                                    if not director_native_name:
+                                        if director_name.isascii():
+                                            for alt_name in also_known_as:
+                                                if alt_name and not alt_name.isascii():
+                                                    director_native_name = alt_name
+                                                    break
+                                        else:
+                                            for alt_name in also_known_as:
+                                                if alt_name and alt_name.isascii():
+                                                    director_native_name = alt_name
+                                                    break
                         except Exception:
                             pass
                     
@@ -401,7 +609,7 @@ class TMDBService:
                     Filmography.objects.update_or_create(
                         actor=director_actor,
                         film=film,
-                        defaults={"role": "Sutradara"}
+                        defaults={"role": "Sutradara", "order": -1}
                     )
 
                 synced_count += 1
@@ -552,7 +760,7 @@ class TMDBService:
             Filmography.objects.update_or_create(
                 actor=brad_pitt,
                 film=film,
-                defaults={"role": item["role"]}
+                defaults={"role": item["role"], "order": 0}
             )
 
             # Filmography Sutradara
@@ -560,7 +768,7 @@ class TMDBService:
                 Filmography.objects.update_or_create(
                     actor=item["director"],
                     film=film,
-                    defaults={"role": "Sutradara"}
+                    defaults={"role": "Sutradara", "order": -1}
                 )
 
             synced += 1
@@ -678,9 +886,9 @@ class TMDBService:
                 cast_list = credits.get("cast", [])
                 crew_list = credits.get("crew", [])
                 
-                # Sync cast members (top 30)
+                # Sync cast members (top 100)
                 actors_synced = 0
-                for cast_member in cast_list[:30]:
+                for idx, cast_member in enumerate(cast_list[:100]):
                     cast_tmdb_id = cast_member.get("id")
                     cast_name = cast_member.get("name")
                     cast_original_name = cast_member.get("original_name")
@@ -688,8 +896,26 @@ class TMDBService:
                     cast_photo = cast_member.get("profile_path") or ""
                     
                     cast_native_name = ""
-                    if cast_original_name and cast_original_name != cast_name and not cast_original_name.isascii():
-                        cast_native_name = cast_original_name
+                    if cast_original_name and cast_original_name != cast_name:
+                        if not cast_original_name.isascii() or not cast_name.isascii():
+                            cast_native_name = cast_original_name
+                            
+                    # Jika nama utama non-latin dan belum punya padanan latin, cari di TMDB person detail
+                    if not cast_native_name and not cast_name.isascii():
+                        try:
+                            if rate_limiter:
+                                rate_limiter.wait_if_needed()
+                            person_res = requests.get(f"{self.base_url}/person/{cast_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
+                            if person_res.status_code == 200:
+                                p_data = person_res.json()
+                                if self._is_asian_or_non_latin(p_data, cast_name):
+                                    also_known_as = p_data.get("also_known_as", [])
+                                    for alt_name in also_known_as:
+                                        if alt_name and alt_name.isascii():
+                                            cast_native_name = alt_name
+                                            break
+                        except Exception:
+                            pass
                     
                     if cast_tmdb_id and cast_name:
                         cast_actor, _ = Actor.objects.update_or_create(
@@ -702,10 +928,11 @@ class TMDBService:
                             }
                         )
                         
+                        cast_order = cast_member.get("order", idx)
                         Filmography.objects.update_or_create(
                             actor=cast_actor,
                             film=film,
-                            defaults={"role": f"Pemeran ({cast_character})"}
+                            defaults={"role": f"Pemeran ({cast_character})", "order": cast_order}
                         )
                         actors_synced += 1
                 
@@ -721,6 +948,23 @@ class TMDBService:
                         if director_original_name and director_original_name != director_name and not director_original_name.isascii():
                             director_native_name = director_original_name
                         
+                        # Jika nama non-ASCII dan belum ada native_name (padanan latin), hubungi API person detail
+                        if not director_native_name and not director_name.isascii():
+                            try:
+                                if rate_limiter:
+                                    rate_limiter.wait_if_needed()
+                                person_res = requests.get(f"{self.base_url}/person/{director_tmdb_id}", headers=self.headers, params={"api_key": self.api_key}, timeout=5)
+                                if person_res.status_code == 200:
+                                    p_data = person_res.json()
+                                    if self._is_asian_or_non_latin(p_data, director_name):
+                                        also_known_as = p_data.get("also_known_as", [])
+                                        for alt_name in also_known_as:
+                                            if alt_name and alt_name.isascii():
+                                                director_native_name = alt_name
+                                                break
+                            except Exception:
+                                pass
+                        
                         if director_tmdb_id and director_name:
                             director_actor, _ = Actor.objects.update_or_create(
                                 tmdb_id=director_tmdb_id,
@@ -735,7 +979,7 @@ class TMDBService:
                             Filmography.objects.update_or_create(
                                 actor=director_actor,
                                 film=film,
-                                defaults={"role": "Sutradara"}
+                                defaults={"role": "Sutradara", "order": -1}
                             )
                             actors_synced += 1
                         break

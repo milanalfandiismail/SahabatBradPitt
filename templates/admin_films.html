@@ -99,6 +99,11 @@
                     <span class="material-symbols-outlined text-lg">category</span>
                     Genre Kustom
                 </button>
+                <button id="sidebar-approvals-btn"
+                    class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">done_all</span>
+                    Persetujuan Konten
+                </button>
                 <button id="sidebar-users-btn"
                     class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
                     <span class="material-symbols-outlined text-lg">group</span>
@@ -482,27 +487,27 @@
                                 type="button">Unggah Poster</button>
                         </div>
 
-                        <!-- Gallery section -->
-                        <div id="editor-gallery-section" class="flex flex-col gap-3 border-t border-white/5 pt-5">
-                            <div
-                                class="flex justify-between items-center text-[11px] font-bold text-stone-400 tracking-widest uppercase">
-                                <span>GALERI BACKDROP</span>
-                                <span id="gallery-image-count" class="text-amber-500">0/8</span>
-                            </div>
-                            <div id="editor-gallery-grid" class="grid grid-cols-4 gap-2">
-                                <!-- Dynamic backdrop thumb grid -->
-                            </div>
-                            <input id="form-gallery-input" class="hidden" type="file" multiple
-                                accept="image/jpeg,image/png,image/webp" />
-                            <button id="form-gallery-trigger-btn"
-                                class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1"
-                                type="button">
-                                <span class="material-symbols-outlined text-xs">add_photo_alternate</span> Unggah
-                                Backdrop
-                            </button>
-                        </div>
                     </div>
                 </form>
+
+                <!-- Gallery section (below form) -->
+                <div id="editor-gallery-section" class="flex flex-col gap-4 border-t border-white/5 pt-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">GALERI
+                            BACKDROP</span>
+                        <span id="gallery-image-count" class="text-amber-500 text-sm font-semibold">0/8</span>
+                    </div>
+                    <div id="editor-gallery-grid" class="grid grid-cols-4 gap-3">
+                        <!-- Dynamic backdrop thumb grid -->
+                    </div>
+                    <input id="form-gallery-input" class="hidden" type="file" multiple
+                        accept="image/jpeg,image/png,image/webp" />
+                    <button id="form-gallery-trigger-btn"
+                        class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1"
+                        type="button">
+                        <span class="material-symbols-outlined text-xs">add_photo_alternate</span> Unggah Backdrop
+                    </button>
+                </div>
 
                 <!-- Actions -->
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-6">
@@ -645,7 +650,57 @@
         </div>
 
 
-        <!-- ======================= 4. USERS SECTION ======================= -->
+        <!-- ======================= 4. APPROVALS SECTION ======================= -->
+        <div id="section-approvals" class="hidden flex flex-col gap-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-white/5 pb-6">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Persetujuan
+                        Konten</h1>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tinjau dan setujui film serta aktor yang
+                        menunggu persetujuan publikasi.</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 border-b border-white/5">
+                <button onclick="showApprovalTab('films')"
+                    class="px-4 py-3 text-sm font-medium text-stone-200 border-b-2 border-[#715A5A] hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">movie</span> Film Menunggu
+                    Persetujuan
+                </button>
+                <button onclick="showApprovalTab('actors')"
+                    class="px-4 py-3 text-sm font-medium text-stone-400 border-b-2 border-transparent hover:text-white transition-all">
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">person</span> Aktor Menunggu
+                    Persetujuan
+                </button>
+            </div>
+
+            <!-- Films Tab -->
+            <div id="approval-films-tab" class="flex flex-col gap-4">
+                <div id="pending-films-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Pending films will be loaded here -->
+                </div>
+                <div id="pending-films-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
+                    <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+                    Tidak ada film yang menunggu persetujuan.
+                </div>
+            </div>
+
+            <!-- Actors Tab -->
+            <div id="approval-actors-tab" class="hidden flex flex-col gap-4">
+                <div id="pending-actors-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Pending actors will be loaded here -->
+                </div>
+                <div id="pending-actors-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
+                    <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+                    Tidak ada aktor yang menunggu persetujuan.
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ======================= 5. USERS SECTION ======================= -->
         <div id="section-users" class="hidden flex flex-col gap-8">
             <!-- Header -->
             <div class="flex justify-between items-center border-b border-white/5 pb-6">
@@ -905,6 +960,7 @@
             const sidebarMoviesBtn = document.getElementById('sidebar-movies-btn');
             const sidebarActorsBtn = document.getElementById('sidebar-actors-btn');
             const sidebarGenresBtn = document.getElementById('sidebar-genres-btn');
+            const sidebarApprovalsBtn = document.getElementById('sidebar-approvals-btn');
             const sidebarUsersBtn = document.getElementById('sidebar-users-btn');
 
             // Primary view containers
@@ -912,6 +968,7 @@
             const sectionMovies = document.getElementById('section-movies');
             const sectionActors = document.getElementById('section-actors');
             const sectionGenres = document.getElementById('section-genres');
+            const sectionApprovals = document.getElementById('section-approvals');
             const sectionUsers = document.getElementById('section-users');
 
             // Movie subviews
@@ -1062,6 +1119,7 @@
 
                         // Show sidebar users tab if superuser
                         if (data.is_superuser) {
+                            sidebarApprovalsBtn.classList.remove('hidden');
                             sidebarUsersBtn.classList.remove('hidden');
                         }
 
@@ -1100,10 +1158,11 @@
                 sectionMovies.classList.add('hidden');
                 sectionActors.classList.add('hidden');
                 sectionGenres.classList.add('hidden');
+                sectionApprovals.classList.add('hidden');
                 sectionUsers.classList.add('hidden');
 
                 // Clear highlights
-                const btnList = [sidebarDashboardBtn, sidebarMoviesBtn, sidebarActorsBtn, sidebarGenresBtn, sidebarUsersBtn];
+                const btnList = [sidebarDashboardBtn, sidebarMoviesBtn, sidebarActorsBtn, sidebarGenresBtn, sidebarApprovalsBtn, sidebarUsersBtn];
                 btnList.forEach(btn => {
                     btn.classList.remove('bg-[#715A5A]', 'text-white');
                     btn.classList.add('text-stone-400');
@@ -1130,6 +1189,12 @@
                     sidebarGenresBtn.classList.add('bg-[#715A5A]', 'text-white');
                     sidebarGenresBtn.classList.remove('text-stone-400');
                     fetchGenres();
+                } else if (sectionId === 'approvals') {
+                    sectionApprovals.classList.remove('hidden');
+                    sidebarApprovalsBtn.classList.add('bg-[#715A5A]', 'text-white');
+                    sidebarApprovalsBtn.classList.remove('text-stone-400');
+                    loadPendingFilmsForApproval();
+                    loadPendingActorsForApproval();
                 } else if (sectionId === 'users') {
                     sectionUsers.classList.remove('hidden');
                     sidebarUsersBtn.classList.add('bg-[#715A5A]', 'text-white');
@@ -1142,7 +1207,40 @@
             sidebarMoviesBtn.addEventListener('click', () => showPrimarySection('movies'));
             sidebarActorsBtn.addEventListener('click', () => showPrimarySection('actors'));
             sidebarGenresBtn.addEventListener('click', () => showPrimarySection('genres'));
+            sidebarApprovalsBtn.addEventListener('click', () => showPrimarySection('approvals'));
             sidebarUsersBtn.addEventListener('click', () => showPrimarySection('users'));
+
+            // Approval tab toggle
+            function showApprovalTab(tab) {
+                const filmsTab = document.getElementById('approval-films-tab');
+                const actorsTab = document.getElementById('approval-actors-tab');
+                const filmsBtns = document.querySelectorAll('[onclick="showApprovalTab(\'films\')"]');
+                const actorsBtns = document.querySelectorAll('[onclick="showApprovalTab(\'actors\')"]');
+
+                if (tab === 'films') {
+                    filmsTab.classList.remove('hidden');
+                    actorsTab.classList.add('hidden');
+                    filmsBtns.forEach(btn => {
+                        btn.classList.remove('text-stone-400', 'border-transparent');
+                        btn.classList.add('text-stone-200', 'border-[#715A5A]');
+                    });
+                    actorsBtns.forEach(btn => {
+                        btn.classList.remove('text-stone-200', 'border-[#715A5A]');
+                        btn.classList.add('text-stone-400', 'border-transparent');
+                    });
+                } else if (tab === 'actors') {
+                    filmsTab.classList.add('hidden');
+                    actorsTab.classList.remove('hidden');
+                    filmsBtns.forEach(btn => {
+                        btn.classList.remove('text-stone-200', 'border-[#715A5A]');
+                        btn.classList.add('text-stone-400', 'border-transparent');
+                    });
+                    actorsBtns.forEach(btn => {
+                        btn.classList.remove('text-stone-400', 'border-transparent');
+                        btn.classList.add('text-stone-200', 'border-[#715A5A]');
+                    });
+                }
+            }
 
             // Sub-view toggle for Movies (List vs CRUD Editor)
             function showMoviesSubView(subview) {
@@ -1164,7 +1262,7 @@
                     .then(stats => {
                         // Update total films
                         statTotal.textContent = stats.total_films || 0;
-                        
+
                         // Extract status counts from by_status array
                         let published = 0, pending = 0, draft = 0, rejected = 0;
                         if (stats.by_status && Array.isArray(stats.by_status)) {
@@ -1175,7 +1273,7 @@
                                 else if (item.status === 'rejected') rejected = item.count;
                             });
                         }
-                        
+
                         statPublished.textContent = published;
                         statPending.textContent = pending;
                         statDraft.textContent = draft;
@@ -1185,16 +1283,37 @@
             }
 
             function fetchGenres() {
-                return fetch('/api/films/genres/')
-                    .then(res => res.json())
-                    .then(data => {
-                        genresList = Array.isArray(data) ? data : (data.results || []);
-                        renderFormGenres();
-                        if (!sectionGenres.classList.contains('hidden')) {
-                            renderGenresTable();
+                // Fetch all genres across all pages
+                async function fetchAllGenres(url = '/api/films/genres/', allGenres = []) {
+                    try {
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        
+                        // Handle both paginated and non-paginated responses
+                        if (Array.isArray(data)) {
+                            allGenres = allGenres.concat(data);
+                        } else if (data.results) {
+                            allGenres = allGenres.concat(data.results);
+                            // If there's a next page, fetch it
+                            if (data.next) {
+                                return fetchAllGenres(data.next, allGenres);
+                            }
                         }
-                    })
-                    .catch(err => console.error("Error loading genres:", err));
+                        
+                        return allGenres;
+                    } catch (err) {
+                        console.error("Error loading genres:", err);
+                        return allGenres;
+                    }
+                }
+                
+                return fetchAllGenres().then(allGenres => {
+                    genresList = allGenres;
+                    renderFormGenres();
+                    if (!sectionGenres.classList.contains('hidden')) {
+                        renderGenresTable();
+                    }
+                });
             }
 
             function renderFormGenres() {
@@ -1274,7 +1393,15 @@
                     const tdPoster = document.createElement('td');
                     tdPoster.className = "p-4 text-center align-middle shrink-0 w-[80px]";
                     let posterUrl = "/static/images/placeholder-poster.jpg";
-                    if (film.poster_path) {
+                    // Check for local poster first
+                    if (film.images && film.images.length > 0) {
+                        const localPoster = film.images.find(img => img.image_type === 'poster');
+                        if (localPoster) {
+                            posterUrl = localPoster.file_path;
+                        } else if (film.poster_path) {
+                            posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
+                        }
+                    } else if (film.poster_path) {
                         posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
                     }
                     const img = document.createElement('img');
@@ -1286,7 +1413,7 @@
 
                     // Title
                     const tdTitle = document.createElement('td');
-                    tdTitle.className = "p-4 font-medium text-stone-200 align-middle";
+                    tdTitle.className = "p-4 font-medium text-stone-200 align-middle min-w-[200px]";
                     const titleSpan = document.createElement('span');
                     titleSpan.className = "block text-sm line-clamp-1";
                     titleSpan.textContent = film.title;
@@ -1295,25 +1422,27 @@
 
                     // Year
                     const tdYear = document.createElement('td');
-                    tdYear.className = "p-4 text-center text-stone-400 align-middle";
+                    tdYear.className = "p-4 text-center text-stone-400 align-middle w-[100px]";
                     tdYear.textContent = film.release_year || "N/A";
                     tr.appendChild(tdYear);
 
                     // Genres
                     const tdGenres = document.createElement('td');
-                    tdGenres.className = "p-4 text-stone-400 align-middle";
+                    tdGenres.className = "p-4 text-stone-400 align-middle min-w-[150px]";
                     const genresWrapper = document.createElement('div');
                     genresWrapper.className = "line-clamp-1 max-w-[200px] text-xs";
-                    const genresText = film.genre.map(g => typeof g === 'object' ? g.name : g).join(', ');
+                    const genresText = (film.genre_display && film.genre_display.length > 0) 
+                        ? film.genre_display.map(g => g.name).join(', ') 
+                        : "None";
                     genresWrapper.textContent = genresText || "None";
                     tdGenres.appendChild(genresWrapper);
                     tr.appendChild(tdGenres);
 
                     // Status Badge
                     const tdStatus = document.createElement('td');
-                    tdStatus.className = "p-4 text-center align-middle";
+                    tdStatus.className = "p-4 text-center align-middle w-[150px]";
                     const badge = document.createElement('span');
-                    badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase ";
+                    badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase whitespace-nowrap ";
 
                     if (film.status === 'published') {
                         badge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
@@ -1592,7 +1721,7 @@
                         headers: { 'Authorization': `Token ${token}` }
                     })
                         .then(res => res.json())
-                        .then(film => {
+                        .then(async (film) => {
                             currentFilmData = film;
 
                             formTitle.value = film.title || "";
@@ -1602,15 +1731,40 @@
                             formPopularity.value = Math.round(film.popularity) || 0;
                             formTrailer.value = film.trailer_url || "";
 
-                            if (film.genre) {
-                                film.genre.forEach(genre => {
-                                    const genreId = typeof genre === 'object' ? genre.id : genre;
-                                    const cb = document.querySelector(`input[name="genres-checkbox"][value="${genreId}"]`);
-                                    if (cb) cb.checked = true;
-                                });
+                            // Ensure genres are loaded before rendering
+                            if (genresList.length === 0) {
+                                await fetchGenres();
+                            } else {
+                                renderFormGenres();
                             }
 
-                            if (film.poster_path) {
+                            // Check the genres for this film
+                            if (film.genre_display && film.genre_display.length > 0) {
+                                // Use setTimeout to ensure checkboxes are rendered
+                                setTimeout(() => {
+                                    film.genre_display.forEach(genre => {
+                                        const cb = document.querySelector(`input[name="genres-checkbox"][value="${genre.id}"]`);
+                                        if (cb) {
+                                            cb.checked = true;
+                                        }
+                                    });
+                                }, 50);
+                            }
+
+                            // Check for local poster first
+                            if (film.images && film.images.length > 0) {
+                                const localPoster = film.images.find(img => img.image_type === 'poster');
+                                if (localPoster) {
+                                    formPosterPreview.src = localPoster.file_path;
+                                    formPosterPreview.classList.remove('hidden');
+                                    formPosterPlaceholder.classList.add('hidden');
+                                } else if (film.poster_path) {
+                                    const posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                                    formPosterPreview.src = posterUrl;
+                                    formPosterPreview.classList.remove('hidden');
+                                    formPosterPlaceholder.classList.add('hidden');
+                                }
+                            } else if (film.poster_path) {
                                 const posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                                 formPosterPreview.src = posterUrl;
                                 formPosterPreview.classList.remove('hidden');
@@ -1628,6 +1782,7 @@
 
                             activeGalleryImages = film.images || [];
                             stagedImageDeletions = [];
+                            tempBackdropFiles = []; // Clear temporary backdrops when editing
                             renderGalleryGrid(activeGalleryImages);
                             showMoviesSubView('editor');
                         })
@@ -1636,11 +1791,30 @@
                     editorTitle.textContent = "Tambah Film Baru";
                     editorSubtitle.textContent = "Tambahkan film baru ke database lokal secara manual.";
                     formDeleteBtn.classList.add('hidden');
-                    editorGallerySection.classList.add('hidden');
                     editorRejectionAlert.classList.add('hidden');
+
+                    // Clear all form fields
+                    formTitle.value = "";
+                    formSynopsis.value = "";
+                    formYear.value = "";
+                    formDuration.value = "";
+                    formPopularity.value = "";
+                    formTrailer.value = "";
+                    
+                    // Clear poster preview
+                    formPosterPreview.src = "";
+                    formPosterPreview.classList.add('hidden');
+                    formPosterPlaceholder.classList.remove('hidden');
+                    formPosterInput.value = "";
+                    
+                    // Uncheck all genre checkboxes
+                    document.querySelectorAll('input[name="genres-checkbox"]').forEach(cb => cb.checked = false);
 
                     activeGalleryImages = [];
                     stagedImageDeletions = [];
+                    tempBackdropFiles = []; // Clear temporary backdrops
+                    renderGalleryGrid(activeGalleryImages); // Render empty gallery
+                    updateGalleryCounter(); // Initialize counter to 0/8
                     renderEditorStatusBadge('draft');
                     showMoviesSubView('editor');
                 }
@@ -1649,7 +1823,7 @@
             function renderEditorStatusBadge(status) {
                 editorStatusBadge.textContent = "";
                 const badge = document.createElement('span');
-                badge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase whitespace-nowrap ";
 
                 if (status === 'published') {
                     badge.className += "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
@@ -1679,6 +1853,8 @@
                         formPosterInput.value = "";
                         return;
                     }
+
+                    // Show real-time preview
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         formPosterPreview.src = event.target.result;
@@ -1686,16 +1862,40 @@
                         formPosterPlaceholder.classList.add('hidden');
                     };
                     reader.readAsDataURL(file);
+
+                    // Upload poster immediately if film exists
+                    if (selectedFilmId) {
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        formData.append('image_type', 'poster');
+
+                        fetch(`/api/films/${selectedFilmId}/images/`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Token ${token}` },
+                            body: formData
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error();
+                                return res.json();
+                            })
+                            .then(() => {
+                                showToast('Poster berhasil diunggah!', 'success');
+                            })
+                            .catch(() => showToast('Gagal mengunggah poster.', 'error'));
+                    }
                 }
             });
 
             formGalleryTriggerBtn.addEventListener('click', () => formGalleryInput.click());
 
+            // Temporary backdrops untuk film baru (sebelum disimpan)
+            let tempBackdropFiles = [];
+
             formGalleryInput.addEventListener('change', (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
 
-                const existingCount = activeGalleryImages.length;
+                const existingCount = activeGalleryImages.length + tempBackdropFiles.length;
                 if (existingCount + files.length > 8) {
                     showToast('Maksimal galeri backdrop adalah 8 gambar.', 'warning');
                     formGalleryInput.value = "";
@@ -1709,50 +1909,86 @@
                         return;
                     }
 
-                    const formData = new FormData();
-                    formData.append('image', file);
+                    // Jika film baru (belum disimpan), simpan file temporary
+                    if (!selectedFilmId) {
+                        tempBackdropFiles.push(file);
+                        uploadedCount++;
+                        updateGalleryCounter(); // Update counter immediately
+                        if (uploadedCount === files.length) {
+                            showToast('Backdrop ditambahkan (belum disimpan).', 'info');
+                            renderGalleryGrid(activeGalleryImages);
+                        }
+                    } else {
+                        // Jika film sudah ada, upload langsung ke API
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        formData.append('image_type', 'backdrop');
 
-                    fetch(`/api/films/${selectedFilmId}/images/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Token ${token}` },
-                        body: formData
-                    })
-                        .then(res => {
-                            if (!res.ok) throw new Error();
-                            return res.json();
+                        fetch(`/api/films/${selectedFilmId}/images/`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Token ${token}` },
+                            body: formData
                         })
-                        .then((newImage) => {
-                            uploadedCount++;
-                            activeGalleryImages.push(newImage);
-                            if (uploadedCount === files.length) {
-                                showToast('Selesai mengunggah gambar galeri!', 'success');
-                                renderGalleryGrid(activeGalleryImages);
-                            }
-                        })
-                        .catch(() => showToast(`Gagal unggah ${file.name}`, 'error'));
+                            .then(res => {
+                                if (!res.ok) throw new Error();
+                                return res.json();
+                            })
+                            .then((newImage) => {
+                                uploadedCount++;
+                                activeGalleryImages.push(newImage);
+                                if (uploadedCount === files.length) {
+                                    showToast('Selesai mengunggah gambar galeri!', 'success');
+                                    tempBackdropFiles = []; // Clear temporary files after upload
+                                    renderGalleryGrid(activeGalleryImages);
+                                }
+                            })
+                            .catch(() => showToast(`Gagal unggah ${file.name}`, 'error'));
+                    }
                 });
                 formGalleryInput.value = "";
             });
 
+            function updateGalleryCounter() {
+                const totalCount = activeGalleryImages.length + tempBackdropFiles.length;
+                galleryImageCount.textContent = `${totalCount}/8`;
+            }
+
             function renderGalleryGrid(images) {
                 editorGalleryGrid.textContent = "";
-                galleryImageCount.textContent = `${images.length}/8`;
 
-                if (images.length === 0) {
+                // Combine active gallery images and temporary backdrop files
+                const allImages = [
+                    ...images.map(img => ({ ...img, isTemp: false })),
+                    ...tempBackdropFiles.map((file, idx) => ({
+                        file: file,
+                        id: `temp-${idx}`,
+                        isTemp: true
+                    }))
+                ];
+
+                updateGalleryCounter();
+
+                if (allImages.length === 0) {
                     const empty = document.createElement('div');
-                    empty.className = "col-span-4 py-8 text-center text-[#c9c5cb]/40 italic text-[10px]";
+                    empty.className = "col-span-full py-8 text-center text-[#c9c5cb]/40 italic text-[10px]";
                     empty.textContent = "Galeri kosong.";
                     editorGalleryGrid.appendChild(empty);
                     return;
                 }
 
-                images.forEach(img => {
+                allImages.forEach((img, idx) => {
                     const div = document.createElement('div');
-                    div.className = "aspect-video bg-black/35 rounded border border-white/5 relative overflow-hidden group shadow-sm";
+                    div.className = "min-w-0 aspect-video bg-black/35 rounded border border-white/5 relative overflow-hidden group shadow-sm";
 
                     const image = document.createElement('img');
                     image.className = "w-full h-full object-cover";
-                    image.src = img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/w300${img.file_path}`;
+
+                    // Handle temporary files vs database images
+                    if (img.isTemp) {
+                        image.src = URL.createObjectURL(img.file);
+                    } else {
+                        image.src = img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/w500${img.file_path}`;
+                    }
                     image.alt = "Backdrop";
                     div.appendChild(image);
 
@@ -1760,7 +1996,21 @@
                     deleteOverlay.className = "absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-rose-400 hover:text-rose-600";
                     deleteOverlay.type = "button";
                     deleteOverlay.innerHTML = `<span class="material-symbols-outlined text-lg">delete</span>`;
-                    deleteOverlay.addEventListener('click', () => deleteBackdrop(img.id));
+
+                    // Handle delete for both temp and database images
+                    deleteOverlay.addEventListener('click', () => {
+                        if (img.isTemp) {
+                            // Calculate correct index in tempBackdropFiles
+                            const tempIndex = idx - images.length;
+                            if (tempIndex >= 0 && tempIndex < tempBackdropFiles.length) {
+                                tempBackdropFiles.splice(tempIndex, 1);
+                            }
+                        } else {
+                            deleteBackdrop(img.id);
+                            return;
+                        }
+                        renderGalleryGrid(activeGalleryImages);
+                    });
                     div.appendChild(deleteOverlay);
 
                     editorGalleryGrid.appendChild(div);
@@ -1804,11 +2054,15 @@
 
                 genreIds.forEach(id => formData.append('genre', id));
 
-                if (formPosterInput.files[0]) {
-                    formData.append('poster', formPosterInput.files[0]);
-                } else if (!selectedFilmId) {
-                    showToast('Harap unggah poster film.', 'warning');
-                    return;
+                // For new films, poster must be included in creation request
+                // For existing films, poster is uploaded separately via images endpoint
+                if (!selectedFilmId) {
+                    if (formPosterInput.files[0]) {
+                        formData.append('poster', formPosterInput.files[0]);
+                    } else {
+                        showToast('Harap unggah poster film untuk film baru.', 'warning');
+                        return;
+                    }
                 }
 
                 formSaveBtn.disabled = true;
@@ -1828,8 +2082,46 @@
                         return res.json();
                     })
                     .then((savedFilm) => {
-                        if (stagedImageDeletions.length > 0) {
-                            const filmIdToUse = selectedFilmId || savedFilm.id;
+                        const resetForm = () => {
+                            filmForm.reset();
+                            formPosterPreview.classList.add('hidden');
+                            formPosterPlaceholder.classList.remove('hidden');
+                            editorGalleryGrid.textContent = "";
+                            selectedFilmId = null;
+                            tempBackdropFiles = []; // Clear temporary backdrops
+                            activeGalleryImages = []; // Clear active gallery images
+                            updateGalleryCounter(); // Reset counter to 0/8
+                        };
+
+                        const filmIdToUse = selectedFilmId || savedFilm.id;
+
+                        // Upload temporary backdrops if any
+                        const uploadTempBackdrops = () => {
+                            if (tempBackdropFiles.length === 0) {
+                                return Promise.resolve();
+                            }
+
+                            const uploadPromises = tempBackdropFiles.map(file => {
+                                const formData = new FormData();
+                                formData.append('image', file);
+                                formData.append('image_type', 'backdrop');
+
+                                return fetch(`/api/films/${filmIdToUse}/images/`, {
+                                    method: 'POST',
+                                    headers: { 'Authorization': `Token ${token}` },
+                                    body: formData
+                                }).catch(err => console.error('Gagal upload backdrop:', err));
+                            });
+
+                            return Promise.all(uploadPromises);
+                        };
+
+                        // Handle deletions and uploads
+                        const handleDeletions = () => {
+                            if (stagedImageDeletions.length === 0) {
+                                return Promise.resolve();
+                            }
+
                             const deletePromises = stagedImageDeletions.map(imageId => {
                                 return fetch(`/api/films/${filmIdToUse}/images/${imageId}/`, {
                                     method: 'DELETE',
@@ -1837,15 +2129,25 @@
                                 }).catch(err => console.error(`Gagal menghapus gambar ${imageId}:`, err));
                             });
 
-                            Promise.all(deletePromises).then(() => {
+                            return Promise.all(deletePromises).then(() => {
                                 stagedImageDeletions = [];
-                                showToast('Film berhasil disimpan dan gambar galeri terhapus.', 'success');
+                            });
+                        };
+
+                        // Execute: deletions -> uploads -> reset
+                        handleDeletions()
+                            .then(() => uploadTempBackdrops())
+                            .then(() => {
+                                showToast('Film berhasil disimpan!', 'success');
+                                resetForm();
+                                showMoviesSubView('manage');
+                            })
+                            .catch(err => {
+                                console.error('Error during save process:', err);
+                                showToast('Film disimpan tapi ada error saat upload backdrop.', 'warning');
+                                resetForm();
                                 showMoviesSubView('manage');
                             });
-                        } else {
-                            showToast('Film berhasil disimpan!', 'success');
-                            showMoviesSubView('manage');
-                        }
                     })
                     .catch(err => {
                         formSaveBtn.disabled = false;
@@ -2560,6 +2862,10 @@
             }
         });
     </script>
+
+    <!-- RBAC & Approval Workflow Scripts -->
+    <script src="/static/js/rbac-approval.js"></script>
+    <script src="/static/js/rbac-integration.js"></script>
 </body>
 
 </html>

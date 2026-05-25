@@ -3,7 +3,8 @@ from decouple import config
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',') if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='127.0.0.1,localhost,testserver').split(',') if h.strip()]
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

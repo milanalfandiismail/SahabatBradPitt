@@ -1,12 +1,14 @@
-from rest_framework import status, permissions
+from rest_framework import status, permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
-from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserPreferencesSerializer
+from django.contrib.auth.models import User
+from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserProfileEditSerializer, UserPreferencesSerializer
 
 class RegisterAPIView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -22,6 +24,7 @@ class RegisterAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         username = request.data.get('username')
@@ -66,7 +69,7 @@ class UserMeAPIView(APIView):
     def put(self, request):
         """Memperbarui nama tampilan, bio, atau avatar pengguna aktif."""
         profile = request.user.profile
-        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+        serializer = UserProfileEditSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({
@@ -97,4 +100,66 @@ class UserPreferencesAPIView(APIView):
                 "preferences": UserPreferencesSerializer(profile).data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet untuk mengelola data user dan admin (hanya Superuser).
+    """
+    queryset = User.objects.all().order_by('username')
+    serializer_class = UserSerializer
+
+    def get_permissions(self):
+        # Hanya Superuser yang boleh mengakses CRUD User ini
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        # Proteksi double agar data tidak bocor jika diakses non-superuser
+        if not self.request.user.is_superuser:
+            return User.objects.none()
+        return super().get_queryset()
+
+    def create(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response({"error": "Hanya superuser yang dapat membuat pengguna baru."}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Validasi username unik
+        username = request.data.get('username')
+        if User.objects.filter(username=username).exists():
+            return Response({"error": f"Username '{username}' sudah digunakan."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response({"error": "Hanya superuser yang dapat menyunting pengguna."}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response({"error": "Hanya superuser yang dapat menghapus pengguna."}, status=status.HTTP_403_FORBIDDEN)
+            
+        user_to_delete = self.get_object()
+        if user_to_delete == request.user:
+            return Response({"error": "Anda tidak bisa menghapus akun superuser aktif Anda sendiri."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return super().destroy(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        password = self.request.data.get('password')
+        user = serializer.save()
+        if password:
+            user.set_password(password)
+            user.save()
+        else:
+            # Set default password jika kosong
+            user.set_password("Admin123!")
+            user.save()
+
+    def perform_update(self, serializer):
+        password = self.request.data.get('password')
+        user = serializer.save()
+        if password:
+            user.set_password(password)
+            user.save()
 

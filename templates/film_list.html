@@ -30,9 +30,10 @@
             <!-- Search -->
             <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-lg">
                 <h3 class="font-['DM_Sans'] text-lg font-medium text-stone-200 mb-4">Cari Database</h3>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
-                    <input id="search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-3 text-sm text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Judul, pemeran, dll..." type="text"/>
+                <div class="relative flex items-center">
+                    <span id="search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-lg transition-colors">search</span>
+                    <input id="search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-[70px] text-sm text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Judul, pemeran, dll..." type="text"/>
+                    <button id="search-submit-btn" class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-xs font-semibold px-3 py-1.5 rounded transition-all">Cari</button>
                 </div>
             </div>
             
@@ -116,7 +117,7 @@
         fetch("/api/films/genres/")
             .then(res => res.json())
             .then(data => {
-                genresList = data;
+                genresList = Array.isArray(data) ? data : (data.results || []);
                 renderGenreChips();
             })
             .catch(err => console.error("Gagal memuat genre:", err));
@@ -277,6 +278,16 @@
                         ratingText.textContent = film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : "N/A";
                         ratingDiv.appendChild(ratingText);
                         metaRow.appendChild(ratingDiv);
+                        
+                        // Add genres if available
+                        if (film.genre_display && film.genre_display.length > 0) {
+                            metaRow.appendChild(document.createTextNode(" • "));
+                            const genreSpan = document.createElement("span");
+                            const genreNames = film.genre_display.map(g => g.name || g).join(", ");
+                            genreSpan.textContent = genreNames;
+                            metaRow.appendChild(genreSpan);
+                        }
+                        
                         mainInfoDiv.appendChild(metaRow);
 
                         const synopsis = document.createElement("p");
@@ -404,11 +415,24 @@
             container.appendChild(nextBtn);
         }
 
-        // Live Filters Listeners with page reset
-        let searchTimeout;
-        searchInput.addEventListener("input", () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => fetchFilms(1), 300);
+        // Search triggered on button click, icon click, or enter keypress
+        const searchIconBtn = document.getElementById("search-icon-btn");
+        const searchSubmitBtn = document.getElementById("search-submit-btn");
+
+        const triggerSearch = () => {
+            fetchFilms(1);
+        };
+
+        if (searchSubmitBtn) {
+            searchSubmitBtn.addEventListener("click", triggerSearch);
+        }
+        if (searchIconBtn) {
+            searchIconBtn.addEventListener("click", triggerSearch);
+        }
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                triggerSearch();
+            }
         });
 
         yearFrom.addEventListener("input", () => fetchFilms(1));

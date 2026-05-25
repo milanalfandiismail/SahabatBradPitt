@@ -8,6 +8,13 @@ class Genre(models.Model):
         return self.name
 
 class Film(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending_approval', 'Pending Approval'),
+        ('published', 'Published'),
+        ('rejected', 'Rejected'),
+    ]
+    
     tmdb_id = models.IntegerField(unique=True, null=True, blank=True)
     title = models.CharField(max_length=255)
     synopsis = models.TextField(blank=True)
@@ -34,7 +41,39 @@ class Film(models.Model):
     # Rata-rata rating ulasan dari pengguna (1-10)
     avg_rating = models.FloatField(default=0.0)
     
+    # Approval Workflow Fields
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='published')
+    rejection_reason = models.TextField(blank=True, help_text="Alasan penolakan film")
+    is_local_edit = models.BooleanField(default=False, help_text="Apakah film ini punya edit lokal (bukan dari TMDB)")
+    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='films_created')
+    updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='films_updated')
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+
+class FilmImage(models.Model):
+    """
+    Menyimpan foto adegan (backdrops) lanskap widescreen dari TMDB.
+    Digunakan untuk menampilkan Galeri di halaman detail film.
+    File path dirender dengan CDN: https://image.tmdb.org/t/p/w1280/<file_path>
+    """
+    film = models.ForeignKey(Film, on_delete=models.CASCADE, related_name='images')
+    # Path gambar dari TMDB (misal: /abc123.jpg)
+    file_path = models.CharField(max_length=255)
+    # Tipe gambar: 'backdrop' (lanskap) atau 'poster' (vertikal)
+    image_type = models.CharField(max_length=50, default='backdrop')
+
+    class Meta:
+        ordering = ['id']
+        unique_together = ('film', 'file_path')  # Prevent duplicate images for same film
+        indexes = [
+            models.Index(fields=['film', 'file_path']),
+        ]
+
+    def __str__(self):
+        return f"Gambar {self.image_type} untuk {self.film.title}"
+

@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
-from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer
+from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserPreferencesSerializer
 
 class RegisterAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -74,3 +74,27 @@ class UserMeAPIView(APIView):
                 "user": UserSerializer(request.user).data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserPreferencesAPIView(APIView):
+    """
+    GET  /api/auth/me/preferences/ — Ambil preferensi film user
+    PUT  /api/auth/me/preferences/ — Simpan/update preferensi film user
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.profile
+        serializer = UserPreferencesSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile = request.user.profile
+        serializer = UserPreferencesSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "message": "Preferensi film berhasil disimpan.",
+                "preferences": UserPreferencesSerializer(profile).data
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

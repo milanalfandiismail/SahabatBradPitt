@@ -20,6 +20,12 @@
         <!-- Questionnaire Form Card -->
         <div
             class="bg-[#201f20] rounded-xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-6 font-['DM_Sans']">
+            <!-- Badge Preferensi Akun -->
+            <div id="preferences-badge" class="hidden bg-[#715A5A]/10 border border-[#715A5A]/30 rounded-lg p-3 text-stone-300 text-xs flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-[#F5C518] text-base">push_pin</span>
+                <span>Menggunakan preferensi akun Anda sebagai nilai default awal.</span>
+            </div>
+
             <!-- Mood Pilihan -->
             <div class="flex flex-col gap-2">
                 <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">1. Bagaimana Suasana Hati
@@ -212,28 +218,96 @@
             minRatingVal.textContent = parseFloat(minRatingSlider.value).toFixed(1);
         });
 
-        // 2. Load available genres as select chips
-        fetch("/api/films/genres/")
-            .then(res => res.json())
-            .then(genres => {
-                genresGrid.textContent = "";
-                genres.forEach(genre => {
-                    const chip = document.createElement("button");
-                    chip.type = "button";
-                    chip.className = "px-3 py-1.5 rounded-full border border-white/10 text-stone-400 text-xs hover:border-[#715A5A] transition-all";
-                    chip.textContent = genre.name;
-                    chip.addEventListener("click", () => {
-                        if (selectedGenres.includes(genre.id)) {
-                            selectedGenres = selectedGenres.filter(id => id !== genre.id);
-                            chip.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
-                        } else {
+        // 2. Load user preferences & available genres as select chips
+        const token = localStorage.getItem("auth_token");
+        let savedPreferences = null;
+
+        if (token) {
+            fetch("/api/auth/me/", {
+                headers: {
+                    "Authorization": `Token ${token}`
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Not logged in");
+                    return res.json();
+                })
+                .then(user => {
+                    if (user.preferences) {
+                        savedPreferences = user.preferences;
+                        
+                        // Show badge
+                        const badge = document.getElementById("preferences-badge");
+                        if (badge) badge.classList.remove("hidden");
+
+                        // Auto-select Mood
+                        if (savedPreferences.pref_mood) {
+                            selectedMood = savedPreferences.pref_mood;
+                            const moodBtn = document.querySelector(`.mood-btn[data-mood="${selectedMood}"]`);
+                            if (moodBtn) moodBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
+                        }
+
+                        // Auto-select Era
+                        if (savedPreferences.pref_era) {
+                            selectedEra = savedPreferences.pref_era;
+                            const eraBtn = document.querySelector(`.era-btn[data-era="${selectedEra}"]`);
+                            if (eraBtn) eraBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white");
+                        }
+
+                        // Auto-select Duration
+                        if (savedPreferences.pref_duration) {
+                            selectedDuration = savedPreferences.pref_duration;
+                            const durationBtn = document.querySelector(`.duration-btn[data-duration="${selectedDuration}"]`);
+                            if (durationBtn) durationBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white");
+                        }
+
+                        // Auto-select Min Rating
+                        if (savedPreferences.pref_min_rating !== undefined && savedPreferences.pref_min_rating !== null) {
+                            minRatingSlider.value = savedPreferences.pref_min_rating;
+                            minRatingVal.textContent = parseFloat(savedPreferences.pref_min_rating).toFixed(1);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log("Failed to load user preferences:", err);
+                })
+                .finally(() => {
+                    loadGenres();
+                });
+        } else {
+            loadGenres();
+        }
+
+        function loadGenres() {
+            fetch("/api/films/genres/")
+                .then(res => res.json())
+                .then(genres => {
+                    genresGrid.textContent = "";
+                    genres.forEach(genre => {
+                        const chip = document.createElement("button");
+                        chip.type = "button";
+                        chip.className = "px-3 py-1.5 rounded-full border border-white/10 text-stone-400 text-xs hover:border-[#715A5A] transition-all";
+                        chip.textContent = genre.name;
+
+                        // Auto-select genre if preferred
+                        if (savedPreferences && savedPreferences.pref_genres && savedPreferences.pref_genres.includes(genre.id)) {
                             selectedGenres.push(genre.id);
                             chip.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
                         }
+
+                        chip.addEventListener("click", () => {
+                            if (selectedGenres.includes(genre.id)) {
+                                selectedGenres = selectedGenres.filter(id => id !== genre.id);
+                                chip.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                            } else {
+                                selectedGenres.push(genre.id);
+                                chip.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                            }
+                        });
+                        genresGrid.appendChild(chip);
                     });
-                    genresGrid.appendChild(chip);
                 });
-            });
+        }
 
         // 3. Post preferences to REST API
         recommendBtn.addEventListener("click", () => {

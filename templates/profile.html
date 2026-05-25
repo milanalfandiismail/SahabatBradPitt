@@ -87,6 +87,9 @@
                 <button id="tab-watchlist-btn" class="pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none">
                     <span class="material-symbols-outlined text-lg">bookmark</span> Watchlist Saya
                 </button>
+                <button id="tab-prefs-btn" class="pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none">
+                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">psychology</span> Preferensi Film
+                </button>
             </div>
 
             <!-- Tab: Reviews -->
@@ -100,6 +103,81 @@
             <div id="section-watchlist" class="hidden">
                 <div id="watchlist-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                     <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Tab: Preferensi Film -->
+            <div id="section-prefs" class="hidden">
+                <div class="bg-[#201f20] rounded-xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-6 font-['DM_Sans'] max-w-3xl">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="material-symbols-outlined text-2xl text-[#715A5A]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                        <div>
+                            <h3 class="text-white font-semibold text-lg">Preferensi AI Recommendation</h3>
+                            <p class="text-stone-500 text-xs">Selera film Anda akan menjadi default input saat menggunakan halaman AI Recommendation.</p>
+                        </div>
+                    </div>
+
+                    <!-- Mood -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Mood Default</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="pref-mood-selector">
+                            <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-mood-btn text-sm" data-mood="santai">
+                                <span class="material-symbols-outlined text-sm text-green-400">sentiment_satisfied</span> Santai
+                            </button>
+                            <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-mood-btn text-sm" data-mood="tegang">
+                                <span class="material-symbols-outlined text-sm text-red-400">gavel</span> Tegang
+                            </button>
+                            <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-mood-btn text-sm" data-mood="sedih">
+                                <span class="material-symbols-outlined text-sm text-blue-400">sentiment_very_dissatisfied</span> Sedih
+                            </button>
+                            <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-mood-btn text-sm" data-mood="semangat">
+                                <span class="material-symbols-outlined text-sm text-yellow-400">bolt</span> Semangat
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Genre Favorit -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Genre Favorit</label>
+                        <div id="pref-genres-grid" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Era -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Era Favorit</label>
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs" id="pref-era-selector">
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="klasik">Klasik (&lt;90)</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="90s">90an</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="2000s">2000an</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="2010s">2010an</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="terbaru">Terbaru (&gt;20)</button>
+                        </div>
+                    </div>
+
+                    <!-- Durasi -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Durasi Preferensi</label>
+                        <div class="grid grid-cols-3 gap-2 text-xs" id="pref-duration-selector">
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="pendek">Pendek (&lt;100m)</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="sedang">Sedang (100-140m)</button>
+                            <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="panjang">Panjang (&gt;140m)</button>
+                        </div>
+                    </div>
+
+                    <!-- Min Rating -->
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-xs font-bold tracking-wider text-stone-400 uppercase">
+                            <span>Rating Minimum</span>
+                            <span id="pref-min-rating-val" class="text-[#F5C518] font-bold">0.0</span>
+                        </div>
+                        <input id="pref-min-rating-slider" class="w-full accent-[#715A5A] h-1 bg-[#141314] rounded-lg appearance-none cursor-pointer" max="10" min="0" step="0.5" type="range" value="0" />
+                    </div>
+
+                    <!-- Save Button -->
+                    <button id="save-prefs-btn" class="w-full h-11 mt-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded-lg font-semibold hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-lg">save</span> Simpan Preferensi
+                    </button>
+                    <p id="prefs-save-msg" class="hidden text-center text-xs text-green-400 font-semibold"></p>
                 </div>
             </div>
         </section>
@@ -247,26 +325,173 @@
         const sectionReviews = document.getElementById("section-reviews");
         const sectionWatchlist = document.getElementById("section-watchlist");
 
+
+        // === Tab Preferensi Film ===
+        const tabPrefsBtn = document.getElementById("tab-prefs-btn");
+        const sectionPrefs = document.getElementById("section-prefs");
+
         function switchTab(activeTab) {
+            // Reset semua tab
+            tabReviewsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
+            tabWatchlistBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
+            tabPrefsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
+            sectionReviews.classList.add("hidden");
+            sectionWatchlist.classList.add("hidden");
+            sectionPrefs.classList.add("hidden");
+
             if (activeTab === 'reviews') {
                 tabReviewsBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
-                tabWatchlistBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
                 sectionReviews.classList.remove("hidden");
-                sectionReviews.classList.add("block");
-                sectionWatchlist.classList.remove("block");
-                sectionWatchlist.classList.add("hidden");
-            } else {
+            } else if (activeTab === 'watchlist') {
                 tabWatchlistBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
-                tabReviewsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
                 sectionWatchlist.classList.remove("hidden");
-                sectionWatchlist.classList.add("block");
-                sectionReviews.classList.remove("block");
-                sectionReviews.classList.add("hidden");
+            } else if (activeTab === 'prefs') {
+                tabPrefsBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
+                sectionPrefs.classList.remove("hidden");
             }
         }
 
-        tabReviewsBtn.addEventListener("click", () => switchTab('reviews'));
-        tabWatchlistBtn.addEventListener("click", () => switchTab('watchlist'));
+        tabPrefsBtn.addEventListener("click", () => switchTab('prefs'));
+
+        // Preferensi Film Logic
+        let prefMood = "";
+        let prefGenres = [];
+        let prefEra = "";
+        let prefDuration = "";
+
+        const prefMinRatingSlider = document.getElementById("pref-min-rating-slider");
+        const prefMinRatingVal = document.getElementById("pref-min-rating-val");
+        prefMinRatingSlider.addEventListener("input", () => {
+            prefMinRatingVal.textContent = parseFloat(prefMinRatingSlider.value).toFixed(1);
+        });
+
+        // Mood buttons
+        document.querySelectorAll(".pref-mood-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".pref-mood-btn").forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20"));
+                if (prefMood === btn.dataset.mood) { prefMood = ""; }
+                else { prefMood = btn.dataset.mood; btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20"); }
+            });
+        });
+
+        // Era buttons
+        document.querySelectorAll(".pref-era-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".pref-era-btn").forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20", "text-white"));
+                if (prefEra === btn.dataset.era) { prefEra = ""; }
+                else { prefEra = btn.dataset.era; btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white"); }
+            });
+        });
+
+        // Duration buttons
+        document.querySelectorAll(".pref-duration-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".pref-duration-btn").forEach(b => b.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20", "text-white"));
+                if (prefDuration === btn.dataset.duration) { prefDuration = ""; }
+                else { prefDuration = btn.dataset.duration; btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white"); }
+            });
+        });
+
+        // Load genre chips
+        fetch("/api/films/genres/")
+            .then(r => r.json())
+            .then(genres => {
+                const grid = document.getElementById("pref-genres-grid");
+                grid.textContent = "";
+                genres.forEach(g => {
+                    const chip = document.createElement("button");
+                    chip.type = "button";
+                    chip.className = "px-3 py-1.5 rounded-full border border-white/10 text-stone-400 text-xs hover:border-[#715A5A] transition-all";
+                    chip.textContent = g.name;
+                    chip.dataset.genreId = g.id;
+                    chip.addEventListener("click", () => {
+                        if (prefGenres.includes(g.id)) {
+                            prefGenres = prefGenres.filter(id => id !== g.id);
+                            chip.classList.remove("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                        } else {
+                            prefGenres.push(g.id);
+                            chip.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                        }
+                    });
+                    grid.appendChild(chip);
+                });
+
+                // Load saved preferences and apply
+                loadSavedPreferences();
+            });
+
+        function loadSavedPreferences() {
+            fetch("/api/auth/me/preferences/", {
+                headers: { "Authorization": `Token ${token}` }
+            })
+            .then(r => r.json())
+            .then(prefs => {
+                // Apply mood
+                if (prefs.pref_mood) {
+                    prefMood = prefs.pref_mood;
+                    const moodBtn = document.querySelector(`.pref-mood-btn[data-mood="${prefs.pref_mood}"]`);
+                    if (moodBtn) moodBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20");
+                }
+                // Apply genres
+                if (prefs.pref_genres && prefs.pref_genres.length > 0) {
+                    prefGenres = prefs.pref_genres;
+                    prefs.pref_genres.forEach(gId => {
+                        const chip = document.querySelector(`#pref-genres-grid button[data-genre-id="${gId}"]`);
+                        if (chip) chip.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
+                    });
+                }
+                // Apply era
+                if (prefs.pref_era) {
+                    prefEra = prefs.pref_era;
+                    const eraBtn = document.querySelector(`.pref-era-btn[data-era="${prefs.pref_era}"]`);
+                    if (eraBtn) eraBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white");
+                }
+                // Apply duration
+                if (prefs.pref_duration) {
+                    prefDuration = prefs.pref_duration;
+                    const durBtn = document.querySelector(`.pref-duration-btn[data-duration="${prefs.pref_duration}"]`);
+                    if (durBtn) durBtn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-white");
+                }
+                // Apply min rating
+                if (prefs.pref_min_rating) {
+                    prefMinRatingSlider.value = prefs.pref_min_rating;
+                    prefMinRatingVal.textContent = parseFloat(prefs.pref_min_rating).toFixed(1);
+                }
+            })
+            .catch(() => {});
+        }
+
+        // Save preferences
+        document.getElementById("save-prefs-btn").addEventListener("click", () => {
+            const msg = document.getElementById("prefs-save-msg");
+            msg.classList.add("hidden");
+
+            fetch("/api/auth/me/preferences/", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Token ${token}`
+                },
+                body: JSON.stringify({
+                    pref_mood: prefMood,
+                    pref_genres: prefGenres,
+                    pref_era: prefEra,
+                    pref_duration: prefDuration,
+                    pref_min_rating: parseFloat(prefMinRatingSlider.value)
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                msg.textContent = data.message || "Preferensi tersimpan!";
+                msg.classList.remove("hidden");
+                setTimeout(() => msg.classList.add("hidden"), 3000);
+            })
+            .catch(() => {
+                msg.textContent = "Gagal menyimpan preferensi.";
+                msg.className = "text-center text-xs text-red-400 font-semibold";
+                msg.classList.remove("hidden");
+            });
+        });
 
         function fetchUserWatchlist(userId) {
             const grid = document.getElementById("watchlist-grid");

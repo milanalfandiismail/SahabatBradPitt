@@ -3,21 +3,33 @@ from django.contrib.auth.models import User
 from apps.users.models import UserProfile
 from apps.ratings.models import Rating
 from apps.recommendations.models import RecommendationLog
+from apps.films.models import Genre
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['display_name', 'bio', 'avatar_path']
 
+class UserPreferencesSerializer(serializers.ModelSerializer):
+    """Serializer khusus untuk membaca/menulis preferensi film user."""
+    pref_genres = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Genre.objects.all(), required=False
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ['pref_mood', 'pref_genres', 'pref_era', 'pref_duration', 'pref_min_rating']
+
 class UserSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(source='profile.display_name', read_only=True)
     bio = serializers.CharField(source='profile.bio', read_only=True)
     avatar_path = serializers.CharField(source='profile.avatar_path', read_only=True)
     stats = serializers.SerializerMethodField()
+    preferences = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'display_name', 'avatar_path', 'bio', 'stats']
+        fields = ['id', 'username', 'email', 'display_name', 'avatar_path', 'bio', 'stats', 'preferences']
 
     def get_stats(self, obj):
         # Hitung statistik personal pengguna secara dinamis
@@ -38,6 +50,18 @@ class UserSerializer(serializers.ModelSerializer):
             "avg_score_given": avg_score,
             "last_recommendation": last_rec_date
         }
+
+    def get_preferences(self, obj):
+        if hasattr(obj, 'profile'):
+            profile = obj.profile
+            return {
+                "pref_mood": profile.pref_mood,
+                "pref_genres": list(profile.pref_genres.values_list('id', flat=True)),
+                "pref_era": profile.pref_era,
+                "pref_duration": profile.pref_duration,
+                "pref_min_rating": profile.pref_min_rating
+            }
+        return None
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=8)
@@ -68,3 +92,4 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.profile.save()
             
         return user
+

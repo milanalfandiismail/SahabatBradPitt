@@ -1,0 +1,33 @@
+<!-- ======================= 5. USERS SECTION ======================= -->
+<div id="section-users" class="hidden flex flex-col gap-8">
+    <div class="flex justify-between items-center border-b border-white/5 pb-6">
+        <div class="flex flex-col gap-1">
+            <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Otoritas Pengguna & Peran Admin</h1>
+            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Daftar pengguna terdaftar beserta modifikasi peran Staff (Admin) dan Super Admin (Superuser).</p>
+        </div>
+        <button id="add-user-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
+            <span class="material-symbols-outlined text-sm">person_add</span> Tambah Pengguna / Admin
+        </button>
+    </div>
+
+    <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+        <div class="overflow-x-auto custom-scroll w-full">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                        <th class="p-4">USERNAME</th>
+                        <th class="p-4">EMAIL</th>
+                        <th class="p-4 w-[150px] text-center">ROLE ADMIN (STAFF)</th>
+                        <th class="p-4 w-[150px] text-center">SUPER ADMIN</th>
+                        <th class="p-4 w-[120px] text-center">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body"><!-- Dynamic list --></tbody>
+            </table>
+        </div>
+        <div id="users-loading" class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+        </div>
+        <div id="users-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">Katalog pengguna kosong.</div>
+    </div>
+</div>

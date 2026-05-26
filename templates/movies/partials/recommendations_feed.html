@@ -1,0 +1,29 @@
+<!-- RIGHT: Dynamic AI Results Feed -->
+<section class="w-full lg:w-[55%] flex flex-col gap-6">
+    <div class="flex items-center gap-4 mb-4">
+        <div class="w-8 h-[1px] bg-white/10"></div>
+        <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] font-bold tracking-wide">Hasil Pemeringkatan AI</h2>
+    </div>
+
+    <div id="results-placeholder" class="bg-[#201f20] rounded-xl p-12 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center h-[400px] text-stone-500 font-['DM_Sans']">
+        <span class="material-symbols-outlined text-6xl text-stone-600 mb-4">psychology</span>
+        <h3 class="text-stone-300 font-medium text-lg">AI Siap Menganalisis</h3>
+        <p class="text-sm text-stone-500 mt-2 max-w-sm">
+            Isi kuesioner preferensi di panel kiri untuk memulai proses pemeringkatan hibrida TOPSIS & Sistem Pakar.
+        </p>
+    </div>
+
+    <div id="results-loading" class="hidden bg-[#201f20] rounded-xl p-12 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center h-[400px] text-stone-500 font-['DM_Sans']">
+        <span class="material-symbols-outlined text-5xl animate-spin text-[#715A5A] mb-4">sync</span>
+        <h3 class="text-stone-300 font-medium text-lg">Mengevaluasi Matriks Keputusan</h3>
+        <p class="text-xs text-stone-600 mt-2 max-w-xs uppercase tracking-widest">
+            Sistem Pakar memfilter kandidat... Algoritma TOPSIS menghitung solusi ideal positif & negatif...
+        </p>
+    </div>
+
+    <!-- Ranked Movie Feed list -->
+    <div id="recommendations-feed" class="hidden flex flex-col gap-6"></div>
+
+    <!-- Pagination Controls -->
+    <div id="pagination-controls" class="mt-8 flex flex-wrap justify-center items-center gap-2 font-['DM_Sans'] text-sm hidden"></div>
+</section>

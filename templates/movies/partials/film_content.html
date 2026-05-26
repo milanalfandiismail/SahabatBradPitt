@@ -1,0 +1,77 @@
+<!-- ============ SYNOPSIS, CAST & REVIEW PANEL ============ -->
+<section class="max-w-[1440px] mx-auto px-6 md:px-12 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Synopsis & Cast (Colspan 2) -->
+        <div class="lg:col-span-2 flex flex-col gap-10">
+            <div>
+                <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-4">Sinopsis</h2>
+                <p id="synopsis-val" class="font-['DM_Sans'] text-[#D3DAD9]/80 leading-relaxed text-base"></p>
+            </div>
+            <!-- Cast -->
+            <div>
+                <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-6">Pemain & Sutradara</h2>
+                <div id="cast-list" class="grid grid-cols-2 sm:grid-cols-4 gap-6 justify-items-center"></div>
+                <div id="cast-expand-container" class="mt-6 text-center hidden">
+                    <button id="cast-expand-btn"
+                        class="bg-[#715A5A]/30 hover:bg-[#715A5A]/50 border border-[#715A5A]/50 text-[#D3DAD9] px-6 py-2 rounded text-sm transition-all hover:scale-[1.02]">
+                        Lihat Semua Pemain & Sutradara
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review / Rating Panel -->
+        <div class="flex flex-col gap-6">
+            <div class="bg-[#44444E] rounded-lg p-6 border border-white/5 shadow-xl">
+                <h3 class="font-['DM_Sans'] text-lg font-medium text-[#D3DAD9] mb-4">Berikan Ulasan Anda</h3>
+                <!-- Star Widget -->
+                <div class="flex items-center gap-1.5 justify-between mb-4">
+                    <div class="flex gap-1" id="star-selector">
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="1" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="2" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="3" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="4" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="5" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="6" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="7" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="8" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="9" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span
+                            class="material-symbols-outlined text-2xl text-[#D3DAD9]/30 hover:text-[#F5C518] cursor-pointer star-btn transition-colors"
+                            data-star="10" style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                    <span id="star-hint" class="font-['DM_Sans'] text-sm text-[#F5C518] font-bold">0/10</span>
+                </div>
+                <textarea id="review-text"
+                    class="w-full bg-[#37353E] border border-white/10 rounded-lg p-3 text-sm text-[#D3DAD9] placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none mb-4"
+                    rows="4" placeholder="Tuliskan ulasan sinematik Anda..."></textarea>
+                <div id="auth-alert"
+                    class="hidden text-xs text-red-400 mb-4 bg-red-500/10 p-3 rounded border border-red-500/20">
+                    Silakan <a href="/login/" class="underline font-bold">Sign In</a> terlebih dahulu untuk memberikan
+                    ulasan.
+                </div>
+                <button id="submit-review-btn"
+                    class="w-full bg-[#715A5A] hover:bg-[#8A6E6E] text-white py-2.5 rounded font-medium transition-all shadow-md">Submit
+                    Ulasan</button>
+            </div>
+        </div>
+    </div>
+</section>

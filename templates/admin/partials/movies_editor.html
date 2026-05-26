@@ -1,0 +1,158 @@
+<!-- SUB-VIEW 1.2: FILM CRUD EDITOR FORM -->
+<div id="view-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+    <!-- Editor Title -->
+    <div class="flex justify-between items-center border-b border-white/5 pb-4">
+        <div class="flex flex-col">
+            <h2 id="editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Film Baru</h2>
+            <p id="editor-subtitle" class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Lengkapi detail metadata film.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="editor-status-badge"></div>
+            <button id="editor-back-btn" class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Rejection Warning Banner -->
+    <div id="editor-rejection-alert" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-md text-xs font-['DM_Sans'] flex items-start gap-3">
+        <span class="material-symbols-outlined text-lg shrink-0 mt-0.5">warning</span>
+        <div><span class="font-bold">Alasan Penolakan Film:</span> <span id="rejection-reason-text"></span></div>
+    </div>
+
+    <!-- Core Form Fields -->
+    <form id="film-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="event.preventDefault();">
+        <!-- Left: Metadata inputs -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="flex flex-col gap-1.5">
+                <label for="form-title" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">JUDUL FILM *</label>
+                <input id="form-title" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all placeholder:text-stone-600" required type="text" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="form-synopsis" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">SINOPSIS</label>
+                <textarea id="form-synopsis" rows="4" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all custom-scroll resize-none placeholder:text-stone-600"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="form-year" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TAHUN RILIS *</label>
+                    <input id="form-year" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" required type="number" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="form-duration" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DURASI (MENIT)</label>
+                    <input id="form-duration" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" type="number" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="form-popularity" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">POPULARITAS SCORE</label>
+                    <input id="form-popularity" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" type="number" />
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div class="flex items-center gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                    <input id="form-is-tv-series" type="checkbox" class="w-4 h-4 rounded bg-[#141314] border-white/20 text-[#715A5A] focus:ring-[#715A5A]" />
+                    <label for="form-is-tv-series" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase cursor-pointer">JENIS: SERIAL TV / SERIES</label>
+                </div>
+                <div class="flex flex-col gap-1.5" id="episodes-container" style="display: none;">
+                    <label for="form-episodes-count" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">JUMLAH EPISODE</label>
+                    <input id="form-episodes-count" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" type="number" />
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="form-trailer" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TRAILER URL (YOUTUBE / DIRECT)</label>
+                <input id="form-trailer" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all placeholder:text-stone-600" placeholder="https://www.youtube.com/watch?v=..." type="url" />
+            </div>
+            <!-- Genre Checkbox grid -->
+            <div class="flex flex-col gap-2">
+                <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">GENRE FILM (PILIH MINIMAL SATU) *</span>
+                <div id="form-genres-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                    <!-- Dynamic check fields -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Media File Uploads -->
+        <div class="flex flex-col gap-6">
+            <!-- Poster block -->
+            <div class="flex flex-col gap-3">
+                <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">POSTER UTAMA *</span>
+                <div class="aspect-[2/3] bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                    <img id="form-poster-preview" alt="Poster Preview" class="hidden w-full h-full object-cover" />
+                    <div id="form-poster-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-4xl">image</span>
+                        <span class="text-[11px] font-semibold tracking-widest uppercase">Belum Ada Gambar</span>
+                    </div>
+                </div>
+                <input id="form-poster-input" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" />
+                <button id="form-poster-trigger-btn" class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold" type="button">Unggah Poster</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Gallery section -->
+    <div id="editor-gallery-section" class="flex flex-col gap-4 border-t border-white/5 pt-6">
+        <div class="flex justify-between items-center">
+            <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">GALERI BACKDROP</span>
+            <span id="gallery-image-count" class="text-amber-500 text-sm font-semibold">0/8</span>
+        </div>
+        <div id="editor-gallery-grid" class="grid grid-cols-4 gap-3"><!-- Dynamic backdrop thumb grid --></div>
+        <input id="form-gallery-input" class="hidden" type="file" multiple accept="image/jpeg,image/png,image/webp" />
+        <button id="form-gallery-trigger-btn" class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1" type="button">
+            <span class="material-symbols-outlined text-xs">add_photo_alternate</span> Unggah Backdrop
+        </button>
+    </div>
+
+    <!-- Cast / Filmography section -->
+    <div id="editor-cast-section" class="flex flex-col gap-4 border-t border-white/5 pt-6">
+        <div class="flex justify-between items-center">
+            <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DAFTAR PEMERAN (CAST)</span>
+            <span id="cast-count" class="text-emerald-500 text-sm font-semibold">0 Sineas</span>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 items-start">
+            <div class="w-full relative">
+                <input id="cast-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Cari sineas..." type="text" autocomplete="off" />
+                <div id="cast-autocomplete-results" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto custom-scroll"></div>
+            </div>
+            <select id="cast-role-type-input" class="w-full sm:w-1/4 bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none">
+                <option value="lead">Pemeran Utama</option>
+                <option value="supporting" selected>Pemeran Pendukung</option>
+                <option value="cameo">Kameo</option>
+                <option value="director">Sutradara</option>
+                <option value="producer">Produser</option>
+                <option value="writer">Penulis Skenario</option>
+                <option value="other">Lainnya</option>
+            </select>
+            <input id="cast-role-input" class="w-full sm:w-1/3 bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Peran (mis: Iron Man)" type="text" />
+            <button id="add-cast-btn" type="button" class="px-4 py-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-semibold text-xs transition-all whitespace-nowrap" disabled>Tambah</button>
+        </div>
+        <div class="bg-[#141314]/30 rounded-md border border-white/5 overflow-hidden">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                        <th class="p-3 w-[60px] text-center">FOTO</th>
+                        <th class="p-3">NAMA SINEAS</th>
+                        <th class="p-3">PERAN</th>
+                        <th class="p-3 w-[80px] text-center">URUTAN</th>
+                        <th class="p-3 w-[60px] text-center">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="cast-table-body">
+                    <tr id="cast-empty-row">
+                        <td colspan="5" class="p-6 text-center text-stone-500 italic">Belum ada pemeran yang ditambahkan.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-white/5 pt-6">
+        <button id="form-delete-btn" class="w-full sm:w-auto px-6 py-3 rounded font-semibold text-sm text-rose-400 border border-rose-500/10 hover:bg-rose-500/10 transition-all flex items-center justify-center gap-1.5" type="button">
+            <span class="material-symbols-outlined text-sm">delete</span> Hapus Film
+        </button>
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button id="form-cancel-btn" class="w-full sm:w-auto px-6 py-3 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm transition-all font-semibold" type="button">Batal</button>
+            <button id="form-save-btn" class="w-full sm:w-auto px-6 py-3 rounded font-semibold text-sm text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-1.5 shadow-md" type="button">
+                <span class="material-symbols-outlined text-sm">save</span> Simpan Perubahan
+            </button>
+        </div>
+    </div>
+</div>

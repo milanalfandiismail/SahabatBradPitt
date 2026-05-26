@@ -1,0 +1,54 @@
+<!-- ======================= 3. GENRES SECTION ======================= -->
+<div id="section-genres" class="hidden flex flex-col gap-8">
+    <div class="flex justify-between items-center border-b border-white/5 pb-6">
+        <div class="flex flex-col gap-1">
+            <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Katalog Genre Kustom</h1>
+            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Daftar genre kustom untuk memperkaya klasifikasi film.</p>
+        </div>
+        <button id="add-genre-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
+            <span class="material-symbols-outlined text-sm">add_box</span> Tambah Genre
+        </button>
+    </div>
+
+    <div id="view-genres-manage" class="flex flex-col gap-8">
+    <!-- List Table -->
+    <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col max-w-xl">
+        <table class="w-full text-left text-xs border-collapse">
+            <thead>
+                <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                    <th class="p-4">NAMA GENRE</th>
+                    <th class="p-4 w-[120px] text-center">TMDB GENRE ID</th>
+                    <th class="p-4 w-[120px] text-center font-bold">AKSI</th>
+                </tr>
+            </thead>
+            <tbody id="genres-table-body"><!-- Dynamic list --></tbody>
+        </table>
+        <div id="genres-loading" class="hidden py-10 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined animate-spin text-2xl">sync</span>
+        </div>
+        <div id="genres-empty" class="hidden py-10 text-center text-[#c9c5cb]/40 italic text-xs">Tidak ada genre kustom tersedia.</div>
+    </div>
+    </div>
+
+    <!-- SUB-VIEW: GENRE EDITOR -->
+    <div id="view-genre-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-6 shadow-xl max-w-md">
+        <div class="flex justify-between items-center border-b border-white/5 pb-4">
+            <h3 class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Genre Kustom</h3>
+            <button id="genre-editor-close-btn" class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+        <form id="genre-form" class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+            <div class="flex flex-col gap-1.5">
+                <label for="genre-form-name" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA GENRE *</label>
+                <input id="genre-form-name" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" required type="text" />
+            </div>
+            <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+                <button id="genre-editor-cancel-btn" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold" type="button">Batal</button>
+                <button id="genre-editor-save-btn" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md" type="submit">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Genre
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

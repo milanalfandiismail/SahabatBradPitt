@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -6,6 +7,64 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+class FilmQuerySet(models.QuerySet):
+    def published_only(self):
+        return self.filter(status='published')
+
+    def filter_by_status(self, user, status_param=None):
+        if not user.is_staff:
+            return self.published_only()
+        if status_param:
+            return self.filter(status=status_param)
+        return self
+
+    def search(self, q):
+        if not q:
+            return self
+        q = q.strip()
+        strict_query = (
+            Q(title__iexact=q) | 
+            Q(title__istartswith=f"{q} ") | 
+            Q(title__iendswith=f" {q}") | 
+            Q(title__icontains=f" {q} ")
+        )
+        strict_qs = self.filter(strict_query)
+        if strict_qs.exists():
+            return strict_qs
+        return self.filter(Q(title__icontains=q) | Q(synopsis__icontains=q))
+
+    def filter_by_genres(self, genre_ids):
+        if not genre_ids:
+            return self
+        return self.filter(genre__id__in=genre_ids)
+
+    def filter_by_year_range(self, year_from=None, year_to=None):
+        qs = self
+        if year_from:
+            try:
+                qs = qs.filter(release_year__gte=int(year_from))
+            except ValueError:
+                pass
+        if year_to:
+            try:
+                qs = qs.filter(release_year__lte=int(year_to))
+            except ValueError:
+                pass
+        return qs
+
+    def filter_by_studio(self, studio_id):
+        if not studio_id:
+            return self
+        return self.filter(studio__id=studio_id)
+
+    def filter_by_min_rating(self, min_rating):
+        if not min_rating:
+            return self
+        try:
+            return self.filter(avg_rating__gte=float(min_rating))
+        except ValueError:
+            return self
 
 class Film(models.Model):
     STATUS_CHOICES = [
@@ -41,6 +100,10 @@ class Film(models.Model):
     # Rata-rata rating ulasan dari pengguna (1-10)
     avg_rating = models.FloatField(default=0.0)
     
+    # TV Series Fields
+    is_tv_series = models.BooleanField(default=False)
+    episodes_count = models.IntegerField(null=True, blank=True)
+    
     # Approval Workflow Fields
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='published')
     rejection_reason = models.TextField(blank=True, help_text="Alasan penolakan film")
@@ -50,6 +113,8 @@ class Film(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = FilmQuerySet.as_manager()
 
     def __str__(self):
         return self.title

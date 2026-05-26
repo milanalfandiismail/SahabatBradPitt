@@ -16,6 +16,8 @@ class ActorSerializer(serializers.ModelSerializer):
     film_role = serializers.CharField(read_only=True, default=None, allow_null=True)
     film_order = serializers.IntegerField(read_only=True, default=0, allow_null=True)
     
+    film_role_type = serializers.CharField(read_only=True, default=None, allow_null=True)
+    
     # Approval workflow fields
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
@@ -26,7 +28,9 @@ class ActorSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'tmdb_id', 'name', 'native_name',
             'bio', 'birth_year', 'photo_path',
-            'genre_spec', 'filmographies', 'film_role', 'film_order',
+            'gender', 'birthday', 'deathday', 'place_of_birth', 'known_for_department',
+            'instagram_id', 'twitter_id', 'facebook_id', 'tiktok_id',
+            'genre_spec', 'filmographies', 'film_role', 'film_order', 'film_role_type',
             'status', 'status_display', 'rejection_reason',
             'is_local_edit', 'created_by', 'created_by_name',
             'updated_by', 'updated_by_name', 'created_at', 'updated_at'
@@ -42,8 +46,10 @@ class ActorSerializer(serializers.ModelSerializer):
         if native_name:
             # Jika name adalah non-ASCII (Hanzi/Hangul/dll) dan native_name adalah ASCII (Latin)
             if not name.isascii() and native_name.isascii():
-                ret['name'] = f"{native_name} ({name})"
+                if native_name not in name:
+                    ret['name'] = f"{native_name} ({name})"
             else:
                 # Jika name adalah ASCII (Latin) dan native_name adalah non-ASCII
-                ret['name'] = f"{name} ({native_name})"
+                if native_name not in name:
+                    ret['name'] = f"{name} ({native_name})"
         return ret

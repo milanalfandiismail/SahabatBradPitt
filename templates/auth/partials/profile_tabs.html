@@ -1,0 +1,84 @@
+<!-- ============ PROFILE TABS: Reviews, Watchlist, Preferences ============ -->
+    <section class="max-w-[1440px] mx-auto px-6 md:px-12 py-6 border-t border-white/5">
+        <!-- Tab Nav -->
+        <div class="flex gap-6 border-b border-white/10 font-['DM_Sans'] text-sm mb-8">
+            <button id="tab-reviews-btn" class="pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none">
+                <span class="material-symbols-outlined text-lg">rate_review</span> Film yang Saya Ulas
+            </button>
+            <button id="tab-watchlist-btn" class="pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none">
+                <span class="material-symbols-outlined text-lg">bookmark</span> Watchlist Saya
+            </button>
+            <button id="tab-prefs-btn" class="pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none">
+                <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">psychology</span> Preferensi Film
+            </button>
+        </div>
+
+        <!-- Tab: Reviews -->
+        <div id="section-reviews" class="block">
+            <div id="rated-movies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+
+        <!-- Tab: Watchlist -->
+        <div id="section-watchlist" class="hidden">
+            <div id="watchlist-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+        </div>
+
+        <!-- Tab: Preferensi Film -->
+        <div id="section-prefs" class="hidden">
+            <div class="bg-[#201f20] rounded-xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-6 font-['DM_Sans'] max-w-3xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="material-symbols-outlined text-2xl text-[#715A5A]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                    <div>
+                        <h3 class="text-white font-semibold text-lg">Preferensi AI Recommendation</h3>
+                        <p class="text-stone-500 text-xs">Selera film Anda akan menjadi default input saat menggunakan halaman AI Recommendation.</p>
+                    </div>
+                </div>
+
+                <!-- Focus -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Fokus Default</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="pref-focus-selector">
+                        <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-focus-btn text-sm" data-focus="rating"><span class="material-symbols-outlined text-sm text-green-400">star</span> Rating</button>
+                        <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-focus-btn text-sm" data-focus="popular"><span class="material-symbols-outlined text-sm text-red-400">trending_up</span> Populer</button>
+                        <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-focus-btn text-sm" data-focus="genre"><span class="material-symbols-outlined text-sm text-blue-400">category</span> Genre</button>
+                        <button type="button" class="py-2.5 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 pref-focus-btn text-sm" data-focus="balanced"><span class="material-symbols-outlined text-sm text-yellow-400">balance</span> Seimbang</button>
+                    </div>
+                </div>
+
+                <!-- Genre Favorit -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Genre Favorit</label>
+                    <div id="pref-genres-grid" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Era -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Era Favorit</label>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs" id="pref-era-selector">
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="klasik">Klasik (&lt;90)</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="90s">90an</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="2000s">2000an</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="2010s">2010an</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-era-btn" data-era="terbaru">Terbaru (&gt;20)</button>
+                    </div>
+                </div>
+
+                <!-- Durasi -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">Durasi Preferensi</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs" id="pref-duration-selector">
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="pendek">Pendek (&lt;100m)</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="sedang">Sedang (100-140m)</button>
+                        <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] pref-duration-btn" data-duration="panjang">Panjang (&gt;140m)</button>
+                    </div>
+                </div>
+
+                <!-- Save -->
+                <button id="save-prefs-btn" class="w-full h-11 mt-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded-lg font-semibold hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 text-sm">
+                    <span class="material-symbols-outlined text-lg">save</span> Simpan Preferensi
+                </button>
+                <p id="prefs-save-msg" class="hidden text-center text-xs text-green-400 font-semibold"></p>
+            </div>
+        </div>
+    </section>
+</div>

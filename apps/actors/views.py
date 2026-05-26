@@ -34,58 +34,21 @@ class ActorViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         
-        # Filter berdasarkan status untuk public users
-        # Public users hanya melihat published actors
-        if not self.request.user.is_staff:
-            queryset = queryset.filter(status='published')
+        # 1. Filter by status
+        status_param = self.request.query_params.get('status', None)
+        queryset = queryset.filter_by_status(self.request.user, status_param)
         
-        # Filter pencarian berdasarkan nama atau nama asli
+        # 2. Search
         search = self.request.query_params.get('search', None)
-        if search:
-            search = search.strip()
-            # 1. Try strict matching (exact or whole-word)
-            strict_query = (
-                Q(name__iexact=search) | 
-                Q(native_name__iexact=search) |
-                Q(name__istartswith=f"{search} ") | 
-                Q(name__iendswith=f" {search}") | 
-                Q(name__icontains=f" {search} ") |
-                Q(native_name__istartswith=f"{search} ") | 
-                Q(native_name__iendswith=f" {search}") | 
-                Q(native_name__icontains=f" {search} ")
-            )
-            strict_qs = queryset.filter(strict_query)
-            if strict_qs.exists():
-                queryset = strict_qs
-            else:
-                # 2. Fallback to broad contains search
-                queryset = queryset.filter(Q(name__icontains=search) | Q(native_name__icontains=search))
+        queryset = queryset.search(search)
             
-        # Filter berdasarkan genre khusus yang didukung aktor
+        # 3. Filter by genre
         genre_id = self.request.query_params.get('genre', None)
-        if genre_id:
-            queryset = queryset.filter(genre_spec__id=genre_id)
+        queryset = queryset.filter_by_genre(genre_id)
         
-        # Filter berdasarkan film (actors yang main di film tertentu)
-        # + annotate film_role dari Filmography untuk tahu peran spesifik di film ini
+        # 4. Filter by film & annotate roles
         film_id = self.request.query_params.get('film', None)
-        if film_id:
-            queryset = queryset.filter(filmographies__film_id=film_id)
-            # Annotate role aktor di film ini
-            role_subquery = Filmography.objects.filter(
-                actor=OuterRef('pk'),
-                film_id=film_id
-            ).values('role')[:1]
-            # Annotate order aktor di film ini
-            order_subquery = Filmography.objects.filter(
-                actor=OuterRef('pk'),
-                film_id=film_id
-            ).values('order')[:1]
-            
-            queryset = queryset.annotate(
-                film_role=Subquery(role_subquery, output_field=CharField()),
-                film_order=Subquery(order_subquery, output_field=IntegerField())
-            ).order_by('film_order', 'name')
+        queryset = queryset.filter_by_film(film_id)
         
         return queryset
     

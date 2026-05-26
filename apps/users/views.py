@@ -1,8 +1,7 @@
 from rest_framework import status, permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserProfileEditSerializer, UserPreferencesSerializer
 
@@ -14,10 +13,10 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            token, _ = Token.objects.get_or_create(user=user)
+            # Langsung login user setelah registrasi, sesi cookie diterbitkan otomatis
+            auth_login(request, user)
             return Response({
                 "message": "Pendaftaran akun berhasil.",
-                "token": token.key,
                 "user": UserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -37,11 +36,11 @@ class LoginAPIView(APIView):
         if user is not None:
             if not user.is_active:
                 return Response({"error": "Akun ini telah dinonaktifkan."}, status=status.HTTP_403_FORBIDDEN)
-                
-            token, _ = Token.objects.get_or_create(user=user)
+
+            # Terbitkan session cookie HttpOnly via Django session framework
+            auth_login(request, user)
             return Response({
                 "message": "Login sukses.",
-                "token": token.key,
                 "user": UserSerializer(user).data
             }, status=status.HTTP_200_OK)
             
@@ -51,12 +50,9 @@ class LogoutAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        try:
-            # Hapus token di database untuk invalidasi
-            request.user.auth_token.delete()
-            return Response({"message": "Logout sukses. Token berhasil diinvalidasi."}, status=status.HTTP_200_OK)
-        except Exception:
-            return Response({"error": "Terjadi kesalahan saat logout."}, status=status.HTTP_400_BAD_REQUEST)
+        # Invalidasi session server-side dan hapus cookie session dari browser
+        auth_logout(request)
+        return Response({"message": "Logout sukses. Sesi berhasil diakhiri."}, status=status.HTTP_200_OK)
 
 class UserMeAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]

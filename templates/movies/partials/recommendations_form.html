@@ -1,0 +1,72 @@
+<!-- LEFT: AI Questionnaire Card -->
+<section class="w-full lg:w-[45%] flex flex-col gap-6">
+    <header class="flex flex-col gap-2">
+        <span class="text-[#715A5A] text-xs font-bold uppercase tracking-[0.2em] font-['DM_Sans']">Hybrid Recommendation System</span>
+        <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">AI Film Recommendation</h1>
+        <p class="font-['DM_Sans'] text-sm text-stone-400 leading-relaxed">
+            Jawab 5 pertanyaan kuesioner preferensi ini. Sistem Pakar & Algoritma TOPSIS kami akan memeringkatkan
+            seluruh katalog film berkualitas tinggi secara dinamis demi menemukan tontonan malam ini.
+        </p>
+    </header>
+
+    <!-- Questionnaire Form Card -->
+    <div class="bg-[#201f20] rounded-xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-6 font-['DM_Sans']">
+        <!-- Badge Preferensi Akun -->
+        <div id="preferences-badge" class="hidden bg-[#715A5A]/10 border border-[#715A5A]/30 rounded-lg p-3 text-stone-300 text-xs flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-[#F5C518] text-base">push_pin</span>
+            <span>Menggunakan preferensi akun Anda sebagai nilai default awal.</span>
+        </div>
+
+        <!-- Focus Pilihan -->
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">1. Fokus Rekomendasi (AI)</label>
+            <div class="grid grid-cols-2 gap-3 mt-1" id="focus-selector">
+                <button type="button" class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm" data-focus="rating">
+                    <span class="material-symbols-outlined text-sm text-green-400">star</span> Rating Tertinggi
+                </button>
+                <button type="button" class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm" data-focus="popular">
+                    <span class="material-symbols-outlined text-sm text-red-400">trending_up</span> Paling Populer
+                </button>
+                <button type="button" class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm" data-focus="genre">
+                    <span class="material-symbols-outlined text-sm text-blue-400">category</span> Sesuai Genre
+                </button>
+                <button type="button" class="py-3 px-4 rounded-lg border border-white/10 hover:border-[#715A5A] hover:bg-white/5 transition-all text-left flex items-center gap-2 text-stone-300 focus-btn text-sm border-[#715A5A] bg-[#715A5A]/20" data-focus="balanced">
+                    <span class="material-symbols-outlined text-sm text-yellow-400">balance</span> Seimbang
+                </button>
+            </div>
+        </div>
+
+        <!-- Genre Pilihan -->
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">2. Pilih Genre Favorit Anda (Opsional)</label>
+            <div id="genres-grid" class="flex flex-wrap gap-2 mt-1"></div>
+        </div>
+
+        <!-- Era Rilis -->
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">3. Era Rilis Film</label>
+            <div class="grid grid-cols-3 gap-2 mt-1 text-xs" id="era-selector">
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] era-btn" data-era="klasik">Klasik (&lt;90)</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] era-btn" data-era="90s">90an</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] era-btn" data-era="2000s">2000an</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] era-btn" data-era="2010s">2010an</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] era-btn" data-era="terbaru">Terbaru (&gt;20)</button>
+            </div>
+        </div>
+
+        <!-- Durasi -->
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold tracking-wider text-stone-400 uppercase">4. Durasi Film</label>
+            <div class="grid grid-cols-3 gap-2 mt-1 text-xs" id="duration-selector">
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] duration-btn" data-duration="pendek">Pendek (&lt;100m)</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] duration-btn" data-duration="sedang">Sedang (100-140m)</button>
+                <button type="button" class="py-2.5 px-3 text-center rounded border border-white/10 text-stone-400 hover:border-[#715A5A] duration-btn" data-duration="panjang">Panjang (&gt;140m)</button>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="recommend-btn" class="w-full h-12 mt-4 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded-lg font-semibold hover:scale-[1.02] hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">bolt</span> Dapatkan Rekomendasi
+        </button>
+    </div>
+</section>

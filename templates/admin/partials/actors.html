@@ -1,0 +1,118 @@
+<!-- ======================= 2. ACTORS SECTION ======================= -->
+<div id="section-actors" class="hidden flex flex-col gap-8">
+    <div class="flex justify-between items-center border-b border-white/5 pb-6">
+        <div class="flex flex-col gap-1">
+            <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Kelola Sineas (Aktor & Sutradara)</h1>
+            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tambah, edit, dan hapus profil sineas untuk filmography database.</p>
+        </div>
+        <button id="add-actor-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1 shadow-md" type="button">
+            <span class="material-symbols-outlined text-sm">person_add</span> Tambah Sineas
+        </button>
+    </div>
+
+    <div id="view-actors-manage" class="flex flex-col gap-8">
+        <!-- Controls Bar -->
+        <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="relative w-full sm:w-[60%] flex items-center">
+            <span id="actor-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+            <input id="actor-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-[70px] text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari sineas berdasarkan nama atau nama asli..." type="text" />
+            <button id="actor-search-submit-btn" class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] font-semibold px-2.5 py-1.5 rounded transition-all">Cari</button>
+        </div>
+    </div>
+
+    <!-- Table of Actors -->
+    <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+        <div class="overflow-x-auto custom-scroll w-full">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                        <th class="p-4 w-[80px] text-center">FOTO</th>
+                        <th class="p-4 min-w-[200px]">NAMA SINEAS</th>
+                        <th class="p-4 w-[120px] text-center">TMDB ID</th>
+                        <th class="p-4 w-[120px] text-center">TAHUN LAHIR</th>
+                        <th class="p-4 min-w-[250px]">BIOGRAFI</th>
+                        <th class="p-4 w-[120px] text-center">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="actors-table-body"><!-- Dynamic rows --></tbody>
+            </table>
+        </div>
+        <div id="actors-loading" class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+            <p class="text-xs">Memuat data sineas...</p>
+        </div>
+        <div id="actors-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">Tidak ada data sineas ditemukan.</div>
+        <div class="px-6 py-4 bg-[#141314]/30 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span id="actors-pagination-info" class="text-[11px] text-[#c9c5cb]/40 font-medium">Menampilkan 0 sineas</span>
+            <div id="actors-pagination-controls" class="flex items-center gap-1"><!-- Dynamic controls --></div>
+        </div>
+        </div>
+    </div>
+
+    <!-- SUB-VIEW: ACTOR EDITOR -->
+    <div id="view-actor-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+        <div class="flex justify-between items-center border-b border-white/5 pb-4">
+            <div class="flex flex-col">
+                <h2 id="actor-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Sineas Baru</h2>
+                <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Lengkapi detail profil sineas.</p>
+            </div>
+            <button id="actor-editor-close-btn" class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+        <form id="actor-form" class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-name" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA SINEAS *</label>
+                    <input id="actor-form-name" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" required type="text" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-native-name" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA ASLI (NATIVE NAME)</label>
+                    <input id="actor-form-native-name" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" placeholder="Misal: 송강, Wes Bentley" type="text" />
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-tmdb-id" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TMDB PERSON ID</label>
+                    <input id="actor-form-tmdb-id" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="number" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-birth-year" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TAHUN LAHIR</label>
+                    <input id="actor-form-birth-year" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="number" />
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="actor-form-photo-path" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">PROFILE PHOTO PATH/URL</label>
+                <input id="actor-form-photo-path" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" placeholder="Misal: /vN6vR1810V46N38w1.jpg atau https://..." type="text" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-instagram" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">INSTAGRAM ID</label>
+                    <input id="actor-form-instagram" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="text" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-twitter" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TWITTER/X ID</label>
+                    <input id="actor-form-twitter" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="text" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-facebook" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">FACEBOOK ID</label>
+                    <input id="actor-form-facebook" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="text" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="actor-form-tiktok" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TIKTOK ID</label>
+                    <input id="actor-form-tiktok" class="bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none" type="text" />
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <label for="actor-form-bio" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">BIOGRAFI SINEAS</label>
+                <textarea id="actor-form-bio" rows="4" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none resize-none custom-scroll"></textarea>
+            </div>
+            <div class="flex justify-end gap-3 border-t border-white/5 pt-4 mt-2">
+                <button id="actor-editor-cancel-btn" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold" type="button">Batal</button>
+                <button id="actor-editor-save-btn" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md" type="submit">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Sineas
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

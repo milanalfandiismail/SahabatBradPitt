@@ -1,0 +1,37 @@
+<!-- ======================= 4. APPROVALS SECTION ======================= -->
+<div id="section-approvals" class="hidden flex flex-col gap-8">
+    <div class="flex justify-between items-center border-b border-white/5 pb-6">
+        <div class="flex flex-col gap-1">
+            <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Persetujuan Konten</h1>
+            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tinjau dan setujui film serta aktor yang menunggu persetujuan publikasi.</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 border-b border-white/5">
+        <button onclick="showApprovalTab('films')" class="tab-btn px-4 py-3 text-sm font-medium text-stone-200 border-b-2 border-[#715A5A] hover:text-white transition-all active">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">movie</span> Film Menunggu Persetujuan
+        </button>
+        <button onclick="showApprovalTab('actors')" class="tab-btn px-4 py-3 text-sm font-medium text-stone-400 border-b-2 border-transparent hover:text-white transition-all">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">person</span> Aktor Menunggu Persetujuan
+        </button>
+    </div>
+
+    <!-- Films Tab -->
+    <div id="approval-films-tab" class="flex flex-col gap-4">
+        <div id="pending-films-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><!-- Pending films --></div>
+        <div id="pending-films-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
+            <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+            Tidak ada film yang menunggu persetujuan.
+        </div>
+    </div>
+
+    <!-- Actors Tab -->
+    <div id="approval-actors-tab" class="hidden flex flex-col gap-4">
+        <div id="pending-actors-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><!-- Pending actors --></div>
+        <div id="pending-actors-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
+            <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+            Tidak ada aktor yang menunggu persetujuan.
+        </div>
+    </div>
+</div>

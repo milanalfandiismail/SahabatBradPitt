@@ -4,8 +4,7 @@
  */
 
 class RBACManager {
-    constructor(token) {
-        this.token = token;
+    constructor() {
         this.userRole = null;
         this.initializeRole();
     }
@@ -15,9 +14,7 @@ class RBACManager {
      */
     async initializeRole() {
         try {
-            const response = await fetch('/api/auth/me/', {
-                headers: { 'Authorization': `Token ${this.token}` }
-            });
+            const response = await fetch('/api/auth/me/');
             if (response.ok) {
                 const userData = await response.json();
                 this.userRole = userData.groups || [];
@@ -52,9 +49,7 @@ class RBACManager {
  * Handles uploading poster images for films
  */
 class PosterUploadManager {
-    constructor(token) {
-        this.token = token;
-    }
+    constructor() {}
 
     /**
      * Upload poster image for a film
@@ -68,11 +63,8 @@ class PosterUploadManager {
         formData.append('image_type', 'poster');
 
         try {
-            const response = await fetch(`/api/films/${filmId}/images/`, {
+            const response = await secureFetch(`/api/films/${filmId}/images/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`
-                },
                 body: formData
             });
 
@@ -100,11 +92,8 @@ class PosterUploadManager {
         formData.append('image_type', 'backdrop');
 
         try {
-            const response = await fetch(`/api/films/${filmId}/images/`, {
+            const response = await secureFetch(`/api/films/${filmId}/images/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`
-                },
                 body: formData
             });
 
@@ -128,11 +117,8 @@ class PosterUploadManager {
      */
     async deleteImage(filmId, imageId) {
         try {
-            const response = await fetch(`/api/films/${filmId}/images/${imageId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Token ${this.token}`
-                }
+            const response = await secureFetch(`/api/films/${filmId}/images/${imageId}/`, {
+                method: 'DELETE'
             });
 
             if (!response.ok) {
@@ -151,9 +137,7 @@ class PosterUploadManager {
  * Handles approval and rejection of films and actors
  */
 class ApprovalManager {
-    constructor(token) {
-        this.token = token;
-    }
+    constructor() {}
 
     /**
      * Fetch pending films for approval
@@ -161,9 +145,7 @@ class ApprovalManager {
      */
     async fetchPendingFilms() {
         try {
-            const response = await fetch('/api/films/?status=pending_approval', {
-                headers: { 'Authorization': `Token ${this.token}` }
-            });
+            const response = await fetch('/api/films/?status=pending_approval');
 
             if (!response.ok) {
                 throw new Error('Gagal mengambil daftar film pending');
@@ -183,9 +165,7 @@ class ApprovalManager {
      */
     async fetchPendingActors() {
         try {
-            const response = await fetch('/api/actors/?status=pending_approval', {
-                headers: { 'Authorization': `Token ${this.token}` }
-            });
+            const response = await fetch('/api/actors/?status=pending_approval');
 
             if (!response.ok) {
                 throw new Error('Gagal mengambil daftar aktor pending');
@@ -206,12 +186,8 @@ class ApprovalManager {
      */
     async approveFilm(filmId) {
         try {
-            const response = await fetch(`/api/films/${filmId}/approve/`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`,
-                    'Content-Type': 'application/json'
-                }
+            const response = await secureFetch(`/api/films/${filmId}/approve/`, {
+                method: 'POST'
             });
 
             if (!response.ok) {
@@ -234,12 +210,8 @@ class ApprovalManager {
      */
     async rejectFilm(filmId, reason) {
         try {
-            const response = await fetch(`/api/films/${filmId}/reject/`, {
+            const response = await secureFetch(`/api/films/${filmId}/reject/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`,
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ rejection_reason: reason })
             });
 
@@ -262,12 +234,8 @@ class ApprovalManager {
      */
     async approveActor(actorId) {
         try {
-            const response = await fetch(`/api/actors/${actorId}/approve/`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`,
-                    'Content-Type': 'application/json'
-                }
+            const response = await secureFetch(`/api/actors/${actorId}/approve/`, {
+                method: 'POST'
             });
 
             if (!response.ok) {
@@ -290,12 +258,8 @@ class ApprovalManager {
      */
     async rejectActor(actorId, reason) {
         try {
-            const response = await fetch(`/api/actors/${actorId}/reject/`, {
+            const response = await secureFetch(`/api/actors/${actorId}/reject/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Token ${this.token}`,
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ rejection_reason: reason })
             });
 
@@ -321,9 +285,10 @@ class ApprovalUIComponents {
      * @param {Object} film - Film object
      * @param {Function} onApprove - Callback for approve button
      * @param {Function} onReject - Callback for reject button
+     * @param {Function} onDetail - Callback for detail button
      * @returns {HTMLElement} - Film card element
      */
-    static createFilmCard(film, onApprove, onReject) {
+    static createFilmCard(film, onApprove, onReject, onDetail = null) {
         const card = document.createElement('div');
         card.className = 'bg-[#201f20] rounded-lg border border-white/5 shadow-lg overflow-hidden flex flex-col hover:border-white/10 transition-all';
         
@@ -380,20 +345,27 @@ class ApprovalUIComponents {
                     
                     <!-- Buttons -->
                     <div class="flex gap-2 pt-1">
+                        <button class="flex-1 px-3 py-2 rounded text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 hover:bg-blue-500/25 hover:border-blue-400/50 transition-all" data-detail>
+                            🔍 Detail
+                        </button>
                         <button class="flex-1 px-3 py-2 rounded text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all" data-approve>
-                            ✓ Setujui
+                            ✓
                         </button>
                         <button class="flex-1 px-3 py-2 rounded text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 hover:bg-rose-500/25 hover:border-rose-400/50 transition-all" data-reject>
-                            ✕ Tolak
+                            ✕
                         </button>
                     </div>
                 </div>
             </div>
         `;
 
+        const detailBtn = card.querySelector('[data-detail]');
         const approveBtn = card.querySelector('[data-approve]');
         const rejectBtn = card.querySelector('[data-reject]');
 
+        if (detailBtn && onDetail) {
+            detailBtn.addEventListener('click', () => onDetail(film));
+        }
         approveBtn.addEventListener('click', () => onApprove(film));
         rejectBtn.addEventListener('click', () => onReject(film));
 
@@ -405,16 +377,17 @@ class ApprovalUIComponents {
      * @param {Object} actor - Actor object
      * @param {Function} onApprove - Callback for approve button
      * @param {Function} onReject - Callback for reject button
+     * @param {Function} onDetail - Callback for detail button
      * @returns {HTMLElement} - Actor card element
      */
-    static createActorCard(actor, onApprove, onReject) {
+    static createActorCard(actor, onApprove, onReject, onDetail = null) {
         const card = document.createElement('div');
         card.className = 'bg-[#201f20] rounded-lg p-6 border border-white/5 shadow-lg flex flex-col gap-4';
         card.innerHTML = `
-            <div class="flex justify-between items-start gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold text-stone-100">${actor.name}</h3>
-                    <p class="text-xs text-[#c9c5cb]/70 mt-1">${actor.bio || 'Tidak ada biografi'}</p>
+                    <p class="text-xs text-[#c9c5cb]/70 mt-1 line-clamp-2">${actor.bio || 'Tidak ada biografi'}</p>
                     <div class="flex gap-2 mt-3">
                         <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400">
                             ${actor.status_display || actor.status}
@@ -424,20 +397,27 @@ class ApprovalUIComponents {
                         </span>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <button class="px-4 py-2 rounded bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all text-xs font-semibold" data-approve>
-                        Setujui
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button class="px-3 py-2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-xs font-semibold" data-detail>
+                        🔍
                     </button>
-                    <button class="px-4 py-2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition-all text-xs font-semibold" data-reject>
-                        Tolak
+                    <button class="px-3 py-2 rounded bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all text-xs font-semibold" data-approve>
+                        ✓
+                    </button>
+                    <button class="px-3 py-2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition-all text-xs font-semibold" data-reject>
+                        ✕
                     </button>
                 </div>
             </div>
         `;
 
+        const detailBtn = card.querySelector('[data-detail]');
         const approveBtn = card.querySelector('[data-approve]');
         const rejectBtn = card.querySelector('[data-reject]');
 
+        if (detailBtn && onDetail) {
+            detailBtn.addEventListener('click', () => onDetail(actor));
+        }
         approveBtn.addEventListener('click', () => onApprove(actor));
         rejectBtn.addEventListener('click', () => onReject(actor));
 

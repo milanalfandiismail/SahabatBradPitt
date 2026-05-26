@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - Film Detail{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[80px] pb-16">
+    {% include "movies/partials/film_hero.html" %}
+    {% include "movies/partials/film_content.html" %}
+    {% include "movies/partials/film_gallery_reviews.html" %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/movies/film_detail_modals.js"></script>
+<script src="/static/js/movies/film_detail_cast.js"></script>
+<script src="/static/js/movies/film_detail_reviews.js"></script>
+<script src="/static/js/movies/film_detail_core.js"></script>
+{% endblock %}

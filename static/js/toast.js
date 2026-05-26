@@ -71,5 +71,45 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+/**
+ * secureFetch — Pengganti fetch() yang aman untuk session auth.
+ *
+ * Otomatis menyertakan:
+ * - Cookie sesi browser (via `credentials: 'same-origin'` default)
+ * - Header `X-CSRFToken` untuk semua unsafe methods (POST, PUT, PATCH, DELETE)
+ * - Header `Content-Type: application/json` jika body berupa object (bukan FormData)
+ *
+ * Usage: await secureFetch('/api/endpoint/', { method: 'POST', body: JSON.stringify(data) })
+ */
+async function secureFetch(url, options = {}) {
+    if (!options.headers) {
+        options.headers = {};
+    }
+    const method = (options.method || 'GET').toUpperCase();
+
+    // Untuk unsafe HTTP methods, sertakan CSRF token
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+        // Ambil CSRF token: dari variabel global (diinjeksi Django di base.html)
+        // atau fallback ke cookie
+        let csrfToken = (typeof CSRF_TOKEN !== 'undefined') ? CSRF_TOKEN : null;
+        if (!csrfToken) {
+            const match = document.cookie.match(/csrftoken=([^;]+)/);
+            if (match) csrfToken = match[1];
+        }
+        if (csrfToken) {
+            options.headers['X-CSRFToken'] = csrfToken;
+        }
+
+        // Auto-set Content-Type jika body bukan FormData
+        if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
+            options.headers['Content-Type'] = 'application/json';
+        }
+    }
+
+    return fetch(url, options);
+}
+
 // Export for use in other scripts
 window.showToast = showToast;
+window.secureFetch = secureFetch;
+

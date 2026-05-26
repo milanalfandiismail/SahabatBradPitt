@@ -7,15 +7,9 @@
 let rbacManager, posterUploadManager, approvalManager;
 
 function initializeRBACManagers() {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        console.error('No auth token found');
-        return;
-    }
-
-    rbacManager = new RBACManager(token);
-    posterUploadManager = new PosterUploadManager(token);
-    approvalManager = new ApprovalManager(token);
+    rbacManager = new RBACManager();
+    posterUploadManager = new PosterUploadManager();
+    approvalManager = new ApprovalManager();
 
     // Wait for role initialization
     setTimeout(() => {
@@ -146,7 +140,8 @@ async function loadPendingFilmsForApproval() {
             const card = ApprovalUIComponents.createFilmCard(
                 film,
                 (film) => handleApproveFilm(film),
-                (film) => handleRejectFilm(film)
+                (film) => handleRejectFilm(film),
+                (film) => showFilmApprovalDetail(film)
             );
             container.appendChild(card);
         });
@@ -165,7 +160,7 @@ async function loadPendingActorsForApproval() {
         return;
     }
 
-    const container = document.getElementById('pending-actors-list');
+    const container = document.getElementById('pending-actors-container');
     if (!container) return;
 
     try {
@@ -182,7 +177,8 @@ async function loadPendingActorsForApproval() {
             const card = ApprovalUIComponents.createActorCard(
                 actor,
                 (actor) => handleApproveActor(actor),
-                (actor) => handleRejectActor(actor)
+                (actor) => handleRejectActor(actor),
+                (actor) => showActorApprovalDetail(actor)
             );
             container.appendChild(card);
         });
@@ -268,8 +264,8 @@ async function handleRejectActor(actor) {
  * Switch between approval tabs
  */
 function showApprovalTab(tab) {
-    const filmsContent = document.getElementById('approval-films');
-    const actorsContent = document.getElementById('approval-actors');
+    const filmsContent = document.getElementById('approval-films-tab');
+    const actorsContent = document.getElementById('approval-actors-tab');
     const tabButtons = document.querySelectorAll('.tab-btn');
 
     // Hide all tabs
@@ -314,6 +310,104 @@ async function deleteFilmImage(filmId, imageId) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', initializeRBACManagers);
 
+/**
+ * Show Film Detail Modal
+ */
+function showFilmApprovalDetail(film) {
+    const modal = document.getElementById('film-approval-detail-modal');
+    if (!modal) return;
+    
+    document.getElementById('detail-film-title').textContent = film.title;
+    document.getElementById('detail-film-year').textContent = film.release_year || '-';
+    document.getElementById('detail-film-duration').textContent = film.duration ? `${film.duration} min` : '-';
+    document.getElementById('detail-film-rating').textContent = `★ ${film.avg_rating || '0.0'}`;
+    
+    // Poster
+    const posterImg = document.getElementById('detail-film-poster');
+    let posterUrl = "/static/images/placeholder-poster.jpg";
+    if (film.images && film.images.length > 0) {
+        const localPoster = film.images.find(img => img.image_type === 'poster');
+        if (localPoster) posterUrl = localPoster.file_path;
+        else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    } else if (film.poster_path) {
+        posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    }
+    posterImg.src = posterUrl;
+    
+    // Genres
+    let genreText = '-';
+    if (film.genre_display && film.genre_display.length > 0) {
+        genreText = film.genre_display.map(g => g.name || g).join(', ');
+    }
+    document.getElementById('detail-film-genres').textContent = genreText;
+    
+    // Synopsis
+    document.getElementById('detail-film-synopsis').textContent = film.synopsis || 'Tidak ada sinopsis.';
+    
+    // Trailer
+    const trailer = document.getElementById('detail-film-trailer');
+    if (film.trailer_url) {
+        trailer.href = film.trailer_url;
+        trailer.textContent = film.trailer_url;
+    } else {
+        trailer.removeAttribute('href');
+        trailer.textContent = 'Tidak ada trailer';
+    }
+    
+    // Gallery
+    const galleryContainer = document.getElementById('detail-film-gallery');
+    galleryContainer.innerHTML = '';
+    if (film.images && film.images.length > 0) {
+        const backdrops = film.images.filter(img => img.image_type === 'backdrop');
+        if (backdrops.length > 0) {
+            backdrops.forEach(img => {
+                const imgEl = document.createElement('img');
+                imgEl.src = img.file_path;
+                imgEl.className = 'w-full aspect-[16/9] object-cover rounded border border-white/10';
+                galleryContainer.appendChild(imgEl);
+            });
+        } else {
+            galleryContainer.innerHTML = '<span class="text-xs text-stone-500 italic">Belum ada galeri backdrop.</span>';
+        }
+    } else {
+        galleryContainer.innerHTML = '<span class="text-xs text-stone-500 italic">Belum ada galeri backdrop.</span>';
+    }
+    
+    // Setup close buttons
+    const closeBtns = modal.querySelectorAll('.modal-close-btn');
+    closeBtns.forEach(btn => btn.onclick = () => modal.classList.add('hidden'));
+    
+    modal.classList.remove('hidden');
+}
+
+/**
+ * Show Actor Detail Modal
+ */
+function showActorApprovalDetail(actor) {
+    const modal = document.getElementById('actor-approval-detail-modal');
+    if (!modal) return;
+    
+    document.getElementById('detail-actor-name').textContent = actor.name;
+    document.getElementById('detail-actor-native').textContent = actor.native_name || '';
+    document.getElementById('detail-actor-birth').textContent = actor.birth_year || 'Unknown Year';
+    document.getElementById('detail-actor-tmdb').textContent = `TMDB: ${actor.tmdb_id || '-'}`;
+    
+    const photoImg = document.getElementById('detail-actor-photo');
+    let photoUrl = "/static/images/placeholder-poster.jpg";
+    if (actor.photo_path) {
+        photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+    }
+    photoImg.src = photoUrl;
+    
+    document.getElementById('detail-actor-bio').textContent = actor.bio || 'Tidak ada biografi.';
+    
+    // Setup close buttons
+    const closeBtns = modal.querySelectorAll('.modal-close-btn');
+    closeBtns.forEach(btn => btn.onclick = () => modal.classList.add('hidden'));
+    
+    modal.classList.remove('hidden');
+}
+
 // Export for use in HTML
 window.handlePosterUpload = handlePosterUpload;
 window.handleBackdropUpload = handleBackdropUpload;
@@ -325,3 +419,5 @@ window.handleApproveActor = handleApproveActor;
 window.handleRejectActor = handleRejectActor;
 window.showApprovalTab = showApprovalTab;
 window.deleteFilmImage = deleteFilmImage;
+window.showFilmApprovalDetail = showFilmApprovalDetail;
+window.showActorApprovalDetail = showActorApprovalDetail;

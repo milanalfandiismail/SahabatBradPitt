@@ -22,6 +22,10 @@ env/
 Thumbs.db
 
 planning_sahabatbradpitt.md
+CLAUDE.md
+.rtk/
+.agents/
+
 
 # Project Context and Task Tracking
 # (Jika Anda ingin mengabaikan berkas catatan markdown atau log di git)

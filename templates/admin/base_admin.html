@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{% block title %}Sineas Portal - Admin{% endblock %}</title>
+
+    <!-- Scripts & Fonts CDNs -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="/static/css/toast.css" rel="stylesheet" />
+
+    <!-- Variabel user context diinjeksi Django — tidak butuh localStorage atau fetch token -->
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token }}";
+        const currentUserId = JSON.parse("{% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %}");
+        const isSuperuser = JSON.parse("{% if user.is_superuser %}true{% else %}false{% endif %}");
+        const isStaff = JSON.parse("{% if user.is_staff %}true{% else %}false{% endif %}");
+    </script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#141314",
+                        surface: "#201f20",
+                        surfaceHighlight: "#2b2a2a",
+                        primaryBrand: "#715A5A",
+                        primaryBrandHover: "#8A6E6E",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 999px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(113,90,90,0.4); border-radius: 999px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(113,90,90,0.7); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-[#141314] text-stone-200 antialiased min-h-screen flex font-['DM_Sans'] select-none">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-64 bg-[#201f20] border-r border-white/5 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-40">
+        <div>
+            <!-- Logo Header -->
+            <div class="px-6 py-8 border-b border-white/5">
+                <h2 class="font-['Playfair_Display'] text-xl font-bold tracking-wider text-stone-100 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-amber-500 fill-1" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                    SahabatBradPitt Portal
+                </h2>
+                <span class="text-[10px] font-bold text-amber-500/70 tracking-widest uppercase mt-1 block">ADMINISTRATION SYSTEM</span>
+                <div id="active-username" class="text-xs text-stone-400 mt-2 font-medium break-all hidden"></div>
+            </div>
+
+            <!-- Nav Items -->
+            <nav class="p-4 flex flex-col gap-1.5">
+                {% block sidebar_nav %}
+                <button id="sidebar-dashboard-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 hover:text-white bg-[#715A5A] text-white">
+                    <span class="material-symbols-outlined text-lg">dashboard</span> Dashboard
+                </button>
+                <button id="sidebar-movies-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">movie</span> Katalog Film
+                </button>
+                <button id="sidebar-actors-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">person</span> Sineas (Aktor)
+                </button>
+                <button id="sidebar-genres-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">category</span> Genre Kustom
+                </button>
+                <button id="sidebar-approvals-btn" class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">done_all</span> Persetujuan Konten
+                </button>
+                <button id="sidebar-users-btn" class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all hover:bg-white/5 text-stone-400 hover:text-white">
+                    <span class="material-symbols-outlined text-lg">group</span> Pengguna & Peran
+                </button>
+                {% endblock %}
+            </nav>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-white/5">
+            <a href="/" class="w-full px-4 py-3 rounded-lg text-left font-medium text-xs flex items-center justify-between text-stone-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all border border-white/5 bg-[#141314]/30 shadow-md">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">arrow_back</span>
+                    Kembali ke Website
+                </span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- TOAST NOTIFICATION SHELL -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="flex-grow overflow-y-auto p-8 lg:p-12 h-screen flex flex-col relative custom-scroll">
+
+        <!-- ACCESS CONTROL & LOADING SHIELD -->
+        <div id="admin-loading-shield" class="absolute inset-0 bg-[#141314] z-50 flex flex-col items-center justify-center text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-5xl animate-spin text-[#715A5A]">sync</span>
+            <p class="mt-4 font-['DM_Sans'] text-base tracking-wide">Memverifikasi otorisasi admin...</p>
+        </div>
+
+        <!-- ACCESS DENIED -->
+        <div id="admin-access-denied" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center max-w-md mx-auto">
+            <span class="material-symbols-outlined text-6xl text-rose-500 mb-4">gpp_bad</span>
+            <h1 class="font-['Playfair_Display'] text-3xl font-bold text-stone-200">Akses Ditolak</h1>
+            <p class="font-['DM_Sans'] text-sm text-[#c9c5cb] mt-2 leading-relaxed">Halaman ini hanya dapat diakses oleh administrator dan staf Sahabat Bradpitt.</p>
+            <a href="/" class="mt-6 px-6 py-2.5 rounded border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all font-medium text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">home</span> Kembali ke Beranda
+            </a>
+        </div>
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+    <!-- Common Scripts -->
+    <script src="/static/js/toast.js"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

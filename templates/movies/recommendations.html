@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - AI Film Recommendations{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto flex flex-col lg:flex-row gap-12">
+    {% include "movies/partials/recommendations_form.html" %}
+    {% include "movies/partials/recommendations_feed.html" %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/movies/recommendations.js"></script>
+{% endblock %}

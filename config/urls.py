@@ -3,6 +3,13 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.users.views_html import (
+    login_html_view,
+    signup_html_view,
+    profile_html_view,
+    recommendations_html_view,
+    admin_films_html_view,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,18 +22,20 @@ urlpatterns = [
     path('api/festivals/', include('apps.festivals.urls')),
     path('api/recommendations/', include('apps.recommendations.urls')),
 
-    # Frontend Views (Single Page AJAX Shells)
+    # Frontend Views — Public (tetap TemplateView karena tidak membutuhkan guard)
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('movies/', TemplateView.as_view(template_name='film_list.html'), name='film_list'),
-    path('movies/<int:id>/', TemplateView.as_view(template_name='film_detail.html'), name='film_detail'),
-    path('actors/', TemplateView.as_view(template_name='actor_list.html'), name='actor_list'),
-    path('actors/<int:id>/', TemplateView.as_view(template_name='actor_detail.html'), name='actor_detail'),
+    path('movies/', TemplateView.as_view(template_name='movies/film_list.html'), name='film_list'),
+    path('movies/<int:id>/', TemplateView.as_view(template_name='movies/film_detail.html'), name='film_detail'),
+    path('actors/', TemplateView.as_view(template_name='actors/actor_list.html'), name='actor_list'),
+    path('actors/<int:id>/', TemplateView.as_view(template_name='actors/actor_detail.html'), name='actor_detail'),
     path('trending/', TemplateView.as_view(template_name='trending.html'), name='trending'),
-    path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
-    path('signup/', TemplateView.as_view(template_name='signup.html'), name='signup'),
-    path('profile/', TemplateView.as_view(template_name='profile.html'), name='profile'),
-    path('recommendations/', TemplateView.as_view(template_name='recommendations.html'), name='recommendations'),
-    path('admin-films/', TemplateView.as_view(template_name='admin_films.html'), name='admin_films'),
+
+    # Frontend Views — SSR Protected (diproteksi server-side dengan decorator)
+    path('login/', login_html_view, name='login'),
+    path('signup/', signup_html_view, name='signup'),
+    path('profile/', profile_html_view, name='profile'),
+    path('recommendations/', recommendations_html_view, name='recommendations'),
+    path('admin-films/', admin_films_html_view, name='admin_films'),
 ]
 
 # Serve media files in development

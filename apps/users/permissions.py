@@ -10,7 +10,7 @@ class IsSuperadmin(permissions.BasePermission):
         return (
             request.user and 
             request.user.is_authenticated and 
-            request.user.groups.filter(name='Superadmin').exists()
+            (request.user.is_superuser or request.user.groups.filter(name='Superadmin').exists())
         )
 
 
@@ -23,6 +23,10 @@ class IsAdminOrSuperadmin(permissions.BasePermission):
         return (
             request.user and 
             request.user.is_authenticated and 
-            request.user.groups.filter(name__in=['Admin', 'Superadmin']).exists()
+            (
+                request.user.is_superuser or 
+                request.user.is_staff or 
+                request.user.groups.filter(name__in=['Admin', 'Superadmin']).exists()
+            )
         )
 

@@ -38,12 +38,18 @@ python manage.py collectstatic --noinput
 python manage.py createsuperuser
 ```
 
-## Tahap 3: Menjalankan Server dengan Waitress
-Jalankan aplikasi Anda menggunakan Waitress melalui port 8000. Karena Anda menggunakan Cloudflare Tunnel (HTTPS), tambahkan flag `--url-scheme=https` agar Waitress tidak bingung.
+## Tahap 3: Menjalankan Server dengan Waitress (Mode Production/Stabil)
+Jalankan aplikasi Anda menggunakan Waitress melalui port 8000. Karena Anda menggunakannya untuk *Production* di balik Cloudflare Tunnel, sangat disarankan menggunakan parameter performa tinggi agar server tidak mudah *down* saat ramai pengunjung.
 
 ```powershell
-waitress-serve --port=8000 --url-scheme=https config.wsgi:application
+waitress-serve --port=8000 --url-scheme=https --threads=8 --connection-limit=200 --channel-timeout=60 config.wsgi:application
 ```
+
+**Penjelasan Parameter Performa:**
+- `--url-scheme=https`: Wajib untuk Cloudflare Tunnel agar tidak terkena *error* CSRF 403.
+- `--threads=8`: Meningkatkan jumlah pekerja paralel (Defaultnya hanya 4). Cocok untuk menangani banyak pengunjung sekaligus. (Bisa dinaikkan menjadi 12 atau 16 jika CPU Anda kuat).
+- `--connection-limit=200`: Mengizinkan maksimal 200 koneksi antrean secara bersamaan (Defaultnya 100).
+- `--channel-timeout=60`: Memutus koneksi pengunjung yang nyangkut/ngelag lebih dari 60 detik agar tidak membebani memori server (mencegah serangan *Slowloris*).
 
 Jika tidak ada pesan error di terminal, artinya server Anda sudah berjalan dengan baik. Buka browser dan akses `http://localhost:8000` (atau IP Windows Anda).
 

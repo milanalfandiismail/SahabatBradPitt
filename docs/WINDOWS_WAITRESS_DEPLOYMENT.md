@@ -39,10 +39,10 @@ python manage.py createsuperuser
 ```
 
 ## Tahap 3: Menjalankan Server dengan Waitress
-Jalankan aplikasi Anda menggunakan Waitress melalui port 8000 (atau port berapapun yang Anda inginkan):
+Jalankan aplikasi Anda menggunakan Waitress melalui port 8000. Karena Anda menggunakan Cloudflare Tunnel (HTTPS), tambahkan flag `--url-scheme=https` agar Waitress tidak bingung.
 
 ```powershell
-waitress-serve --port=8000 config.wsgi:application
+waitress-serve --port=8000 --url-scheme=https config.wsgi:application
 ```
 
 Jika tidak ada pesan error di terminal, artinya server Anda sudah berjalan dengan baik. Buka browser dan akses `http://localhost:8000` (atau IP Windows Anda).

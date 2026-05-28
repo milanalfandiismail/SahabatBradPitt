@@ -76,7 +76,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     const imgWrap = document.createElement("div");
                     imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-                    if (item.poster_path) posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                    if (item.poster) posterUrl = item.poster;
+                    else if (item.poster_path) posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
 
                     const img = document.createElement("img");
                     img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";

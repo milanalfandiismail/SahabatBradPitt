@@ -109,11 +109,9 @@ function renderFilmsTable(films) {
         // Poster
         const tdPoster = document.createElement('td');
         tdPoster.className = "p-4 text-center align-middle shrink-0 w-[80px]";
-        let posterUrl = "/static/images/placeholder-poster.jpg";
-        if (film.images && film.images.length > 0) {
-            const localPoster = film.images.find(img => img.image_type === 'poster');
-            if (localPoster) posterUrl = localPoster.file_path;
-            else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
+        let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=100";
+        if (film.poster) {
+            posterUrl = film.poster;
         } else if (film.poster_path) {
             posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
         }

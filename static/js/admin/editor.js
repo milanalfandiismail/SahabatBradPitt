@@ -101,11 +101,9 @@ function openEditor(filmId) {
 }
 
 function _loadFilmPoster(film, previewEl, placeholderEl) {
-    let url = null;
-    if (film.images && film.images.length > 0) {
-        const localPoster = film.images.find(img => img.image_type === 'poster');
-        if (localPoster) url = localPoster.file_path;
-        else if (film.poster_path) url = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    let url = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+    if (film.poster) {
+        url = film.poster;
     } else if (film.poster_path) {
         url = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
     }
@@ -192,8 +190,9 @@ function renderFilmCastRows() {
     selectedCastData.sort((a, b) => a.order - b.order).forEach((cast, idx) => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors";
-        let photoUrl = "/static/images/placeholder-poster.jpg";
-        if (cast.actorData && cast.actorData.photo_path) {
+        if (cast.actorData && cast.actorData.photo) {
+            photoUrl = cast.actorData.photo;
+        } else if (cast.actorData && cast.actorData.photo_path) {
             photoUrl = cast.actorData.photo_path.startsWith('http') ? cast.actorData.photo_path : `https://image.tmdb.org/t/p/w200${cast.actorData.photo_path}`;
         }
         tr.innerHTML = `
@@ -251,15 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('form-poster-placeholder').classList.add('hidden');
         };
         reader.readAsDataURL(file);
-        if (selectedFilmId) {
-            const fd = new FormData();
-            fd.append('image', file);
-            fd.append('image_type', 'poster');
-            secureFetch(`/api/films/${selectedFilmId}/images/`, { method: 'POST', body: fd })
-                .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-                .then(() => showToast('Poster berhasil diunggah!', 'success'))
-                .catch(() => showToast('Gagal mengunggah poster.', 'error'));
-        }
     });
 
     // Gallery upload
@@ -323,7 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             const div = document.createElement('div');
                             div.className = "px-4 py-2 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0";
                             let photoUrl = "/static/images/placeholder-poster.jpg";
-                            if (actor.photo_path) photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w200${actor.photo_path}`;
+                            if (actor.photo) {
+                                photoUrl = actor.photo;
+                            } else if (actor.photo_path) {
+                                photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w200${actor.photo_path}`;
+                            }
                             div.innerHTML = `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0" /><div class="flex flex-col"><span class="text-xs font-semibold text-stone-200 line-clamp-1">${actor.name}</span><span class="text-[10px] text-stone-500">${actor.tmdb_id ? 'TMDB: ' + actor.tmdb_id : 'Local'}</span></div>`;
                             div.addEventListener('click', () => {
                                 selectedActorForCast = actor;
@@ -410,10 +404,11 @@ function _saveFilm() {
     genreIds.forEach(id => formData.append('genre', id));
     formData.append('actors_data', JSON.stringify(selectedCastData.map(c => ({ actor_id: c.actor_id, role_name: c.role_name, role_type: c.role_type, order: c.order }))));
 
-    if (!selectedFilmId) {
-        const posterFile = document.getElementById('form-poster-input').files[0];
-        if (!posterFile) { showToast('Harap unggah poster film untuk film baru.', 'warning'); return; }
+    const posterFile = document.getElementById('form-poster-input').files[0];
+    if (posterFile) {
         formData.append('poster', posterFile);
+    } else if (!selectedFilmId) {
+        showToast('Harap unggah poster film untuk film baru.', 'warning'); return;
     }
 
     formSaveBtn.disabled = true;

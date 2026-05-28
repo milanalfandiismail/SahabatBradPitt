@@ -55,7 +55,12 @@ function renderActorsTable(actors) {
         tdPhoto.className = "p-4 text-center align-middle w-[80px]";
         const avatar = document.createElement('div');
         avatar.className = "w-10 h-10 rounded-full overflow-hidden border border-white/10 mx-auto bg-stone-700 flex items-center justify-center text-stone-500 shadow-md";
-        if (actor.photo_path) {
+        if (actor.photo) {
+            const img = document.createElement('img');
+            img.src = actor.photo;
+            img.className = "w-full h-full object-cover";
+            avatar.appendChild(img);
+        } else if (actor.photo_path) {
             const img = document.createElement('img');
             img.src = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
             img.className = "w-full h-full object-cover";
@@ -154,15 +159,57 @@ function openActorEditor(actor) {
         document.getElementById('actor-form-native-name').value = actor.native_name || "";
         document.getElementById('actor-form-tmdb-id').value = actor.tmdb_id || "";
         document.getElementById('actor-form-birth-year').value = actor.birth_year || "";
-        document.getElementById('actor-form-photo-path').value = actor.photo_path || "";
+        
+        const tmdbContainer = document.getElementById('actor-form-tmdb-container');
+        if (tmdbContainer) {
+            if (actor.tmdb_id) {
+                tmdbContainer.classList.remove('hidden');
+            } else {
+                tmdbContainer.classList.add('hidden');
+            }
+        }
+        
+        document.getElementById('actor-form-photo').value = "";
+        document.getElementById('actor-form-photo-path-hidden').value = actor.photo_path || "";
         document.getElementById('actor-form-instagram').value = actor.instagram_id || "";
         document.getElementById('actor-form-twitter').value = actor.twitter_id || "";
         document.getElementById('actor-form-facebook').value = actor.facebook_id || "";
         document.getElementById('actor-form-tiktok').value = actor.tiktok_id || "";
         document.getElementById('actor-form-bio').value = actor.bio || "";
+        
+        const preview = document.getElementById('actor-form-photo-preview');
+        const placeholder = document.getElementById('actor-form-photo-placeholder');
+        if (preview && placeholder) {
+            let photoUrl = '';
+            if (actor.photo) {
+                photoUrl = actor.photo;
+            } else if (actor.photo_path) {
+                photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w400${actor.photo_path}`; // Using w400 for better HD quality
+            }
+            if (photoUrl) {
+                preview.src = photoUrl;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
     } else {
         selectedActorId = null;
         document.getElementById('actor-editor-title').textContent = "Tambah Sineas Baru";
+        
+        const tmdbContainer = document.getElementById('actor-form-tmdb-container');
+        if (tmdbContainer) tmdbContainer.classList.add('hidden');
+        
+        const preview = document.getElementById('actor-form-photo-preview');
+        const placeholder = document.getElementById('actor-form-photo-placeholder');
+        if (preview && placeholder) {
+            preview.src = ''; 
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
     }
     document.getElementById('view-actors-manage').classList.add('hidden');
     document.getElementById('view-actor-editor').classList.remove('hidden');
@@ -233,26 +280,60 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-actor-btn')?.addEventListener('click', () => openActorEditor(null));
     document.getElementById('actor-editor-cancel-btn')?.addEventListener('click', closeActorEditor);
     document.getElementById('actor-editor-close-btn')?.addEventListener('click', closeActorEditor);
+    
+    document.getElementById('actor-form-photo-trigger-btn')?.addEventListener('click', () => {
+        document.getElementById('actor-form-photo')?.click();
+    });
+    
+    const actorPhotoInput = document.getElementById('actor-form-photo');
+    const actorPhotoPreview = document.getElementById('actor-form-photo-preview');
+    const actorPhotoPlaceholder = document.getElementById('actor-form-photo-placeholder');
+    if (actorPhotoInput && actorPhotoPreview && actorPhotoPlaceholder) {
+        actorPhotoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    actorPhotoPreview.src = e.target.result;
+                    actorPhotoPreview.classList.remove('hidden');
+                    actorPhotoPlaceholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                actorPhotoPreview.src = '';
+                actorPhotoPreview.classList.add('hidden');
+                actorPhotoPlaceholder.classList.remove('hidden');
+            }
+        });
+    }
 
     document.getElementById('actor-form')?.addEventListener('submit', e => {
         e.preventDefault();
         const name = document.getElementById('actor-form-name').value.trim();
         if (!name) return;
-        const payload = {
-            name,
-            native_name: document.getElementById('actor-form-native-name').value.trim(),
-            tmdb_id: document.getElementById('actor-form-tmdb-id').value ? parseInt(document.getElementById('actor-form-tmdb-id').value) : null,
-            birth_year: document.getElementById('actor-form-birth-year').value ? parseInt(document.getElementById('actor-form-birth-year').value) : null,
-            photo_path: document.getElementById('actor-form-photo-path').value.trim(),
-            instagram_id: document.getElementById('actor-form-instagram').value.trim(),
-            twitter_id: document.getElementById('actor-form-twitter').value.trim(),
-            facebook_id: document.getElementById('actor-form-facebook').value.trim(),
-            tiktok_id: document.getElementById('actor-form-tiktok').value.trim(),
-            bio: document.getElementById('actor-form-bio').value.trim()
-        };
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('native_name', document.getElementById('actor-form-native-name').value.trim());
+        const tmdbId = document.getElementById('actor-form-tmdb-id').value;
+        if (tmdbId) formData.append('tmdb_id', parseInt(tmdbId));
+        const birthYear = document.getElementById('actor-form-birth-year').value;
+        if (birthYear) formData.append('birth_year', parseInt(birthYear));
+        
+        formData.append('instagram_id', document.getElementById('actor-form-instagram').value.trim());
+        formData.append('twitter_id', document.getElementById('actor-form-twitter').value.trim());
+        formData.append('facebook_id', document.getElementById('actor-form-facebook').value.trim());
+        formData.append('tiktok_id', document.getElementById('actor-form-tiktok').value.trim());
+        formData.append('bio', document.getElementById('actor-form-bio').value.trim());
+        
+        const photoInput = document.getElementById('actor-form-photo');
+        if (photoInput.files && photoInput.files[0]) {
+            formData.append('photo', photoInput.files[0]);
+        }
+        const hiddenPath = document.getElementById('actor-form-photo-path-hidden').value.trim();
+        if (hiddenPath) formData.append('photo_path', hiddenPath);
+        
         const url = selectedActorId ? `/api/actors/${selectedActorId}/` : '/api/actors/';
         const method = selectedActorId ? 'PUT' : 'POST';
-        secureFetch(url, { method, headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(payload) })
+        secureFetch(url, { method, body: formData })
             .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(() => { showToast('Profil Sineas berhasil disimpan!', 'success'); closeActorEditor(); fetchActors(actorsCurrentPage); })
             .catch(() => showToast('Gagal menyimpan profil Sineas.', 'error'));

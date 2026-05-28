@@ -82,7 +82,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     card.className = "bg-[#201f20] rounded-lg overflow-hidden flex shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01] group border border-white/5 cursor-pointer";
                     
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-                    if (film.poster_path) {
+                    if (film.poster) {
+                        posterUrl = film.poster;
+                    } else if (film.poster_path) {
                         posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                     }
 

@@ -67,6 +67,16 @@ class ActorQuerySet(models.QuerySet):
             film_order=Subquery(order_subquery, output_field=IntegerField()),
             film_role_type=Subquery(role_type_subquery, output_field=CharField())
         ).order_by('film_order', 'name')
+import os
+import uuid
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
+
+def actor_photo_upload_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    return os.path.join('actors/photos/', filename)
+
 class Actor(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
@@ -96,6 +106,7 @@ class Actor(models.Model):
     # Path foto dari TMDB (misal: /vN6vR1810V46N38w1N1e4PzZ29t.jpg)
     # Dirender menggunakan TMDB CDN: https://image.tmdb.org/t/p/w500/<path>
     photo_path = models.CharField(max_length=255, blank=True)
+    photo = models.ImageField(upload_to=actor_photo_upload_path, null=True, blank=True)
     
     # Nama asli (native name) untuk aktor non-Latin, misal: 송강, 章子怡, etc.
     # Diambil dari TMDB also_known_as field
@@ -118,6 +129,25 @@ class Actor(models.Model):
 
     def __str__(self):
         return self.name
+
+@receiver(post_delete, sender=Actor)
+def auto_delete_actor_photo_on_delete(sender, instance, **kwargs):
+    if instance.photo:
+        if os.path.isfile(instance.photo.path):
+            os.remove(instance.photo.path)
+
+@receiver(pre_save, sender=Actor)
+def auto_delete_actor_photo_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = Actor.objects.get(pk=instance.pk).photo
+    except Actor.DoesNotExist:
+        return False
+    new_file = instance.photo
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 class Filmography(models.Model):
     ROLE_TYPE_CHOICES = [

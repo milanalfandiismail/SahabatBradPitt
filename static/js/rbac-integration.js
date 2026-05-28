@@ -328,7 +328,10 @@ function showFilmApprovalDetail(film) {
     if (film.images && film.images.length > 0) {
         const localPoster = film.images.find(img => img.image_type === 'poster');
         if (localPoster) posterUrl = localPoster.file_path;
+        else if (film.poster) posterUrl = film.poster;
         else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    } else if (film.poster) {
+        posterUrl = film.poster;
     } else if (film.poster_path) {
         posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
     }
@@ -394,7 +397,9 @@ function showActorApprovalDetail(actor) {
     
     const photoImg = document.getElementById('detail-actor-photo');
     let photoUrl = "/static/images/placeholder-poster.jpg";
-    if (actor.photo_path) {
+    if (actor.photo) {
+        photoUrl = actor.photo;
+    } else if (actor.photo_path) {
         photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
     }
     photoImg.src = photoUrl;

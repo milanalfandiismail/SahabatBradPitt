@@ -102,8 +102,14 @@
                         const portraitWrap = document.createElement("div");
                         portraitWrap.className = "w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-[#715A5A] transition-all duration-300 group-hover:scale-105 shadow-lg shadow-white/5";
 
-                        if (actor.photo_path) {
-                            const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                        let photoUrl = '';
+                        if (actor.photo) {
+                            photoUrl = actor.photo;
+                        } else if (actor.photo_path) {
+                            photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                        }
+
+                        if (photoUrl) {
                             const img = document.createElement("img");
                             img.className = "w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500";
                             img.src = photoUrl;

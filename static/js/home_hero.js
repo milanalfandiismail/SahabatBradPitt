@@ -16,7 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const heroLoading = document.getElementById("hero-loading");
 
         let posterUrl = "";
-        if (film.poster_path) {
+        if (film.poster) {
+            posterUrl = film.poster;
+        } else if (film.poster_path) {
             posterUrl = film.poster_path.startsWith("http")
                 ? film.poster_path
                 : `https://image.tmdb.org/t/p/original${film.poster_path}`;

@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
             setTxt("synopsis-val", film.synopsis || "Tidak ada sinopsis tersedia.");
 
             let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-            if (film.poster_path) posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+            if (film.poster) posterUrl = film.poster;
+            else if (film.poster_path) posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
             const pImg = document.getElementById("poster-img"); if(pImg) pImg.src = posterUrl;
             const bImg = document.getElementById("backdrop-img"); if(bImg) bImg.style.backgroundImage = `url('${posterUrl}')`;
 
@@ -190,7 +191,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     card.className = "min-w-[150px] w-[150px] shrink-0 group cursor-pointer relative overflow-hidden rounded-[8px] bg-[#201f20] border border-white/5 transition-all hover:scale-105";
                     card.addEventListener("click", () => { window.location.href = `/movies/${film.id}/`; });
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300";
-                    if (film.poster_path) posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                    if (film.poster) posterUrl = film.poster;
+                    else if (film.poster_path) posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                     const imgDiv = document.createElement("div");
                     imgDiv.className = "h-[200px] w-full overflow-hidden";
                     const img = document.createElement("img");

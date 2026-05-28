@@ -40,7 +40,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         const wrapper = document.createElement("div");
                         wrapper.className = `w-[96px] h-[96px] rounded-full overflow-hidden shrink-0 bg-[#37353E] transition-all duration-300 ${borderClass}`;
 
-                        if (actor.photo_path) {
+                        if (actor.photo) {
+                            const img = document.createElement("img");
+                            img.className = "w-full h-full object-cover group-hover:scale-110 transition-transform duration-400";
+                            img.src = actor.photo; img.alt = actor.name;
+                            wrapper.appendChild(img);
+                        } else if (actor.photo_path) {
                             const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
                             const img = document.createElement("img");
                             img.className = "w-full h-full object-cover group-hover:scale-110 transition-transform duration-400";

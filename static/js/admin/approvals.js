@@ -28,9 +28,7 @@ function loadPendingFilmsForApproval() {
     container.innerHTML = `<div class="col-span-4 py-10 text-center text-[#c9c5cb]/40 flex items-center justify-center gap-2"><span class="material-symbols-outlined animate-spin">sync</span></div>`;
     empty.classList.add('hidden');
 
-    fetch('/api/films/?status=pending_approval&include_drafts=true&page_size=100', {
-        
-    })
+    secureFetch('/api/films/?status=pending_approval&include_drafts=true&page_size=100')
     .then(res => res.json())
     .then(data => {
         const films = data.results || [];
@@ -49,9 +47,7 @@ function loadPendingActorsForApproval() {
     container.innerHTML = `<div class="col-span-4 py-10 text-center text-[#c9c5cb]/40 flex items-center justify-center gap-2"><span class="material-symbols-outlined animate-spin">sync</span></div>`;
     empty.classList.add('hidden');
 
-    fetch('/api/actors/?status=pending_approval&page_size=100', {
-        
-    })
+    secureFetch('/api/actors/?status=pending_approval&page_size=100')
     .then(res => res.json())
     .then(data => {
         const actors = data.results || [];
@@ -63,11 +59,9 @@ function loadPendingActorsForApproval() {
 }
 
 function _buildFilmApprovalCard(film) {
-    let posterUrl = "/static/images/placeholder-poster.jpg";
-    if (film.images && film.images.length > 0) {
-        const localPoster = film.images.find(img => img.image_type === 'poster');
-        if (localPoster) posterUrl = localPoster.file_path;
-        else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w342${film.poster_path}`;
+    let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400";
+    if (film.poster) {
+        posterUrl = film.poster;
     } else if (film.poster_path) {
         posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w342${film.poster_path}`;
     }
@@ -96,7 +90,9 @@ function _buildFilmApprovalCard(film) {
 
 function _buildActorApprovalCard(actor) {
     let photoUrl = "/static/images/placeholder-poster.jpg";
-    if (actor.photo_path) {
+    if (actor.photo) {
+        photoUrl = actor.photo;
+    } else if (actor.photo_path) {
         photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
     }
 

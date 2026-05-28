@@ -4,11 +4,12 @@ from apps.actors.models import Actor, Filmography
 class FilmographySerializer(serializers.ModelSerializer):
     film_title = serializers.CharField(source='film.title', read_only=True)
     poster_path = serializers.CharField(source='film.poster_path', read_only=True)
+    poster = serializers.ImageField(source='film.poster', read_only=True)
     release_year = serializers.IntegerField(source='film.release_year', read_only=True)
 
     class Meta:
         model = Filmography
-        fields = ['id', 'film', 'film_title', 'poster_path', 'release_year', 'role']
+        fields = ['id', 'film', 'film_title', 'poster_path', 'poster', 'release_year', 'role']
 
 class ActorSerializer(serializers.ModelSerializer):
     filmographies = FilmographySerializer(many=True, read_only=True)
@@ -27,7 +28,7 @@ class ActorSerializer(serializers.ModelSerializer):
         model = Actor
         fields = [
             'id', 'tmdb_id', 'name', 'native_name',
-            'bio', 'birth_year', 'photo_path',
+            'bio', 'birth_year', 'photo_path', 'photo',
             'gender', 'birthday', 'deathday', 'place_of_birth', 'known_for_department',
             'instagram_id', 'twitter_id', 'facebook_id', 'tiktok_id',
             'genre_spec', 'filmographies', 'film_role', 'film_order', 'film_role_type',

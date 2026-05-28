@@ -98,7 +98,6 @@ class TMDBService:
         import re
         
         # Bersihkan seluruh suffix berparentesis di akhir nama untuk mendapatkan nama dasar yang bersih
-        # Contoh: "Lee Jae-in (이재인) (이재인)" -> base_name: "Lee Jae-in", existing_paren: "이재인"
         existing_paren = ""
         while True:
             match = re.search(r'\s*\(([^)]+)\)\s*$', name)
@@ -124,84 +123,127 @@ class TMDBService:
                 native_name = name
                 name = original_name
 
-        # 2. Cek person_data / also_known_as jika salah satu nama non-latin atau terindikasi Asia Timur
-        is_non_latin = not name.isascii() or (original_name and not original_name.isascii()) or (native_name != "")
-        if not is_non_latin and person_data:
-            is_non_latin = self._is_asian_or_non_latin(person_data, name, original_name)
+        # Setup script definitions and birthplace keywords
+        script_defs = [
+            {
+                'name': 'hangul',
+                'regex': re.compile(r'[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]'),
+                'keywords': ['korea', 'seoul', 'busan', 'daegu', 'incheon', 'gwangju', 'daejeon', 'ulsan']
+            },
+            {
+                'name': 'japanese',
+                'regex': re.compile(r'[\u3040-\u309f\u30a0-\u30ff]'),
+                'keywords': ['japan', 'tokyo', 'osaka', 'kyoto', 'yokohama', 'nagoya', 'kobe', 'sapporo']
+            },
+            {
+                'name': 'chinese',
+                'regex': re.compile(r'[\u4e00-\u9fff]'), # Hanzi
+                'keywords': ['china', 'taiwan', 'hong kong', 'macau', 'beijing', 'shanghai', 'guangzhou', 'shenzhen', 'taipei', 'sichuan']
+            },
+            {
+                'name': 'thai',
+                'regex': re.compile(r'[\u0E00-\u0E7F]'),
+                'keywords': ['thailand', 'bangkok']
+            },
+            {
+                'name': 'cyrillic',
+                'regex': re.compile(r'[\u0400-\u04ff]'),
+                'keywords': ['russia', 'ukraine', 'belarus', 'bulgaria', 'serbia', 'ussr', 'soviet union', 
+                             'moscow', 'leningrad', 'st. petersburg', 'saint petersburg', 'kyiv', 'kiev', 'minsk', 'odessa', 'odesa', 
+                             'uzbekistan', 'tashkent', 'kazakhstan', 'georgia', 'armenia', 'azerbaijan', 'kyrgyzstan', 'tajikistan', 
+                             'turkmenistan', 'moldova', 'latvia', 'lithuania', 'estonia', 'uzbek', 'kazakh', 'kyrgyz', 'tajik', 'turkmen']
+            },
+            {
+                'name': 'greek',
+                'regex': re.compile(r'[\u0370-\u03ff]'),
+                'keywords': ['greece', 'athens']
+            },
+            {
+                'name': 'arabic',
+                'regex': re.compile(r'[\u0600-\u06ff]'),
+                'keywords': ['iran', 'tehran', 'iraq', 'egypt', 'cairo', 'saudi', 'syria', 'morocco', 'lebanon', 'jordan']
+            },
+            {
+                'name': 'hebrew',
+                'regex': re.compile(r'[\u0590-\u05ff]'),
+                'keywords': ['israel', 'tel aviv', 'jerusalem']
+            },
+            {
+                'name': 'devanagari',
+                'regex': re.compile(r'[\u0900-\u097f]'),
+                'keywords': ['india', 'mumbai', 'delhi', 'bangalore', 'kolkata']
+            }
+        ]
 
-        if is_non_latin:
-            if not also_known_as and person_data:
-                also_known_as = person_data.get("also_known_as", [])
-            
-            if also_known_as:
-                # Bersihkan item also_known_as dari parenthesized text jika ada
-                cleaned_aka = []
-                for alt in also_known_as:
-                    if alt:
-                        cleaned_alt = re.sub(r'\s*\(([^)]+)\)\s*$', '', alt).strip()
-                        if cleaned_alt:
-                            cleaned_aka.append(cleaned_alt)
-                
-                # Prioritize script based on place_of_birth if available
-                target_regex = None
-                if person_data and person_data.get("place_of_birth"):
-                    pob = person_data.get("place_of_birth").lower()
-                    if 'korea' in pob:
-                        target_regex = re.compile(r'[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]') # Hangul
-                    elif 'japan' in pob:
-                        target_regex = re.compile(r'[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]') # Kana/Kanji
-                    elif 'china' in pob or 'taiwan' in pob or 'hong kong' in pob or 'macau' in pob:
-                        target_regex = re.compile(r'[\u4e00-\u9fff]') # Hanzi
-                    elif 'thailand' in pob:
-                        target_regex = re.compile(r'[\u0E00-\u0E7F]') # Thai
-                    elif 'russia' in pob or 'ukraine' in pob:
-                        target_regex = re.compile(r'[\u0400-\u04ff]') # Cyrillic
-
-                # Jika tidak ada place_of_birth, tebak dari original_name
-                if not target_regex and original_name and not original_name.isascii():
-                    if re.search(r'[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]', original_name):
-                        target_regex = re.compile(r'[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]')
-                    elif re.search(r'[\u3040-\u309f\u30a0-\u30ff]', original_name):
-                        target_regex = re.compile(r'[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]')
-                    elif re.search(r'[\u4e00-\u9fff]', original_name):
-                        target_regex = re.compile(r'[\u4e00-\u9fff]')
-                    elif re.search(r'[\u0400-\u04ff]', original_name):
-                        target_regex = re.compile(r'[\u0400-\u04ff]')
-
-                def is_prioritized(text):
-                    if not target_regex:
-                        return True # No priority, everything matches
-                    return bool(target_regex.search(text))
-
-                # Jika nama saat ini isascii (Latin), cari nama native non-ASCII
-                if name.isascii():
-                    if existing_paren and not existing_paren.isascii():
-                        native_name = existing_paren
-                    else:
-                        # 1. Cari yang match priority
-                        for alt_name in cleaned_aka:
-                            if alt_name and not alt_name.isascii() and alt_name not in name and is_prioritized(alt_name):
-                                native_name = alt_name
-                                break
-                        # 2. Jika tidak ada, fallback ambil apapun yang non-ascii pertama
-                        if not native_name:
-                            for alt_name in cleaned_aka:
-                                if alt_name and not alt_name.isascii() and alt_name not in name:
-                                    native_name = alt_name
-                                    break
-
-                # Jika nama saat ini non-ASCII, cari nama latin/ASCII
-                elif not name.isascii():
-                    for alt_name in cleaned_aka:
-                        if alt_name and alt_name.isascii() and name not in alt_name:
-                            native_name = name
-                            name = alt_name
-                            break
+        pob = (person_data.get("place_of_birth") or "").lower() if person_data else ""
+        allowed_scripts = []
         
-        # Gabungkan nama dengan format "Latin (Native)" jika ada native_name non-ASCII
+        for s in script_defs:
+            # Check original name
+            if original_name and s['regex'].search(original_name):
+                allowed_scripts.append(s)
+                continue
+            # Check current name
+            if name and s['regex'].search(name):
+                allowed_scripts.append(s)
+                continue
+            # Check birthplace
+            if pob and any(kw in pob for kw in s['keywords']):
+                allowed_scripts.append(s)
+                continue
+
+        # Clean also_known_as
+        cleaned_aka = []
+        if not also_known_as and person_data:
+            also_known_as = person_data.get("also_known_as", [])
+        
+        if also_known_as:
+            for alt in also_known_as:
+                if alt:
+                    cleaned_alt = re.sub(r'\s*\(([^)]+)\)\s*$', '', alt).strip()
+                    if cleaned_alt:
+                        cleaned_aka.append(cleaned_alt)
+
+        # Match aliases against allowed scripts
+        if name.isascii():
+            if existing_paren and not existing_paren.isascii():
+                # Check if existing_paren matches any allowed script
+                paren_allowed = False
+                if not allowed_scripts:
+                    # If no script allowed, we don't allow East Asian scripts
+                    paren_allowed = not any(re.search(s['regex'], existing_paren) for s in script_defs if s['name'] in ['hangul', 'japanese', 'chinese'])
+                else:
+                    paren_allowed = any(s['regex'].search(existing_paren) for s in allowed_scripts)
+                
+                if paren_allowed:
+                    native_name = existing_paren
+                else:
+                    native_name = ""
+            else:
+                # Look for alias in allowed scripts
+                matched_alias = None
+                if allowed_scripts:
+                    for s in allowed_scripts:
+                        for alt_name in cleaned_aka:
+                            if alt_name and not alt_name.isascii() and alt_name not in name and s['regex'].search(alt_name):
+                                matched_alias = alt_name
+                                break
+                        if matched_alias:
+                            break
+                
+                native_name = matched_alias or ""
+
+        elif not name.isascii():
+            # Name is non-ASCII, search for ASCII alias
+            for alt_name in cleaned_aka:
+                if alt_name and alt_name.isascii() and name not in alt_name:
+                    native_name = name
+                    name = alt_name
+                    break
+
         if native_name and not native_name.isascii() and native_name != name:
             name = f"{name} ({native_name})"
-        
+
         return name, native_name
 
 

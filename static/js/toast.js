@@ -106,6 +106,9 @@ async function secureFetch(url, options = {}) {
         }
     }
 
+    // Selalu sertakan session cookie untuk autentikasi berbasis sesi Django
+    options.credentials = 'same-origin';
+
     return fetch(url, options);
 }
 

@@ -298,9 +298,13 @@ class ApprovalUIComponents {
             const localPoster = film.images.find(img => img.image_type === 'poster');
             if (localPoster) {
                 posterUrl = localPoster.file_path;
+            } else if (film.poster) {
+                posterUrl = film.poster;
             } else if (film.poster_path) {
                 posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
             }
+        } else if (film.poster) {
+            posterUrl = film.poster;
         } else if (film.poster_path) {
             posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
         }

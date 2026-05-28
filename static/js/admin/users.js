@@ -11,7 +11,7 @@ function fetchUsers() {
     usersEmpty.classList.add('hidden');
     usersLoading.classList.remove('hidden');
 
-    fetch('/api/auth/users/', {  })
+    secureFetch('/api/auth/users/')
         .then(res => res.json())
         .then(data => {
             usersLoading.classList.add('hidden');

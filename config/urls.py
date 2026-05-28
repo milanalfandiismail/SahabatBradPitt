@@ -28,6 +28,8 @@ urlpatterns = [
     path('movies/<int:id>/', TemplateView.as_view(template_name='movies/film_detail.html'), name='film_detail'),
     path('actors/', TemplateView.as_view(template_name='actors/actor_list.html'), name='actor_list'),
     path('actors/<int:id>/', TemplateView.as_view(template_name='actors/actor_detail.html'), name='actor_detail'),
+    path('festivals/', TemplateView.as_view(template_name='festivals/festival_list.html'), name='festival_list'),
+    path('festivals/<int:id>/', TemplateView.as_view(template_name='festivals/festival_detail.html'), name='festival_detail'),
     path('trending/', TemplateView.as_view(template_name='trending.html'), name='trending'),
 
     # Frontend Views — SSR Protected (diproteksi server-side dengan decorator)

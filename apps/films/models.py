@@ -66,6 +66,16 @@ class FilmQuerySet(models.QuerySet):
         except ValueError:
             return self
 
+import os
+import uuid
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
+
+def film_poster_upload_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    return os.path.join('films/posters/', filename)
+
 class Film(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
@@ -86,6 +96,7 @@ class Film(models.Model):
     # Path poster film dari TMDB (misal: /p8Z42i4nu5z95xxiMK3ycsAd4hF.jpg)
     # Dirender menggunakan TMDB CDN: https://image.tmdb.org/t/p/w500/<path>
     poster_path = models.CharField(max_length=255, blank=True)
+    poster = models.ImageField(upload_to=film_poster_upload_path, null=True, blank=True)
     
     # Menggunakan ManyToMany atau ForeignKey untuk Studio
     # Berdasarkan keputusan optimalisasi: Studio memiliki relasi dinamis dengan Film
@@ -118,6 +129,25 @@ class Film(models.Model):
 
     def __str__(self):
         return self.title
+
+@receiver(post_delete, sender=Film)
+def auto_delete_film_poster_on_delete(sender, instance, **kwargs):
+    if instance.poster:
+        if os.path.isfile(instance.poster.path):
+            os.remove(instance.poster.path)
+
+@receiver(pre_save, sender=Film)
+def auto_delete_film_poster_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = Film.objects.get(pk=instance.pk).poster
+    except Film.DoesNotExist:
+        return False
+    new_file = instance.poster
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 
 class FilmImage(models.Model):

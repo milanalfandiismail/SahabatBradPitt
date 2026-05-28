@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     fetch('/api/auth/me/', {
-        
+        credentials: 'same-origin'
     })
     .then(res => {
         if (!res.ok) throw new Error("Otorisasi gagal");
@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchStats();
             fetchFilms(1);
             fetchActors(1);
+            if (typeof initFestivals === 'function') initFestivals();
             fetchAllActorsForCast();
             if (data.is_superuser) fetchUsers();
 
@@ -78,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Sidebar event listeners
     document.getElementById('sidebar-dashboard-btn').addEventListener('click', () => showPrimarySection('dashboard'));
     document.getElementById('sidebar-movies-btn').addEventListener('click', () => showPrimarySection('movies'));
+    document.getElementById('sidebar-festivals-btn').addEventListener('click', () => showPrimarySection('festivals'));
     document.getElementById('sidebar-actors-btn').addEventListener('click', () => showPrimarySection('actors'));
     document.getElementById('sidebar-genres-btn').addEventListener('click', () => showPrimarySection('genres'));
     document.getElementById('sidebar-approvals-btn').addEventListener('click', () => showPrimarySection('approvals'));
@@ -90,17 +92,30 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function showPrimarySection(sectionId) {
-    const sections = ['dashboard', 'movies', 'actors', 'genres', 'approvals', 'users'];
-    const btns = ['dashboard', 'movies', 'actors', 'genres', 'approvals', 'users'];
+    const sections = ['dashboard', 'movies', 'festivals', 'actors', 'genres', 'approvals', 'users'];
+    const btns = ['dashboard', 'movies', 'festivals', 'actors', 'genres', 'approvals', 'users'];
 
+    // Hide all sections using both methods for compatibility
     sections.forEach(id => {
-        document.getElementById(`section-${id}`)?.classList.add('hidden');
+        const sect = document.getElementById(`section-${id}`);
+        if (sect) sect.style.display = 'none';
+        const adminSect = document.getElementById(`admin-${id}`);
+        if (adminSect) adminSect.style.display = 'none';
     });
-    // Failsafe: Pastikan view-editor ikut disembunyikan saat pindah tab agar tidak menyangkut di layar
-    if (sectionId !== 'movies') {
-        document.getElementById('view-editor')?.classList.add('hidden');
-        document.getElementById('view-manage')?.classList.remove('hidden');
-    }
+
+    // Failsafe: Pastikan semua editor disembunyikan saat pindah tab agar kembali ke mode 'manage'
+    document.getElementById('view-editor')?.classList.add('hidden');
+    document.getElementById('view-manage')?.classList.remove('hidden');
+    
+    document.getElementById('view-actor-editor')?.classList.add('hidden');
+    document.getElementById('view-actors-manage')?.classList.remove('hidden');
+    
+    document.getElementById('view-festival-editor')?.classList.add('hidden');
+    document.getElementById('view-festivals-manage')?.classList.remove('hidden');
+    
+    document.getElementById('view-genre-editor')?.classList.add('hidden');
+    document.getElementById('view-genres-manage')?.classList.remove('hidden');
+
     btns.forEach(id => {
         const btn = document.getElementById(`sidebar-${id}-btn`);
         if (btn) {
@@ -109,7 +124,10 @@ function showPrimarySection(sectionId) {
         }
     });
 
-    document.getElementById(`section-${sectionId}`)?.classList.remove('hidden');
+    // Show the active section using style.display
+    const targetSection = document.getElementById(`section-${sectionId}`) || document.getElementById(`admin-${sectionId}`);
+    if (targetSection) targetSection.style.display = 'flex';
+
     const activeBtn = document.getElementById(`sidebar-${sectionId}-btn`);
     if (activeBtn) {
         activeBtn.classList.add('bg-[#715A5A]', 'text-white');
@@ -119,6 +137,7 @@ function showPrimarySection(sectionId) {
     if (sectionId === 'dashboard') fetchStats();
     else if (sectionId === 'movies') showMoviesSubView('manage');
     else if (sectionId === 'actors') fetchActors(actorsCurrentPage);
+    else if (sectionId === 'festivals' && typeof fetchFestivals === 'function') fetchFestivals(1);
     else if (sectionId === 'genres') fetchGenres();
     else if (sectionId === 'approvals') {
         loadPendingFilmsForApproval();

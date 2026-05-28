@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - Festival Detail{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto relative z-10" id="festival-container">
+    <div id="loading-state" class="text-center py-20 text-[#c9c5cb]">
+        <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+        <p class="mt-2 font-['DM_Sans']">Memuat data festival...</p>
+    </div>
+    
+    <div id="error-state" class="hidden text-center py-20 text-red-500">
+        <span class="material-symbols-outlined text-5xl mb-4">error</span>
+        <h2 class="text-2xl font-['Playfair_Display'] font-bold">Gagal Memuat</h2>
+        <p class="mt-2 font-['DM_Sans']">Data festival tidak ditemukan atau terjadi kesalahan server.</p>
+        <a href="/festivals/" class="inline-block mt-6 px-6 py-2 bg-[#715A5A] text-white rounded hover:bg-[#8A6E6E] transition-colors">Kembali ke Daftar</a>
+    </div>
+
+    <div id="content-state" class="hidden opacity-0 transition-opacity duration-500">
+        <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs mb-8">
+            <a class="hover:text-white transition-colors" href="/">Home</a>
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            <a class="hover:text-white transition-colors" href="/festivals/">Festivals</a>
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            <span class="text-white" id="bc-name">Detail</span>
+        </nav>
+
+        <header class="flex flex-col md:flex-row gap-8 items-start mb-16">
+            <div id="festival-logo" class="w-32 h-32 md:w-48 md:h-48 shrink-0 bg-[#141314] border border-white/10 p-4 rounded-xl flex items-center justify-center shadow-2xl">
+                <!-- Logo will be inserted here -->
+            </div>
+            
+            <div class="flex-grow">
+                <h1 id="festival-name" class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white mb-2 leading-tight"></h1>
+                <p id="festival-native-name" class="font-['DM_Sans'] text-lg text-[#D3DAD9]/60 mb-6"></p>
+                
+                <div class="flex flex-wrap gap-4 font-['DM_Sans'] text-sm text-[#D3DAD9]">
+                    <div class="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full" id="festival-location">
+                        <span class="material-symbols-outlined text-[16px] text-[#715A5A]">location_on</span>
+                        <span id="location-text"></span>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full" id="festival-year-container">
+                        <span class="material-symbols-outlined text-[16px] text-[#715A5A]">history</span>
+                        <span>Est. <span id="festival-year"></span></span>
+                    </div>
+                    <a id="festival-website" href="#" target="_blank" class="flex items-center gap-1.5 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 transition-colors px-3 py-1.5 rounded-full text-[#715A5A] hover:text-white">
+                        <span class="material-symbols-outlined text-[16px]">language</span>
+                        <span>Website Resmi</span>
+                    </a>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="font-['DM_Sans'] font-bold text-white mb-2 uppercase tracking-wider text-xs">Tentang Festival</h3>
+                    <p id="festival-description" class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 leading-relaxed max-w-4xl"></p>
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-12">
+            <h2 class="font-['Playfair_Display'] text-2xl font-bold text-white mb-6 border-b border-white/10 pb-4">Penghargaan / Nominasi</h2>
+            <div id="awards-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Awards will be inserted here -->
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const festivalId = pathParts[pathParts.length - 1];
+        
+        fetch(`/api/festivals/festivals/${festivalId}/`)
+            .then(res => {
+                if (!res.ok) throw new Error("Not found");
+                return res.json();
+            })
+            .then(data => {
+                document.getElementById('loading-state').classList.add('hidden');
+                const content = document.getElementById('content-state');
+                content.classList.remove('hidden');
+                
+                // Trigger reflow for transition
+                void content.offsetWidth;
+                content.classList.remove('opacity-0');
+
+                // Populate header
+                document.getElementById('bc-name').textContent = data.name;
+                document.getElementById('festival-name').textContent = data.name;
+                
+                if (data.native_name) {
+                    document.getElementById('festival-native-name').textContent = data.native_name;
+                } else {
+                    document.getElementById('festival-native-name').remove();
+                }
+
+                // Logo
+                const logoContainer = document.getElementById('festival-logo');
+                if (data.logo) {
+                    logoContainer.innerHTML = `<img src="${data.logo}" alt="${data.name}" class="w-full h-full object-contain filter drop-shadow-lg" />`;
+                } else if (data.logo_path) {
+                    let url = data.logo_path.startsWith("http") ? data.logo_path : `https://image.tmdb.org/t/p/original${data.logo_path}`;
+                    logoContainer.innerHTML = `<img src="${url}" alt="${data.name}" class="w-full h-full object-contain filter drop-shadow-lg" />`;
+                } else {
+                    logoContainer.innerHTML = `<span class="material-symbols-outlined text-6xl text-amber-500">emoji_events</span>`;
+                }
+
+                // Metadata
+                const locText = [data.city, data.country].filter(Boolean).join(', ');
+                if (locText) {
+                    document.getElementById('location-text').textContent = locText;
+                } else {
+                    document.getElementById('festival-location').remove();
+                }
+
+                if (data.founded_year) {
+                    document.getElementById('festival-year').textContent = data.founded_year;
+                } else {
+                    document.getElementById('festival-year-container').remove();
+                }
+
+                if (data.website) {
+                    document.getElementById('festival-website').href = data.website;
+                } else {
+                    document.getElementById('festival-website').remove();
+                }
+
+                if (data.description) {
+                    document.getElementById('festival-description').textContent = data.description;
+                } else {
+                    document.getElementById('festival-description').textContent = "Deskripsi belum tersedia untuk festival ini.";
+                    document.getElementById('festival-description').classList.add("italic", "opacity-50");
+                }
+
+                // Awards
+                const awardsContainer = document.getElementById('awards-list');
+                if (data.awards && data.awards.length > 0) {
+                    // Group awards by year descending
+                    const sortedAwards = data.awards.sort((a, b) => b.year - a.year);
+                    
+                    sortedAwards.forEach(award => {
+                        const isWinner = award.award_type === 'winner';
+                        const badgeColor = isWinner ? "bg-amber-500/20 text-amber-500 border-amber-500/30" : "bg-white/5 text-[#D3DAD9] border-white/10";
+                        const iconHtml = isWinner ? `<span class="material-symbols-outlined text-[14px]">stars</span>` : `<span class="material-symbols-outlined text-[14px]">star_border</span>`;
+                        
+                        let subjectHtml = "";
+                        if (award.film) {
+                            let url = award.film_poster ? (award.film_poster.startsWith('http') ? award.film_poster : `https://image.tmdb.org/t/p/w200${award.film_poster}`) : '/static/images/no-poster.png';
+                            subjectHtml = `
+                                <div class="flex items-center gap-3 mt-4 group cursor-pointer" onclick="window.location.href='/movies/${award.film}/'">
+                                    <img src="${url}" class="w-10 h-14 object-cover rounded shadow-md group-hover:scale-105 transition-transform" />
+                                    <div>
+                                        <p class="font-['Playfair_Display'] font-bold text-white group-hover:text-[#715A5A] transition-colors">${award.film_title}</p>
+                                        <p class="text-xs text-[#D3DAD9]/60 font-['DM_Sans']">Film</p>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (award.actor) {
+                            let url = award.actor_photo ? (award.actor_photo.startsWith('http') ? award.actor_photo : `https://image.tmdb.org/t/p/w200${award.actor_photo}`) : '/static/images/no-photo.png';
+                            subjectHtml = `
+                                <div class="flex items-center gap-3 mt-4 group cursor-pointer" onclick="window.location.href='/actors/${award.actor}/'">
+                                    <img src="${url}" class="w-10 h-10 object-cover rounded-full shadow-md group-hover:scale-105 transition-transform" />
+                                    <div>
+                                        <p class="font-['Playfair_Display'] font-bold text-white group-hover:text-[#715A5A] transition-colors">${award.actor_name}</p>
+                                        <p class="text-xs text-[#D3DAD9]/60 font-['DM_Sans']">Aktor/Sutradara</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = "bg-[#201f20] border border-white/5 p-5 rounded-lg hover:border-[#715A5A]/30 transition-colors flex flex-col justify-between";
+                        card.innerHTML = `
+                            <div>
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-['DM_Sans'] font-bold text-[#D3DAD9]">${award.category}</h4>
+                                    <span class="text-xs font-bold font-['DM_Sans'] text-white/40">${award.year}</span>
+                                </div>
+                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeColor}">
+                                    ${iconHtml} ${award.award_type}
+                                </div>
+                            </div>
+                            ${subjectHtml}
+                        `;
+                        awardsContainer.appendChild(card);
+                    });
+                } else {
+                    awardsContainer.innerHTML = `<p class="col-span-full text-[#c9c5cb] italic">Belum ada data penghargaan untuk festival ini.</p>`;
+                }
+            })
+            .catch(err => {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('error-state').classList.remove('hidden');
+            });
+    });
+</script>
+{% endblock %}

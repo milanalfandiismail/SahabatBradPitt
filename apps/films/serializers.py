@@ -40,7 +40,7 @@ class FilmographySerializer(serializers.ModelSerializer):
 class FilmSerializer(serializers.ModelSerializer):
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all(), many=True)
     genre_display = GenreSerializer(source='genre', many=True, read_only=True)
-    poster = serializers.ImageField(write_only=True, required=False)
+    poster = serializers.ImageField(required=False, allow_null=True)
     studio_name = serializers.CharField(source='studio.name', read_only=True)
     images = FilmImageSerializer(many=True, read_only=True)
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
@@ -63,13 +63,6 @@ class FilmSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at', 'avg_rating', 'popularity', 'status', 'rejection_reason', 'is_local_edit', 'created_by', 'updated_by']
 
     def create(self, validated_data):
-        """Handle poster upload dan genre assignment saat create film baru"""
-        import os
-        import uuid
-        from django.core.files.storage import default_storage
-        from django.core.files.base import ContentFile
-        
-        poster_file = validated_data.pop('poster', None)
         genres = validated_data.pop('genre', [])
         actors_data = validated_data.pop('actors_data', [])
         
@@ -87,20 +80,6 @@ class FilmSerializer(serializers.ModelSerializer):
                         role_type=actor_item.get('role_type', 'supporting'),
                         order=actor_item.get('order', 0)
                     )
-        
-        # Jika ada poster file, simpan sebagai FilmImage dengan type 'poster'
-        if poster_file:
-            ext = os.path.splitext(poster_file.name)[1].lower()
-            filename = f"{uuid.uuid4()}{ext}"
-            relative_path = os.path.join('films', 'posters', filename)
-            saved_path = default_storage.save(relative_path, ContentFile(poster_file.read()))
-            file_path_value = f"/media/{saved_path.replace(os.sep, '/')}"
-            
-            FilmImage.objects.create(
-                film=film,
-                file_path=file_path_value,
-                image_type='poster'
-            )
         
         return film
 

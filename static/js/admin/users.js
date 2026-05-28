@@ -59,7 +59,7 @@ function renderUsersTable(users) {
 
     users.forEach((user, idx) => {
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-[\'DM_Sans\'] animate-fade-up';
+        tr.className = 'border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-[\'DM_Sans\']';
         tr.style.animationDelay = `${idx * 60}ms`;
 
         const tdUsername = document.createElement('td');
@@ -147,7 +147,6 @@ function openUserEditor(user) {
     }
 
     modal.classList.remove('hidden');
-    modal.classList.add('animate-scale-in');
 }
 
 // =============================================

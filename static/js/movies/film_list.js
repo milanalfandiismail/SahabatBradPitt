@@ -168,8 +168,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail Film`;
                     detailBtn.addEventListener("click", (e) => {
                         e.stopPropagation();
-                        if (window.renderFilmDetailPanel) window.renderFilmDetailPanel(film.id);
-                        else window.location.href = `/movies/${film.id}/`;
+                        window.location.href = `/movies/${film.id}/`;
                     });
                     actionsDiv.appendChild(detailBtn);
 
@@ -188,8 +187,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     card.appendChild(contentDiv);
                     
                     card.addEventListener("click", () => {
-                        if (window.renderFilmDetailPanel) window.renderFilmDetailPanel(film.id);
-                        else window.location.href = `/movies/${film.id}/`;
+                        window.location.href = `/movies/${film.id}/`;
                     });
 
                     filmGrid.appendChild(card);

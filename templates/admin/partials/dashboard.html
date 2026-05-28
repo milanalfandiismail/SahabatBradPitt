@@ -13,23 +13,28 @@
     <!-- Statistics Cards -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
-            <span class="text-[10px] font-bold text-[#c9c5cb]/50 tracking-wider font-['DM_Sans'] uppercase">Total Film</span>
+            <span class="text-[10px] font-bold text-[#c9c5cb]/50 tracking-wider font-['DM_Sans'] uppercase">Total
+                Film</span>
             <span id="stat-total" class="font-['Playfair_Display'] text-3xl font-bold text-stone-100">0</span>
         </div>
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
-            <span class="text-[10px] font-bold text-emerald-500/60 tracking-wider font-['DM_Sans'] uppercase">Published</span>
+            <span
+                class="text-[10px] font-bold text-emerald-500/60 tracking-wider font-['DM_Sans'] uppercase">Published</span>
             <span id="stat-published" class="font-['Playfair_Display'] text-3xl font-bold text-emerald-400">0</span>
         </div>
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
-            <span class="text-[10px] font-bold text-amber-500/60 tracking-wider font-['DM_Sans'] uppercase">Pending Approval</span>
+            <span class="text-[10px] font-bold text-amber-500/60 tracking-wider font-['DM_Sans'] uppercase">Pending
+                Approval</span>
             <span id="stat-pending" class="font-['Playfair_Display'] text-3xl font-bold text-amber-400">0</span>
         </div>
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
-            <span class="text-[10px] font-bold text-stone-500/80 tracking-wider font-['DM_Sans'] uppercase">Drafts</span>
+            <span
+                class="text-[10px] font-bold text-stone-500/80 tracking-wider font-['DM_Sans'] uppercase">Drafts</span>
             <span id="stat-draft" class="font-['Playfair_Display'] text-3xl font-bold text-stone-300">0</span>
         </div>
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col gap-1">
-            <span class="text-[10px] font-bold text-rose-500/60 tracking-wider font-['DM_Sans'] uppercase">Rejected</span>
+            <span
+                class="text-[10px] font-bold text-rose-500/60 tracking-wider font-['DM_Sans'] uppercase">Rejected</span>
             <span id="stat-rejected" class="font-['Playfair_Display'] text-3xl font-bold text-rose-400">0</span>
         </div>
     </div>
@@ -42,47 +47,77 @@
                 <span class="material-symbols-outlined text-3xl text-amber-500">cloud_sync</span>
                 <div class="flex flex-col">
                     <h3 class="font-['DM_Sans'] text-base font-semibold text-stone-200">Sinkronisasi TMDB API</h3>
-                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Tarik data filmography secara massal dari TMDB berdasarkan ID Aktor pilihan Anda.</p>
+                    <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Tarik data filmography secara massal dari TMDB
+                        berdasarkan ID Aktor pilihan Anda.</p>
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                 <div class="flex flex-col gap-1.5">
-                    <label for="sync-actor-id" class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">TMDB ACTOR ID</label>
-                    <input id="sync-actor-id" class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Misal: 287 (Brad Pitt), 1198642 (IU)" type="text" value="287" />
+                    <label for="sync-actor-id"
+                        class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">TMDB ACTOR ID</label>
+                    <input id="sync-actor-id"
+                        class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                        placeholder="Misal: 287" type="number" value="" />
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label for="sync-limit" class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">BATAS MAKSIMAL FILM</label>
-                    <input id="sync-limit" class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Kosongkan untuk mengambil semua" type="number" value="15" />
+                    <label for="sync-min-rating"
+                        class="text-[10px] font-bold text-stone-400 tracking-wider uppercase">BATAS MINIMUM
+                        RATING</label>
+                    <input id="sync-min-rating"
+                        class="bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
+                        placeholder="Misal: 7.0" type="number" step="0.1" value="" />
                 </div>
             </div>
-            <button id="sync-btn" class="mt-2 w-full px-6 py-3 rounded font-medium text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-2 shadow-md" type="button">
+            <button id="sync-btn"
+                class="mt-2 w-full px-6 py-3 rounded font-medium text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-2 shadow-md"
+                type="button">
                 <span class="material-symbols-outlined text-sm">cloud_download</span> Sinkronkan Sekarang
             </button>
-            <div class="text-[10px] text-[#c9c5cb]/40 border-t border-white/5 pt-4 leading-relaxed flex flex-col gap-1.5 font-['DM_Sans']">
+            <div
+                class="text-[10px] text-[#c9c5cb]/40 border-t border-white/5 pt-4 leading-relaxed flex flex-col gap-1.5 font-['DM_Sans']">
                 <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-xs">info</span>
-                    Memasukkan ID TMDB Aktor baru akan otomatis membuat entitas Sineas baru dan mengaitkan karyanya ke katalog.</p>
+                    Memasukkan ID TMDB Aktor baru akan otomatis membuat entitas Sineas baru dan mengaitkan karyanya ke
+                    katalog.</p>
             </div>
         </div>
 
         <!-- Policy Guidelines -->
         <div class="bg-[#201f20] rounded-lg p-6 border border-white/5 shadow-lg flex flex-col gap-4">
-            <h3 class="font-['DM_Sans'] text-base font-semibold text-stone-200 flex items-center gap-2 border-b border-white/5 pb-3">
+            <h3
+                class="font-['DM_Sans'] text-base font-semibold text-stone-200 flex items-center gap-2 border-b border-white/5 pb-3">
                 <span class="material-symbols-outlined text-amber-500">lock_open</span> Alur Publikasi
             </h3>
             <div class="flex flex-col gap-3 font-['DM_Sans'] text-xs text-[#c9c5cb]/70 leading-relaxed">
                 <div class="flex gap-2.5">
-                    <span class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">1</span>
+                    <span
+                        class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">1</span>
                     <p>Setiap film baru akan masuk sebagai **Draft** terlebih dahulu.</p>
                 </div>
                 <div class="flex gap-2.5">
-                    <span class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">2</span>
+                    <span
+                        class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">2</span>
                     <p>Lengkapi trailer, poster, lalu klik **"Submit for Approval"**.</p>
                 </div>
                 <div class="flex gap-2.5">
-                    <span class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">3</span>
+                    <span
+                        class="w-4 h-4 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-[9px] shrink-0">3</span>
                     <p>Hanya **Super Admin** yang bisa melakukan **Approve/Reject** publikasi film.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Active Tasks Panel -->
+    <div id="sync-progress-card" class="hidden bg-[#201f20] rounded-lg p-6 border border-amber-500/30 shadow-lg mt-2">
+        <h3 class="font-['DM_Sans'] text-base font-semibold text-amber-500 flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined animate-spin text-xl">sync</span> Task In Progress
+        </h3>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-[#141314] p-4 rounded-md border border-white/5 gap-4">
+            <div class="flex flex-col gap-1">
+                <span id="sync-progress-text" class="font-['DM_Sans'] font-medium text-sm text-stone-200"></span>
+                <span class="font-['DM_Sans'] text-xs text-stone-400">Sedang menarik data dari TMDB. Proses ini berjalan di background, Anda dapat melanjutkan aktivitas lain.</span>
+            </div>
+            <span class="px-3 py-1 bg-amber-500/20 text-amber-500 text-xs font-bold rounded-full animate-pulse whitespace-nowrap">Running...</span>
         </div>
     </div>
 </div>

@@ -3,6 +3,7 @@
 // ============================================================
 document.addEventListener("DOMContentLoaded", function () {
     const carousel = document.getElementById("trending-carousel");
+    if (!carousel) return;
 
     function renderTrending(films) {
         carousel.textContent = "";
@@ -17,10 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         films.slice(0, 5).forEach((film, idx) => {
-            const card = document.createElement("div");
-            card.className = `relative w-[200px] md:w-[240px] flex-shrink-0 snap-start group cursor-pointer animate-fade-up`;
+            const card = document.createElement("a");
+            card.href = `/movies/${film.id}/`;
+            card.className = `relative w-[200px] md:w-[240px] flex-shrink-0 snap-start group cursor-pointer animate-fade-up block`;
             card.style.animationDelay = `${idx * 60}ms`;
-            card.addEventListener("click", () => window.renderFilmDetailPanel(film.id));
 
             const inner = document.createElement("div");
             inner.className = "bg-[#37353E] rounded-lg overflow-hidden border border-white/5 group-hover:scale-[1.03] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 aspect-[2/3] relative w-full";

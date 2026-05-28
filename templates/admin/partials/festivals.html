@@ -9,7 +9,8 @@
     </div>
 
     <!-- Controls Bar -->
-    <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+    <div id="view-festivals-manage" class="flex flex-col gap-8">
+        <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
         <!-- Search -->
         <div class="relative flex-grow flex items-center max-w-md">
             <span id="festival-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
@@ -55,8 +56,10 @@
         </div>
     </div>
 
+    </div>
+
     <!-- ==================== FESTIVAL EDITOR SUB-VIEW ==================== -->
-    <div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl animate-fade-up">
+    <div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
         <div class="flex justify-between items-center border-b border-white/5 pb-4">
             <div class="flex flex-col">
                 <h2 id="festival-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Festival Baru</h2>
@@ -142,8 +145,8 @@
 </div>
 
 <!-- ==================== WIKIPEDIA IMPORT MODAL ==================== -->
-<div id="wiki-import-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade-in">
-    <div class="bg-[#201f20] border border-white/5 rounded-xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden animate-scale-in">
+<div id="wiki-import-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#201f20] border border-white/5 rounded-xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden">
         <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#141314]">
             <h2 class="font-['Playfair_Display'] text-xl font-bold text-stone-100 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-400">cloud_download</span> Import Penghargaan Wikipedia

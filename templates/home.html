@@ -43,8 +43,16 @@
                     Detail Film
                 </a>
             </div>
-            <!-- Hero dot indicators -->
-            <div id="hero-dots" class="flex gap-2 mt-8"></div>
+            <!-- Hero navigation -->
+            <div class="flex items-center gap-3 mt-8">
+                <button id="hero-prev-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
+                    <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
+                </button>
+                <div id="hero-dots" class="flex gap-2 mx-2"></div>
+                <button id="hero-next-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
+                    <span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+                </button>
+            </div>
         </div>
         <!-- Kanan: Gambar -->
         <div class="flex-1 w-full flex justify-center md:justify-end items-center h-full pb-8 md:pb-0">
@@ -147,9 +155,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/movies/film_detail_panel.js"></script>
-<script src="/static/js/home_hero.js?v=3"></script>
-<script src="/static/js/home_trending.js?v=3"></script>
+<script src="/static/js/home_hero.js?v=4"></script>
+<script src="/static/js/home_trending.js?v=4"></script>
 <script src="/static/js/home_actors.js?v=3"></script>
 <script src="/static/js/home_featured.js?v=3"></script>
 {% endblock %}

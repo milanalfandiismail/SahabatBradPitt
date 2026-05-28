@@ -74,8 +74,8 @@ function loadPendingFilmsForApproval() {
         container.innerHTML = '';
         films.forEach((film, idx) => {
             const card = _buildFilmApprovalCard(film);
-            card.classList.add('animate-fade-up');
-            card.style.animationDelay = `${idx * 60}ms`;
+            // card.classList.add('animate-fade-up');
+            // card.style.animationDelay = `${idx * 60}ms`;
             container.appendChild(card);
         });
     })
@@ -126,8 +126,8 @@ function loadPendingActorsForApproval() {
         container.innerHTML = '';
         actors.forEach((actor, idx) => {
             const card = _buildActorApprovalCard(actor);
-            card.classList.add('animate-fade-up');
-            card.style.animationDelay = `${idx * 60}ms`;
+            // card.classList.add('animate-fade-up');
+            // card.style.animationDelay = `${idx * 60}ms`;
             container.appendChild(card);
         });
     })
@@ -325,7 +325,7 @@ function showFilmApprovalDetail(film) {
     }
 
     modal.classList.remove('hidden');
-    modal.classList.add('animate-scale-in');
+    // modal.classList.add('animate-scale-in');
 }
 
 function showActorApprovalDetail(actor) {
@@ -348,7 +348,7 @@ function showActorApprovalDetail(actor) {
     document.getElementById('detail-actor-bio').textContent = actor.bio || 'Tidak ada biografi.';
 
     modal.classList.remove('hidden');
-    modal.classList.add('animate-scale-in');
+    // modal.classList.add('animate-scale-in');
 }
 
 // =============================================

@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
             setTxt("film-title", film.title);
+            setTxt("bc-name", film.title);
             setTxt("avg-rating-val", film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : "N/A");
             setTxt("release-year-val", film.release_year);
             if (film.is_tv_series) {

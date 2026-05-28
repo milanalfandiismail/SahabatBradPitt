@@ -38,6 +38,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="/static/js/movies/film_detail_panel.js"></script>
+<script src="/static/js/home_actors.js?v=3"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const grid = document.getElementById("actors-grid");
@@ -91,11 +93,13 @@
                         return;
                     }
 
-                    results.forEach(actor => {
+                    results.forEach((actor, idx) => {
                         const article = document.createElement("article");
-                        article.className = "group bg-[#201f20] rounded-lg p-5 border border-white/5 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 cursor-pointer flex flex-col items-center text-center";
+                        article.className = "group bg-[#201f20] rounded-lg p-5 border border-white/5 hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 cursor-pointer flex flex-col items-center text-center animate-fade-up";
+                        article.style.animationDelay = `${idx * 60}ms`;
                         article.addEventListener("click", () => {
-                            window.location.href = `/actors/${actor.id}/`;
+                            if (window.renderActorDetailPanel) window.renderActorDetailPanel(actor);
+                            else window.location.href = `/actors/${actor.id}/`;
                         });
 
                         // Circular Portrait Wrapper

@@ -53,9 +53,10 @@ let selectedScore = 0;
                     feed.appendChild(msg);
                     return;
                 }
-                results.forEach(review => {
+                results.forEach((review, idx) => {
                     const box = document.createElement("div");
-                    box.className = "bg-[#201f20] rounded-lg p-5 border border-white/5 flex gap-4 shadow-lg";
+                    box.className = "bg-[#201f20] rounded-lg p-5 border border-white/5 flex gap-4 shadow-lg animate-fade-up";
+                    box.style.animationDelay = `${idx * 60}ms`;
                     const img = document.createElement("img");
                     img.className = "w-10 h-10 rounded-full object-cover shrink-0 border border-white/10";
                     img.src = review.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100";

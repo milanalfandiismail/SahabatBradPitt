@@ -79,7 +79,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 results.forEach((film, index) => {
                     const card = document.createElement("div");
-                    card.className = "bg-[#201f20] rounded-lg overflow-hidden flex shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01] group border border-white/5 cursor-pointer";
+                    card.className = `bg-[#201f20] rounded-lg overflow-hidden flex shadow-lg hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 group border border-white/5 cursor-pointer animate-fade-up`;
+                    card.style.animationDelay = `${index * 60}ms`;
                     
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
                     if (film.poster) {
@@ -167,7 +168,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail Film`;
                     detailBtn.addEventListener("click", (e) => {
                         e.stopPropagation();
-                        window.location.href = `/movies/${film.id}/`;
+                        if (window.renderFilmDetailPanel) window.renderFilmDetailPanel(film.id);
+                        else window.location.href = `/movies/${film.id}/`;
                     });
                     actionsDiv.appendChild(detailBtn);
 
@@ -186,7 +188,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     card.appendChild(contentDiv);
                     
                     card.addEventListener("click", () => {
-                        window.location.href = `/movies/${film.id}/`;
+                        if (window.renderFilmDetailPanel) window.renderFilmDetailPanel(film.id);
+                        else window.location.href = `/movies/${film.id}/`;
                     });
 
                     filmGrid.appendChild(card);

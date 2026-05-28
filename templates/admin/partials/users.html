@@ -1,15 +1,27 @@
 <!-- ======================= 5. USERS SECTION ======================= -->
 <div id="section-users" style="display:none" class="flex flex-col gap-8">
+    <!-- Header -->
     <div class="flex justify-between items-center border-b border-white/5 pb-6">
         <div class="flex flex-col gap-1">
             <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Otoritas Pengguna & Peran Admin</h1>
             <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Daftar pengguna terdaftar beserta modifikasi peran Staff (Admin) dan Super Admin (Superuser).</p>
         </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Search -->
+        <div class="relative flex-grow flex items-center max-w-md">
+            <span id="users-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+            <input id="users-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 pl-10 pr-4 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari username atau email..." type="text" />
+        </div>
+        <!-- Action Button -->
         <button id="add-user-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
             <span class="material-symbols-outlined text-sm">person_add</span> Tambah Pengguna / Admin
         </button>
     </div>
 
+    <!-- Table -->
     <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
         <div class="overflow-x-auto custom-scroll w-full">
             <table class="w-full text-left text-xs border-collapse">
@@ -27,7 +39,12 @@
         </div>
         <div id="users-loading" class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
             <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+            <p class="text-xs font-['DM_Sans']">Memuat data pengguna...</p>
         </div>
         <div id="users-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">Katalog pengguna kosong.</div>
+        <div id="users-error" class="hidden py-16 text-center text-rose-400 italic text-xs flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-3xl">wifi_off</span>
+            <p>Gagal memuat data pengguna. Periksa koneksi server.</p>
+        </div>
     </div>
 </div>

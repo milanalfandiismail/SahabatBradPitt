@@ -228,9 +228,10 @@
                     return;
                 }
 
-                actor.filmographies.forEach(item => {
+                actor.filmographies.forEach((item, idx) => {
                     const card = document.createElement("div");
-                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg";
+                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] hover:shadow-xl transition-all duration-300 border border-white/5 shadow-lg animate-fade-up";
+                    card.style.animationDelay = `${idx * 60}ms`;
                     card.addEventListener("click", () => {
                         window.location.href = `/movies/${item.film}/`;
                     });

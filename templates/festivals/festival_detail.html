@@ -140,38 +140,13 @@
                     // Group awards by year descending
                     const sortedAwards = data.awards.sort((a, b) => b.year - a.year);
                     
-                    sortedAwards.forEach(award => {
+                    sortedAwards.forEach((award, idx) => {
                         const isWinner = award.award_type === 'winner';
                         const badgeColor = isWinner ? "bg-amber-500/20 text-amber-500 border-amber-500/30" : "bg-white/5 text-[#D3DAD9] border-white/10";
                         const iconHtml = isWinner ? `<span class="material-symbols-outlined text-[14px]">stars</span>` : `<span class="material-symbols-outlined text-[14px]">star_border</span>`;
-                        
-                        let subjectHtml = "";
-                        if (award.film) {
-                            let url = award.film_poster ? (award.film_poster.startsWith('http') ? award.film_poster : `https://image.tmdb.org/t/p/w200${award.film_poster}`) : '/static/images/no-poster.png';
-                            subjectHtml = `
-                                <div class="flex items-center gap-3 mt-4 group cursor-pointer" onclick="window.location.href='/movies/${award.film}/'">
-                                    <img src="${url}" class="w-10 h-14 object-cover rounded shadow-md group-hover:scale-105 transition-transform" />
-                                    <div>
-                                        <p class="font-['Playfair_Display'] font-bold text-white group-hover:text-[#715A5A] transition-colors">${award.film_title}</p>
-                                        <p class="text-xs text-[#D3DAD9]/60 font-['DM_Sans']">Film</p>
-                                    </div>
-                                </div>
-                            `;
-                        } else if (award.actor) {
-                            let url = award.actor_photo ? (award.actor_photo.startsWith('http') ? award.actor_photo : `https://image.tmdb.org/t/p/w200${award.actor_photo}`) : '/static/images/no-photo.png';
-                            subjectHtml = `
-                                <div class="flex items-center gap-3 mt-4 group cursor-pointer" onclick="window.location.href='/actors/${award.actor}/'">
-                                    <img src="${url}" class="w-10 h-10 object-cover rounded-full shadow-md group-hover:scale-105 transition-transform" />
-                                    <div>
-                                        <p class="font-['Playfair_Display'] font-bold text-white group-hover:text-[#715A5A] transition-colors">${award.actor_name}</p>
-                                        <p class="text-xs text-[#D3DAD9]/60 font-['DM_Sans']">Aktor/Sutradara</p>
-                                    </div>
-                                </div>
-                            `;
-                        }
-
                         const card = document.createElement('div');
-                        card.className = "bg-[#201f20] border border-white/5 p-5 rounded-lg hover:border-[#715A5A]/30 transition-colors flex flex-col justify-between";
+                        card.className = "bg-[#201f20] border border-white/5 p-5 rounded-lg hover:border-[#715A5A]/30 hover:shadow-xl transition-all flex flex-col justify-between animate-fade-up";
+                        card.style.animationDelay = `${idx * 60}ms`;
                         card.innerHTML = `
                             <div>
                                 <div class="flex justify-between items-start mb-2">

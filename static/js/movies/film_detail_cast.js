@@ -20,10 +20,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 function renderCast() {
                     castList.textContent = "";
                     const items = results.slice(0, showAll ? results.length : 10);
-                    items.forEach(actor => {
+                    items.forEach((actor, idx) => {
                         const item = document.createElement("div");
-                        item.className = "flex flex-col items-center gap-2 cursor-pointer group";
-                        item.addEventListener("click", () => { window.location.href = `/actors/${actor.id}/`; });
+                        item.className = "flex flex-col items-center gap-2 cursor-pointer group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 animate-fade-up";
+                        item.style.animationDelay = `${idx * 60}ms`;
+                        item.addEventListener("click", () => {
+                            if (window.renderActorDetailPanel) window.renderActorDetailPanel({ id: actor.id, name: actor.name });
+                            else window.location.href = `/actors/${actor.id}/`;
+                        });
 
                         const roleText = actor.film_role || "Pemeran";
                         const roleType = actor.film_role_type || 'supporting';

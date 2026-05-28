@@ -1,181 +1,182 @@
-<div id="admin-festivals" class="admin-view hidden">
-    <div id="view-festivals-manage">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="font-['Playfair_Display'] text-3xl font-bold text-white mb-1">Festivals</h1>
-                <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/60">Manage film festivals and awards</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="openWikiImportModal()" class="bg-[#1e293b]/40 hover:bg-[#334155]/60 border border-blue-500/20 text-blue-200 px-4 py-2 rounded font-['DM_Sans'] text-sm font-bold flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">cloud_download</span> Import dari Wikipedia
-                </button>
-                <button onclick="openFestivalEditor()" class="bg-[#715A5A] hover:bg-[#8A6E6E] text-white px-4 py-2 rounded font-['DM_Sans'] text-sm font-bold flex items-center gap-2 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">add</span> Add Festival
-                </button>
-            </div>
-        </header>
-
-        <!-- Content -->
-        <div class="bg-[#201f20] border border-white/10 rounded-lg overflow-hidden">
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-lg">search</span>
-                    <input type="text" id="festival-search" placeholder="Search festivals..." class="bg-[#141314] border border-white/10 rounded pl-10 pr-4 py-1.5 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none w-64" oninput="debounce(fetchFestivals, 500)()">
-                </div>
-                <div class="text-sm text-stone-400 font-['DM_Sans']">
-                    Total: <span id="festival-count">0</span>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-[#141314] text-[#D3DAD9]/70 text-xs uppercase tracking-wider font-['DM_Sans']">
-                            <th class="p-4 font-medium border-b border-white/5">Logo</th>
-                            <th class="p-4 font-medium border-b border-white/5">Name & Location</th>
-                            <th class="p-4 font-medium border-b border-white/5">Founded</th>
-                            <th class="p-4 font-medium border-b border-white/5">Status</th>
-                            <th class="p-4 font-medium border-b border-white/5 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="festivals-tbody" class="text-sm font-['DM_Sans'] text-stone-300 divide-y divide-white/5">
-                        <!-- Data will be injected here by festivals.js -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            <div class="p-4 border-t border-white/10 flex justify-between items-center bg-[#141314]">
-                <button id="festival-prev-page" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs transition-colors disabled:opacity-50" onclick="changeFestivalPage(-1)">Previous</button>
-                <span id="festival-page-info" class="text-xs text-stone-500">Page 1</span>
-                <button id="festival-next-page" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs transition-colors disabled:opacity-50" onclick="changeFestivalPage(1)">Next</button>
-            </div>
+<!-- ======================= 3. FESTIVALS SECTION ======================= -->
+<div id="section-festivals" style="display:none" class="flex flex-col gap-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-white/5 pb-6">
+        <div class="flex flex-col gap-1">
+            <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Festivals &Penghargaan</h1>
+            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Kelola profil festival film dan data penghargaan.</p>
         </div>
     </div>
 
-<!-- SUB-VIEW: FESTIVAL EDITOR -->
-<div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl mt-8">
-    <div class="flex justify-between items-center border-b border-white/5 pb-4">
-        <div class="flex flex-col">
-            <h2 id="festival-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Add Festival</h2>
-            <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Lengkapi detail profil festival.</p>
+    <!-- Controls Bar -->
+    <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Search -->
+        <div class="relative flex-grow flex items-center max-w-md">
+            <span id="festival-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+            <input id="festival-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 pl-10 pr-4 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari festival..." type="text" />
         </div>
-        <button id="festival-editor-close-btn" class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
-            <span class="material-symbols-outlined text-base">close</span>
-        </button>
-    </div>
-    
-    <form id="festival-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="saveFestival(event)">
-        <input type="hidden" id="festival-id">
-        
-        <!-- Left: Metadata inputs -->
-        <div class="lg:col-span-2 flex flex-col gap-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Name *</label>
-                    <input type="text" id="festival-name-input" required class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600">
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Native Name</label>
-                    <input type="text" id="festival-native-name-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Country</label>
-                    <input type="text" id="festival-country-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600">
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">City</label>
-                    <input type="text" id="festival-city-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600">
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Founded Year</label>
-                    <input type="number" id="festival-founded-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600">
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Website</label>
-                <input type="url" id="festival-website-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none placeholder:text-stone-600" placeholder="https://...">
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">Description</label>
-                <textarea id="festival-description-input" rows="4" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none resize-none custom-scroll placeholder:text-stone-600"></textarea>
-            </div>
-            
-            <div class="flex items-center gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
-                <input type="checkbox" id="festival-active-input" class="w-4 h-4 rounded bg-[#141314] border-white/20 text-[#715A5A] focus:ring-[#715A5A]">
-                <label for="festival-active-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase cursor-pointer">Active</label>
-            </div>
-        </div>
-
-        <!-- Right: Logo File Upload -->
-        <div class="flex flex-col gap-6">
-            <div class="flex flex-col gap-3">
-                <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">FESTIVAL LOGO</span>
-                <div class="aspect-[2/3] bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
-                    <img id="festival-logo-preview" alt="Logo Preview" class="hidden w-full h-full object-contain p-4" />
-                    <div id="festival-logo-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
-                        <span class="material-symbols-outlined text-4xl">emoji_events</span>
-                        <span class="text-[11px] font-semibold tracking-widest uppercase">Belum Ada Logo</span>
-                    </div>
-                </div>
-                <input id="festival-logo-input" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" />
-                <input type="hidden" id="festival-logo-path-input">
-                <button id="festival-logo-trigger-btn" class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold" type="button">Unggah Logo</button>
-            </div>
-        </div>
-
-        <div class="lg:col-span-3 flex justify-end gap-3 border-t border-white/5 pt-4 mt-2">
-            <button id="festival-editor-cancel-btn" type="button" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold transition-colors">Batal</button>
-            <button type="submit" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md transition-colors">
-                <span class="material-symbols-outlined text-sm">save</span> Simpan Festival
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+            <button onclick="openWikiImportModal()" class="px-4 py-2 rounded border border-blue-500/20 text-blue-400 hover:border-blue-400 hover:bg-blue-500/10 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                <span class="material-symbols-outlined text-sm">cloud_download</span> Wikipedia Import
+            </button>
+            <button onclick="openFestivalEditor()" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
+                <span class="material-symbols-outlined text-sm">add</span> Tambah Festival
             </button>
         </div>
-    </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">
+        <div class="overflow-x-auto custom-scroll w-full">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                        <th class="p-4 w-[80px] text-center">LOGO</th>
+                        <th class="p-4 min-w-[200px]">NAMA & LOKASI</th>
+                        <th class="p-4 w-[120px] text-center">TAHUN BERDIRI</th>
+                        <th class="p-4 w-[120px] text-center">STATUS</th>
+                        <th class="p-4 w-[150px] text-right">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="festivals-tbody" class="text-sm font-['DM_Sans'] text-stone-300 divide-y divide-white/5">
+                    <!-- Dynamic rows injected by festivals.js -->
+                </tbody>
+            </table>
+        </div>
+        <div id="festivals-loading" class="hidden py-16 text-center text-[#c9c5cb]/50 flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined animate-spin text-3xl">sync</span>
+            <p class="text-xs font-['DM_Sans']">Memuat data festival...</p>
+        </div>
+        <div id="festivals-empty" class="hidden py-16 text-center text-[#c9c5cb]/40 italic text-xs">Tidak ada data festival ditemukan.</div>
+        <div class="px-6 py-4 bg-[#141314]/30 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span id="festivals-count-info" class="text-[11px] text-[#c9c5cb]/40 font-medium">Menampilkan 0 festival</span>
+            <div class="flex items-center gap-1" id="festivals-pagination-controls"></div>
+        </div>
+    </div>
+
+    <!-- ==================== FESTIVAL EDITOR SUB-VIEW ==================== -->
+    <div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl animate-fade-up">
+        <div class="flex justify-between items-center border-b border-white/5 pb-4">
+            <div class="flex flex-col">
+                <h2 id="festival-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Festival Baru</h2>
+                <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/50">Lengkapi detail profil festival.</p>
+            </div>
+            <button id="festival-editor-close-btn" class="w-8 h-8 rounded border border-white/5 text-[#c9c5cb] hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+
+        <form id="festival-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="saveFestival(event)">
+            <input type="hidden" id="festival-id">
+
+            <!-- Left: Metadata inputs -->
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="festival-name-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA FESTIVAL *</label>
+                        <input type="text" id="festival-name-input" required class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="festival-native-name-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NAMA ASLI (NATIVE)</label>
+                        <input type="text" id="festival-native-name-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="festival-country-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">NEGARA</label>
+                        <input type="text" id="festival-country-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="festival-city-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">KOTA</label>
+                        <input type="text" id="festival-city-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="festival-founded-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">TAHUN BERDIRI</label>
+                        <input type="number" id="festival-founded-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="festival-website-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">WEBSITE</label>
+                    <input type="url" id="festival-website-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="https://...">
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="festival-description-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DESKRIPSI</label>
+                    <textarea id="festival-description-input" rows="4" class="w-full bg-[#141314] border border-white/10 rounded-md py-3 px-4 text-sm text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none resize-none custom-scroll transition-all"></textarea>
+                </div>
+
+                <div class="flex items-center gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                    <input type="checkbox" id="festival-active-input" class="w-4 h-4 rounded bg-[#141314] border-white/20 text-[#715A5A] focus:ring-[#715A5A] cursor-pointer">
+                    <label for="festival-active-input" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase cursor-pointer">FESTIVAL AKTIF</label>
+                </div>
+            </div>
+
+            <!-- Right: Logo Upload -->
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-3">
+                    <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">LOGO FESTIVAL</span>
+                    <div class="aspect-square bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                        <img id="festival-logo-preview" alt="Logo Preview" class="hidden w-full h-full object-contain p-4" />
+                        <div id="festival-logo-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-4xl">emoji_events</span>
+                            <span class="text-[11px] font-semibold tracking-widest uppercase">Belum Ada Logo</span>
+                        </div>
+                    </div>
+                    <input id="festival-logo-input" class="hidden" type="file" accept="image/jpeg,image/png,image/webp" />
+                    <input type="hidden" id="festival-logo-path-input">
+                    <button id="festival-logo-trigger-btn" class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold" type="button">Unggah Logo</button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3 flex justify-end gap-3 border-t border-white/5 pt-4 mt-2">
+                <button id="festival-editor-cancel-btn" type="button" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold transition-colors">Batal</button>
+                <button type="submit" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md transition-colors">
+                    <span class="material-symbols-outlined text-sm">save</span> Simpan Festival
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Modal Wikipedia Import -->
-<div id="wiki-import-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#201f20] border border-white/10 rounded-xl w-full max-w-md shadow-2xl transform transition-all flex flex-col overflow-hidden">
-        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#141314]">
-            <h2 class="font-['Playfair_Display'] text-xl font-bold text-white flex items-center gap-2">
-                <span class="material-symbols-outlined text-blue-400">cloud_download</span> Import Penghargaan
+<!-- ==================== WIKIPEDIA IMPORT MODAL ==================== -->
+<div id="wiki-import-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[#201f20] border border-white/5 rounded-xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden animate-scale-in">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#141314]">
+            <h2 class="font-['Playfair_Display'] text-xl font-bold text-stone-100 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-400">cloud_download</span> Import Penghargaan Wikipedia
             </h2>
             <button onclick="closeWikiImportModal()" class="text-stone-500 hover:text-white transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        
+
         <div class="p-6 font-['DM_Sans'] text-stone-300 bg-[#201f20]">
             <form id="wiki-import-form" onsubmit="submitWikiImport(event)">
                 <div class="mb-4">
-                    <label class="block text-xs text-[#D3DAD9]/70 mb-1">Film Sasaran *</label>
-                    <select id="wiki-import-film-select" required class="w-full bg-[#141314] border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-[#715A5A] focus:outline-none">
-                        <!-- Will be populated dynamically with existing films -->
+                    <label for="wiki-import-film-select" class="block text-xs text-[#D3DAD9]/70 mb-1.5">FILM SASARAN *</label>
+                    <select id="wiki-import-film-select" required class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 focus:border-[#715A5A] focus:outline-none transition-all">
+                        <option value="">-- Pilih Film --</option>
                     </select>
                 </div>
-                
-                <div class="mb-5">
-                    <label class="block text-xs text-[#D3DAD9]/70 mb-1">URL Halaman Wikipedia (Opsional)</label>
-                    <input type="url" id="wiki-import-url-input" placeholder="https://en.wikipedia.org/wiki/..." class="w-full bg-[#141314] border border-white/10 rounded px-3 py-2 text-sm text-white placeholder-stone-600 focus:border-[#715A5A] focus:outline-none">
-                    <p class="text-[11px] text-stone-500 mt-1">Kosongkan jika ingin sistem mencari secara otomatis di Wikipedia berdasarkan judul film.</p>
-                </div>
-                
-                <!-- Loading State / Result -->
-                <div id="wiki-import-status" class="hidden mb-5 p-3 rounded text-xs bg-white/5 border border-white/10 flex flex-col gap-2">
-                    <div id="wiki-import-status-text" class="text-stone-400">Memproses...</div>
-                    <div id="wiki-import-status-details" class="text-stone-500 font-mono text-[10px] break-all max-h-24 overflow-y-auto"></div>
+
+                <div class="mb-4">
+                    <label for="wiki-import-url-input" class="block text-xs text-[#D3DAD9]/70 mb-1.5">URL WIKIPEDIA (OPSIONAL)</label>
+                    <input type="url" id="wiki-import-url-input" placeholder="https://en.wikipedia.org/wiki/..." class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none transition-all">
+                    <p class="text-[11px] text-stone-500 mt-1.5">Kosongkan jika ingin sistem mencari secara otomatis berdasarkan judul film.</p>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
-                    <button type="button" onclick="closeWikiImportModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded text-sm transition-colors">Cancel</button>
-                    <button type="submit" id="wiki-import-submit-btn" class="px-4 py-2 bg-blue-900/60 hover:bg-blue-800/80 text-blue-100 border border-blue-500/30 rounded text-sm font-bold transition-colors flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[16px]">cloud_download</span> <span>Mulai Import</span>
+                <div id="wiki-import-status" class="hidden mb-4 p-3 rounded-md text-xs bg-white/5 border border-white/10 flex flex-col gap-2">
+                    <div id="wiki-import-status-text" class="font-semibold text-stone-300">Memproses...</div>
+                    <div id="wiki-import-status-details" class="text-stone-500 font-mono text-[10px] break-all max-h-24 overflow-y-auto custom-scroll"></div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-white/5">
+                    <button type="button" onclick="closeWikiImportModal()" class="px-4 py-2.5 rounded border border-white/5 hover:bg-white/5 text-stone-300 text-sm transition-colors">Batal</button>
+                    <button type="submit" id="wiki-import-submit-btn" class="px-4 py-2.5 gap-1.5 rounded bg-blue-900/60 hover:bg-blue-800/80 text-blue-100 border border-blue-500/30 text-sm font-bold transition-colors flex items-center">
+                        <span class="material-symbols-outlined text-sm">cloud_download</span> Mulai Import
                     </button>
                 </div>
             </form>

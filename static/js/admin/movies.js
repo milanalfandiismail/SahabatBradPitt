@@ -24,10 +24,8 @@ function fetchGenres() {
     return fetchAllGenres().then(all => {
         genresList = all;
         renderFormGenres();
-        const sectionGenres = document.getElementById('section-genres');
-        if (sectionGenres && !sectionGenres.classList.contains('hidden')) {
-            renderGenresTable();
-        }
+        // Always render the genre table — section visibility is handled by core.js
+        if (typeof renderGenresTable === 'function') renderGenresTable();
     });
 }
 

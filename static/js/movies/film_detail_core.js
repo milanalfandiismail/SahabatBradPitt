@@ -161,7 +161,8 @@ document.addEventListener("DOMContentLoaded", function () {
             window.galleryImages = film.images.map(img => img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/original${img.file_path}`);
             film.images.forEach((img, index) => {
                 const imgEl = document.createElement("img");
-                imgEl.className = "w-full h-[150px] object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer";
+                imgEl.className = "w-full h-[150px] object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer animate-fade-up";
+                imgEl.style.animationDelay = `${index * 60}ms`;
                 imgEl.src = img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/w780${img.file_path}`;
                 imgEl.alt = `Galeri`;
                 imgEl.addEventListener("click", () => {

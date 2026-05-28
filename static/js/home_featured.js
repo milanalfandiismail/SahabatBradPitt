@@ -10,14 +10,15 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>`;
     }
 
-    function renderChoiceCard(container, film, isTopRated) {
+    function renderChoiceCard(container, film, isTopRated, idx) {
         container.textContent = "";
 
         const wrap = document.createElement("div");
-        wrap.className = "absolute inset-0 bg-[#201f20] rounded-lg overflow-hidden border border-white/5 shadow-2xl z-10 hover:scale-[1.01] transition-transform duration-300 cursor-pointer";
-        wrap.addEventListener("click", () => {
-            window.location.href = `/movies/${film.id}/`;
-        });
+        wrap.className = `absolute inset-0 bg-[#201f20] rounded-lg overflow-hidden border border-white/5 shadow-2xl z-10 cursor-pointer group
+            hover:scale-[1.02] hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]
+            transition-all duration-400 animate-fade-up`;
+        wrap.style.animationDelay = `${idx * 60}ms`;
+        wrap.addEventListener("click", () => window.renderFilmDetailPanel(film.id));
 
         let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
         if (film.poster) {
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const img = document.createElement("img");
-        img.className = "w-full h-full object-cover opacity-30";
+        img.className = "w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-500";
         img.src = posterUrl;
         img.alt = film.title;
         wrap.appendChild(img);
@@ -40,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         textWrap.className = "absolute bottom-0 left-0 p-6 w-full";
 
         const title = document.createElement("h3");
-        title.className = "font-['Playfair_Display'] text-xl md:text-2xl text-white font-bold mb-2";
+        title.className = "font-['Playfair_Display'] text-xl md:text-2xl text-white font-bold mb-2 drop-shadow-lg";
         title.textContent = film.title;
         textWrap.appendChild(title);
 
@@ -60,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (film.genre_display && film.genre_display.length > 0) {
             const genre = document.createElement("span");
             genre.className = "text-[#D3DAD9] border border-white/10 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider";
-            const genreName = Array.isArray(film.genre_display) 
+            const genreName = Array.isArray(film.genre_display)
                 ? (film.genre_display[0].name || film.genre_display[0])
                 : (film.genre_display.name || film.genre_display);
             genre.textContent = genreName;
@@ -70,7 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
         wrap.appendChild(textWrap);
 
         const shadow = document.createElement("div");
-        shadow.className = `absolute inset-0 bg-[#201f20] rounded-lg border border-white/5 shadow-2xl opacity-40 z-0 transform ${isTopRated ? '-rotate-3 -translate-x-3 translate-y-3' : 'rotate-3 translate-x-3 translate-y-3'}`;
+        shadow.className = `absolute inset-0 bg-[#201f20] rounded-lg border border-white/5 shadow-2xl opacity-40 z-0
+            ${isTopRated ? '-rotate-3 -translate-x-3 translate-y-3' : 'rotate-3 translate-x-3 translate-y-3'}`;
 
         container.appendChild(wrap);
         container.appendChild(shadow);
@@ -90,10 +92,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const trFilm = films[0];
-            renderChoiceCard(trContainer, trFilm, true);
+            renderChoiceCard(trContainer, trFilm, true, 0);
 
             const ecFilm = films.length > 1 ? films[1] : films[0];
-            renderChoiceCard(ecContainer, ecFilm, false);
+            renderChoiceCard(ecContainer, ecFilm, false, 1);
         })
         .catch(err => {
             console.error("Gagal memuat film pilihan:", err);

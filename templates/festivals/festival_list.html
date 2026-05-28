@@ -80,9 +80,10 @@
                         return;
                     }
 
-                    results.forEach(festival => {
+                    results.forEach((festival, idx) => {
                         const article = document.createElement("article");
-                        article.className = "group bg-[#201f20] rounded-lg p-6 border border-white/5 hover:border-[#715A5A]/50 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between";
+                        article.className = "group bg-[#201f20] rounded-lg p-6 border border-white/5 hover:border-[#715A5A]/50 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between animate-fade-up";
+                        article.style.animationDelay = `${idx * 60}ms`;
                         article.addEventListener("click", () => {
                             window.location.href = `/festivals/${festival.id}/`;
                         });

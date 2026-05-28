@@ -1,3 +1,6 @@
+// ============================================================
+// MAIN
+// ============================================================
 document.addEventListener("DOMContentLoaded", function () {
     const carousel = document.getElementById("trending-carousel");
 
@@ -13,12 +16,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        films.slice(0, 5).forEach((film) => {
+        films.slice(0, 5).forEach((film, idx) => {
             const card = document.createElement("div");
-            card.className = "relative w-[200px] md:w-[240px] flex-shrink-0 snap-start group cursor-pointer";
-            card.addEventListener("click", () => {
-                window.location.href = `/movies/${film.id}/`;
-            });
+            card.className = `relative w-[200px] md:w-[240px] flex-shrink-0 snap-start group cursor-pointer animate-fade-up`;
+            card.style.animationDelay = `${idx * 60}ms`;
+            card.addEventListener("click", () => window.renderFilmDetailPanel(film.id));
 
             const inner = document.createElement("div");
             inner.className = "bg-[#37353E] rounded-lg overflow-hidden border border-white/5 group-hover:scale-[1.03] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 aspect-[2/3] relative w-full";
@@ -31,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const img = document.createElement("img");
-            img.className = "w-full h-full object-cover opacity-95 group-hover:opacity-100 transition-opacity";
+            img.className = "w-full h-full object-cover opacity-95 group-hover:opacity-100 transition-opacity duration-300";
             img.src = posterUrl;
             img.alt = film.title;
             inner.appendChild(img);
@@ -40,23 +42,33 @@ document.addEventListener("DOMContentLoaded", function () {
             overlay.className = "absolute inset-0 bg-gradient-to-t from-[#44444E] via-[#44444E]/30 to-transparent opacity-90";
             inner.appendChild(overlay);
 
+            const rankBadge = document.createElement("div");
+            rankBadge.className = "absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center border border-white/10 z-10";
+            rankBadge.textContent = `#${idx + 1}`;
+            inner.appendChild(rankBadge);
+
             const textWrap = document.createElement("div");
             textWrap.className = "absolute bottom-0 left-0 p-4 w-full";
 
             const title = document.createElement("h3");
-            title.className = "font-medium text-white text-sm md:text-base mb-1 truncate";
+            title.className = "font-medium text-white text-sm md:text-base mb-1 truncate group-hover:text-[#F5C518] transition-colors duration-300";
             title.textContent = film.title;
             textWrap.appendChild(title);
 
             const meta = document.createElement("div");
-            meta.className = "flex items-center gap-2 text-xs text-stone-400 flex-wrap";
-            let metaHTML = `<span class="flex items-center text-[#F5C518]"><span class="material-symbols-outlined text-[10px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span> ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}</span> <span>${film.release_year}</span>`;
-            
+            meta.className = "flex flex-wrap items-center gap-2 text-xs text-stone-400";
+
+            let metaHTML = `<span class="flex items-center text-[#F5C518]">
+                <span class="material-symbols-outlined text-[10px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}
+            </span>
+            <span>${film.release_year}</span>`;
+
             if (film.genre_display && film.genre_display.length > 0) {
                 const genreNames = film.genre_display.map(g => g.name || g).join(", ");
                 metaHTML += ` <span class="text-[#D3DAD9]">${genreNames}</span>`;
             }
-            
+
             meta.innerHTML = metaHTML;
             textWrap.appendChild(meta);
 

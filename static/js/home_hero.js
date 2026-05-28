@@ -33,12 +33,30 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("hero-duration").textContent = formatDuration(film.duration);
         document.getElementById("hero-synopsis").textContent = film.synopsis || "Film berkualitas tinggi dari katalog sinema premium.";
         document.getElementById("hero-detail-btn").href = `/movies/${film.id}/`;
-        
-        if (film.genre_display && film.genre_display.length > 0) {
-            const genreNames = film.genre_display.map(g => g.name || g).join(", ");
-            document.getElementById("hero-year").textContent = `${film.release_year || ""} • ${genreNames}`;
-        }
 
+        // Apply stagger animations to content elements
+        const contentElements = heroContent.querySelectorAll('[id]');
+        contentElements.forEach((el, i) => {
+            el.style.animation = 'none';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 100 + i * 80);
+        });
+
+        // Animate poster slide-in
+        heroPoster.style.opacity = '0';
+        heroPoster.style.transform = 'translateX(50px) scale(0.97)';
+        setTimeout(() => {
+            heroPoster.style.transition = 'opacity 0.7s ease-out, transform 0.7s ease-out';
+            heroPoster.style.opacity = '1';
+            heroPoster.style.transform = 'translateX(0) scale(1)';
+        }, 50);
+
+        // Dots
         const dotsEl = document.getElementById("hero-dots");
         dotsEl.textContent = "";
         heroFilms.slice(0, 5).forEach((_, i) => {
@@ -54,6 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         heroLoading.classList.add("hidden");
         heroContent.classList.remove("hidden");
+        heroContent.style.animation = 'fadeIn 0.6s ease-out';
     }
 
     function resetHeroInterval() {
@@ -68,10 +87,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const heroLoading = document.getElementById("hero-loading");
         const heroContent = document.getElementById("hero-content");
         heroLoading.innerHTML = `
-            <div class="max-w-2xl w-full flex flex-col items-start gap-4">
+            <div class="max-w-2xl w-full flex flex-col items-start gap-4 animate-fade-up">
                 <span class="material-symbols-outlined text-6xl text-stone-600">movie_off</span>
                 <h2 class="font-['Playfair_Display'] text-3xl text-stone-400 font-bold">Katalog Kosong</h2>
-                <p class="font-['DM_Sans'] text-stone-500 text-sm">Belum ada film di database. Jalankan perintah sync TMDB untuk mengisi katalog.</p>
+                <p class="font-['DM_Sans'] text-stone-500 text-sm">Belum ada film di database.</p>
                 <code class="text-xs bg-white/5 text-stone-400 px-3 py-2 rounded border border-white/10">python manage.py sync_tmdb --all-actors</code>
             </div>`;
     }

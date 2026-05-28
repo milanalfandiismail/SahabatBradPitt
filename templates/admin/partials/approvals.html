@@ -1,5 +1,6 @@
 <!-- ======================= 4. APPROVALS SECTION ======================= -->
 <div id="section-approvals" style="display:none" class="flex flex-col gap-8">
+    <!-- Header -->
     <div class="flex justify-between items-center border-b border-white/5 pb-6">
         <div class="flex flex-col gap-1">
             <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Persetujuan Konten</h1>
@@ -7,31 +8,53 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex gap-2 border-b border-white/5">
-        <button onclick="showApprovalTab('films')" class="tab-btn px-4 py-3 text-sm font-medium text-stone-200 border-b-2 border-[#715A5A] hover:text-white transition-all active">
-            <span class="material-symbols-outlined text-sm align-middle mr-1">movie</span> Film Menunggu Persetujuan
-        </button>
-        <button onclick="showApprovalTab('actors')" class="tab-btn px-4 py-3 text-sm font-medium text-stone-400 border-b-2 border-transparent hover:text-white transition-all">
-            <span class="material-symbols-outlined text-sm align-middle mr-1">person</span> Aktor Menunggu Persetujuan
-        </button>
-    </div>
-
-    <!-- Films Tab -->
-    <div id="approval-films-tab" class="flex flex-col gap-4">
-        <div id="pending-films-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><!-- Pending films --></div>
-        <div id="pending-films-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
-            <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
-            Tidak ada film yang menunggu persetujuan.
+    <!-- Controls Bar -->
+    <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Tab Switcher -->
+        <div class="flex gap-2">
+            <button onclick="showApprovalTab('films')" id="tab-btn-films" class="px-4 py-2.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 bg-[#715A5A] border-[#715A5A] text-white">
+                <span class="material-symbols-outlined text-sm">movie</span> Film
+                <span id="pending-films-count" class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] font-bold hidden">0</span>
+            </button>
+            <button onclick="showApprovalTab('actors')" id="tab-btn-actors" class="px-4 py-2.5 text-xs font-semibold rounded-md border border-white/10 text-stone-300 hover:border-[#715A5A] hover:text-white hover:bg-white/5 transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">person</span> Aktor
+                <span id="pending-actors-count" class="bg-white/10 px-1.5 py-0.5 rounded text-[10px] font-bold hidden">0</span>
+            </button>
+        </div>
+        <div class="text-xs text-[#c9c5cb]/50 font-['DM_Sans']">
+            <span class="text-[#715A5A]">★</span> Superadmin only — Klik Detail untuk melihat metadata lengkap
         </div>
     </div>
 
-    <!-- Actors Tab -->
+    <!-- Films Tab Content -->
+    <div id="approval-films-tab" class="flex flex-col gap-4">
+        <div id="pending-films-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <!-- Pending film cards -->
+        </div>
+        <div id="pending-films-loading" class="hidden py-12 flex flex-col items-center justify-center gap-3 text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+            <p class="text-xs font-['DM_Sans']">Memuat film pending...</p>
+        </div>
+        <div id="pending-films-empty" class="hidden flex flex-col items-center justify-center py-16 gap-3 text-[#c9c5cb]/40">
+            <span class="material-symbols-outlined text-5xl">check_circle</span>
+            <p class="text-sm font-['DM_Sans']">Tidak ada film yang menunggu persetujuan.</p>
+            <p class="text-xs text-[#c9c5cb]/30">Semua film sudah diproses.</p>
+        </div>
+    </div>
+
+    <!-- Actors Tab Content -->
     <div id="approval-actors-tab" class="hidden flex flex-col gap-4">
-        <div id="pending-actors-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><!-- Pending actors --></div>
-        <div id="pending-actors-empty" class="hidden text-center py-8 text-[#c9c5cb]/50">
-            <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
-            Tidak ada aktor yang menunggu persetujuan.
+        <div id="pending-actors-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <!-- Pending actor cards -->
+        </div>
+        <div id="pending-actors-loading" class="hidden py-12 flex flex-col items-center justify-center gap-3 text-[#c9c5cb]">
+            <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
+            <p class="text-xs font-['DM_Sans']">Memuat aktor pending...</p>
+        </div>
+        <div id="pending-actors-empty" class="hidden flex flex-col items-center justify-center py-16 gap-3 text-[#c9c5cb]/40">
+            <span class="material-symbols-outlined text-5xl">check_circle</span>
+            <p class="text-sm font-['DM_Sans']">Tidak ada aktor yang menunggu persetujuan.</p>
+            <p class="text-xs text-[#c9c5cb]/30">Semua sineas sudah diproses.</p>
         </div>
     </div>
 </div>

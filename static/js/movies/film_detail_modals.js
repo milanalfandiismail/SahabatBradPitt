@@ -21,6 +21,7 @@ window.openTrailerModal = function(trailerUrl) {
         const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&vq=hd1080&rel=0&fs=1&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}&enablejsapi=1`;
         container.innerHTML = `<iframe id="trailer-iframe" class="absolute inset-0 w-full h-full" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
         modal.classList.remove('hidden');
+        modal.classList.add('animate-scale-in');
         document.body.style.overflow = 'hidden';
     } else if (trailerUrl && trailerUrl.startsWith('http')) {
         window.open(trailerUrl, '_blank');
@@ -48,7 +49,10 @@ window.openGalleryLightbox = function(index) {
     const modal = document.getElementById('gallery-modal');
     document.getElementById('gallery-modal-img').src = window.galleryImages[currentGalleryIndex];
     _updateGalleryCounter();
-    if(modal) modal.classList.remove('hidden');
+    if(modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('animate-scale-in');
+    }
     document.body.style.overflow = 'hidden';
 }
 

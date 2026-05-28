@@ -29,12 +29,10 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("rank-1-synopsis").textContent = f1.synopsis || "Sinopsis tidak tersedia.";
             document.getElementById("backdrop-banner").style.backgroundImage = `url('${poster1}')`;
             
-            document.getElementById("rank-1-card").addEventListener("click", () => {
-                window.location.href = `/movies/${f1.id}/`;
-            });
+            document.getElementById("rank-1-card").addEventListener("click", () => window.renderFilmDetailPanel(f1.id));
             document.getElementById("rank-1-btn").addEventListener("click", (e) => {
                 e.stopPropagation();
-                window.location.href = `/movies/${f1.id}/`;
+                window.renderFilmDetailPanel(f1.id);
             });
 
             if (films.length > 1) {
@@ -51,9 +49,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("rank-2-year").textContent = rank2YearText;
                 document.getElementById("rank-2-synopsis").textContent = f2.synopsis || "Sinopsis tidak tersedia.";
                 
-                document.getElementById("rank-2-card").addEventListener("click", () => {
-                    window.location.href = `/movies/${f2.id}/`;
-                });
+                document.getElementById("rank-2-card").addEventListener("click", () => window.renderFilmDetailPanel(f2.id));
             } else {
                 document.getElementById("rank-2-card").classList.add("hidden");
             }
@@ -72,9 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("rank-3-year").textContent = rank3YearText;
                 document.getElementById("rank-3-synopsis").textContent = f3.synopsis || "Sinopsis tidak tersedia.";
                 
-                document.getElementById("rank-3-card").addEventListener("click", () => {
-                    window.location.href = `/movies/${f3.id}/`;
-                });
+                document.getElementById("rank-3-card").addEventListener("click", () => window.renderFilmDetailPanel(f3.id));
             } else {
                 document.getElementById("rank-3-card").classList.add("hidden");
             }
@@ -86,13 +80,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
+            // Animate spotlight section entrance
+            const spotlightCard1 = document.getElementById("rank-1-card");
+            const spotlightCard2 = document.getElementById("rank-2-card");
+            const spotlightCard3 = document.getElementById("rank-3-card");
+            [spotlightCard1, spotlightCard2, spotlightCard3].forEach((el, i) => {
+                if (!el) return;
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                el.classList.remove('hidden');
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 200 + i * 60);
+            });
+
+            // Rising items with stagger
             risingFilms.forEach((film, index) => {
                 const rankNum = index + 4;
                 const item = document.createElement("div");
-                item.className = "group flex items-center gap-6 p-4 rounded-xl bg-[#201f20]/50 border border-transparent hover:border-white/5 hover:bg-[#201f20] transition-all cursor-pointer";
-                item.addEventListener("click", () => {
-                    window.location.href = `/movies/${film.id}/`;
-                });
+                item.className = "group flex items-center gap-6 p-4 rounded-xl bg-[#201f20]/50 border border-transparent hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 hover:bg-[#201f20] transition-all cursor-pointer animate-fade-up";
+                item.style.animationDelay = `${index * 60}ms`;
+                item.addEventListener("click", () => window.renderFilmDetailPanel(film.id));
 
                 const num = document.createElement("div");
                 num.className = "text-2xl font-serif font-bold text-stone-600 w-12 text-center group-hover:text-[#715A5A] transition-colors";

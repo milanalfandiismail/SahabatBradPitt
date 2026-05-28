@@ -47,9 +47,10 @@ function fetchActors(page = 1) {
 function renderActorsTable(actors) {
     const actorsTableBody = document.getElementById('actors-table-body');
     actorsTableBody.textContent = "";
-    actors.forEach(actor => {
+    actors.forEach((actor, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans'] animate-fade-up";
+        tr.style.animationDelay = `${idx * 60}ms`;
 
         const tdPhoto = document.createElement('td');
         tdPhoto.className = "p-4 text-center align-middle w-[80px]";
@@ -230,15 +231,57 @@ function deleteActor(id, name) {
 }
 
 // ---- Genres ----
+async function fetchAllGenres(url = '/api/films/genres/', allGenres = []) {
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+            allGenres = allGenres.concat(data);
+        } else if (data.results) {
+            allGenres = allGenres.concat(data.results);
+            if (data.next) return fetchAllGenres(data.next, allGenres);
+        }
+        return allGenres;
+    } catch (err) {
+        console.error("Error loading genres:", err);
+        return allGenres;
+    }
+}
+
+function fetchGenres() {
+    const genresTableBody = document.getElementById('genres-table-body');
+    const genresEmpty = document.getElementById('genres-empty');
+    const genresLoading = document.getElementById('genres-loading');
+    if (!genresTableBody) return;
+    genresTableBody.textContent = '';
+    genresEmpty?.classList.add('hidden');
+    genresLoading?.classList.remove('hidden');
+
+    fetchAllGenres().then(all => {
+        genresLoading?.classList.add('hidden');
+        genresList = all;
+        if (genresList.length === 0) {
+            genresEmpty?.classList.remove('hidden');
+            return;
+        }
+        renderGenresTable();
+    }).catch(() => {
+        genresLoading?.classList.add('hidden');
+        genresEmpty?.classList.remove('hidden');
+        showToast('Gagal memuat daftar genre.', 'error');
+    });
+}
+
 function renderGenresTable() {
     const genresTableBody = document.getElementById('genres-table-body');
     const genresEmpty = document.getElementById('genres-empty');
     genresTableBody.textContent = "";
     genresEmpty.classList.add('hidden');
     if (genresList.length === 0) { genresEmpty.classList.remove('hidden'); return; }
-    genresList.forEach(genre => {
+    genresList.forEach((genre, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
+        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans'] animate-fade-up";
+        tr.style.animationDelay = `${idx * 60}ms`;
 
         const tdName = document.createElement('td');
         tdName.className = "p-4 font-semibold text-stone-200 text-sm align-middle";

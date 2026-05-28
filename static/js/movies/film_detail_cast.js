@@ -89,7 +89,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     const expandBtn = document.getElementById("cast-expand-btn");
                     if (expandBtn && expandContainer) {
                         expandContainer.classList.remove("hidden");
-                        expandBtn.onclick = () => { showAll = !showAll; renderCast(); expandBtn.textContent = showAll ? "Sembunyikan Tokoh" : "Lihat Semua Pemain & Sutradara"; };
+                        expandBtn.onclick = () => { 
+                            showAll = !showAll; 
+                            renderCast(); 
+                            expandBtn.textContent = showAll ? "Sembunyikan Tokoh" : "Lihat Semua Pemain & Sutradara"; 
+                            
+                            if (!showAll) {
+                                const castListEl = document.getElementById("cast-list");
+                                if (castListEl) {
+                                    const y = castListEl.getBoundingClientRect().top + window.scrollY - 120;
+                                    window.scrollTo({ top: y, behavior: 'smooth' });
+                                }
+                            }
+                        };
                     }
                 }
             });

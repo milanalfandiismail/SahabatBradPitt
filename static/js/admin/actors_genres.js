@@ -49,8 +49,7 @@ function renderActorsTable(actors) {
     actorsTableBody.textContent = "";
     actors.forEach((actor, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans'] animate-fade-up";
-        tr.style.animationDelay = `${idx * 60}ms`;
+        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans']";
 
         const tdPhoto = document.createElement('td');
         tdPhoto.className = "p-4 text-center align-middle w-[80px]";
@@ -280,8 +279,7 @@ function renderGenresTable() {
     if (genresList.length === 0) { genresEmpty.classList.remove('hidden'); return; }
     genresList.forEach((genre, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans'] animate-fade-up";
-        tr.style.animationDelay = `${idx * 60}ms`;
+        tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans']";
 
         const tdName = document.createElement('td');
         tdName.className = "p-4 font-semibold text-stone-200 text-sm align-middle";

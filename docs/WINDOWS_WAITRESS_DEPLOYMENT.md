@@ -1,0 +1,81 @@
+# Panduan Deployment di Windows Menggunakan Waitress
+
+Panduan ini ditujukan jika Anda ingin menjalankan aplikasi Django SahabatBradPitt secara *production* secara langsung di sistem operasi Windows (misalnya di Windows Server, atau komputer lokal Windows Anda).
+
+Gunicorn **tidak mendukung** OS Windows. Sebagai gantinya, standar industri untuk WSGI server di Windows adalah menggunakan **Waitress**.
+
+---
+
+## Tahap 1: Instalasi Library
+Pastikan Anda sudah berada di dalam folder project dan telah mengaktifkan *virtual environment* Anda (di CMD atau PowerShell).
+
+```powershell
+# Aktifkan virtual environment (contoh jika folder bernama venv)
+.\venv\Scripts\activate
+
+# Install requirements bawaan
+pip install -r requirements.txt
+
+# Install waitress
+pip install waitress
+```
+
+## Tahap 2: Konfigurasi `.env` & Persiapan Aplikasi
+Buat file `.env` (bisa meng-copy dari `.env.example`) dan pastikan `DEBUG` diset ke `False`.
+
+```ini
+DEBUG=False
+SECRET_KEY=masukkan_kunci_rahasia_yang_panjang_disini
+# Masukkan IP Windows Anda, atau localhost jika hanya diakses lokal
+ALLOWED_HOSTS=127.0.0.1,localhost,ip_windows_anda
+TMDB_API_KEY=key_tmdb_anda
+```
+
+Siapkan database dan gabungkan (*collect*) file statis:
+```powershell
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py createsuperuser
+```
+
+## Tahap 3: Menjalankan Server dengan Waitress (Mode Production/Stabil)
+Jalankan aplikasi Anda menggunakan Waitress melalui port 8000. Karena Anda menggunakannya untuk *Production* di balik Cloudflare Tunnel, sangat disarankan menggunakan parameter performa tinggi agar server tidak mudah *down* saat ramai pengunjung.
+
+```powershell
+waitress-serve --port=8000 --url-scheme=https --threads=8 --connection-limit=200 --channel-timeout=60 config.wsgi:application
+```
+
+**Penjelasan Parameter Performa:**
+- `--url-scheme=https`: Wajib untuk Cloudflare Tunnel agar tidak terkena *error* CSRF 403.
+- `--threads=8`: Meningkatkan jumlah pekerja paralel (Defaultnya hanya 4). Cocok untuk menangani banyak pengunjung sekaligus. (Bisa dinaikkan menjadi 12 atau 16 jika CPU Anda kuat).
+- `--connection-limit=200`: Mengizinkan maksimal 200 koneksi antrean secara bersamaan (Defaultnya 100).
+- `--channel-timeout=60`: Memutus koneksi pengunjung yang nyangkut/ngelag lebih dari 60 detik agar tidak membebani memori server (mencegah serangan *Slowloris*).
+
+Jika tidak ada pesan error di terminal, artinya server Anda sudah berjalan dengan baik. Buka browser dan akses `http://localhost:8000` (atau IP Windows Anda).
+
+---
+
+## Tahap Lanjutan: Membuat Waitress Jalan Otomatis (Background Service)
+
+Di Windows, Anda tidak memiliki *Systemd*. Jika Anda ingin Waitress berjalan otomatis di *background* setiap kali server dinyalakan tanpa harus membuka terminal hitam terus-menerus, Anda bisa menggunakan bantuan *Task Scheduler* atau *NSSM (Non-Sucking Service Manager)*.
+
+### Menggunakan NSSM (Sangat Direkomendasikan)
+1. Download NSSM dari [nssm.cc](http://nssm.cc/).
+2. Ekstrak dan buka CMD sebagai Administrator.
+3. Jalankan perintah instalasi service:
+   ```cmd
+   nssm install SahabatBradPitt
+   ```
+6. Jendela GUI NSSM akan terbuka. Isi konfigurasinya:
+   - **Path:** `C:\path\ke\project\Anda\venv\Scripts\waitress-serve.exe`
+   - **Arguments:** `--port=8000 --url-scheme=https --threads=8 --connection-limit=200 --channel-timeout=60 config.wsgi:application`
+   - **Directory:** `C:\path\ke\project\Anda`
+
+> [!CAUTION]
+> **Sangat Penting:** Kolom **Directory** (Startup directory) WAJIB diisi dengan alamat folder utama project Anda (tempat `manage.py` berada). Jika tidak diubah, NSSM akan menggunakan folder `Scripts` dan *service* Waitress Anda akan langsung **CRASH** (gagal berjalan).
+
+7. Klik **Install service**.
+8. Sekarang Anda bisa menyalakan/mematikan web server Anda melalui **Windows Services** (`services.msc`) layaknya service Windows biasa!
+
+## Selesai!
+Aplikasi Anda kini sudah siap menerima *traffic production* di ekosistem Windows. File statis (CSS/JS) akan di-handle secara otomatis oleh `WhiteNoise` yang sebelumnya sudah dikonfigurasi di `base.py`.

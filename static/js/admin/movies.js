@@ -100,7 +100,7 @@ function fetchFilms(page = 1) {
 function renderFilmsTable(films) {
     const filmsTableBody = document.getElementById('films-table-body');
     filmsTableBody.textContent = "";
-    films.forEach(film => {
+    films.forEach((film, idx) => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors font-['DM_Sans']";
 

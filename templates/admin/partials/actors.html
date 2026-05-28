@@ -5,20 +5,20 @@
             <h1 class="font-['Playfair_Display'] text-3xl text-stone-100 font-bold tracking-tight">Kelola Sineas (Aktor & Sutradara)</h1>
             <p class="font-['DM_Sans'] text-xs text-[#c9c5cb]/70">Tambah, edit, dan hapus profil sineas untuk filmography database.</p>
         </div>
-        <button id="add-actor-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1 shadow-md" type="button">
-            <span class="material-symbols-outlined text-sm">person_add</span> Tambah Sineas
-        </button>
     </div>
 
     <div id="view-actors-manage" class="flex flex-col gap-8">
         <!-- Controls Bar -->
         <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="relative w-full sm:w-[60%] flex items-center">
-            <span id="actor-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
-            <input id="actor-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-[70px] text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari sineas berdasarkan nama atau nama asli..." type="text" />
-            <button id="actor-search-submit-btn" class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] font-semibold px-2.5 py-1.5 rounded transition-all">Cari</button>
+            <div class="relative w-full sm:w-[60%] flex items-center">
+                <span id="actor-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+                <input id="actor-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 pl-10 pr-[70px] text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari sineas berdasarkan nama atau nama asli..." type="text" />
+                <button id="actor-search-submit-btn" class="absolute right-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] font-semibold px-2.5 py-1.5 rounded transition-all">Cari</button>
+            </div>
+            <button id="add-actor-btn" class="w-full sm:w-auto px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center justify-center gap-1.5 shadow-md" type="button">
+                <span class="material-symbols-outlined text-sm">person_add</span> Tambah Sineas
+            </button>
         </div>
-    </div>
 
     <!-- Table of Actors -->
     <div class="bg-[#201f20] rounded-lg border border-white/5 shadow-md overflow-hidden flex flex-col">

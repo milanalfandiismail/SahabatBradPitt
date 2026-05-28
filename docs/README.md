@@ -1,23 +1,30 @@
-# 🎬 SahabatBradPitt - Movie Database Platform
+# 📚 SahabatBradPitt Documentation
 
-**A modern, feature-rich movie database platform built with Django REST Framework and vanilla JavaScript.**
+**Welcome! Panduan lengkap untuk project SahabatBradPitt.**
 
 ---
 
-## 📚 Documentation
-
-Welcome to the SahabatBradPitt documentation! This guide will help you understand the project architecture, API endpoints, and how to implement new features.
-
-### Quick Navigation
+## 📖 Quick Navigation
 
 | Document | Purpose |
 |----------|---------|
-| **[TECH_STACK.md](./TECH_STACK.md)** | Technology stack and dependencies |
-| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | System design and architecture |
-| **[API.md](./API.md)** | Complete API reference |
-| **[DATABASE.md](./DATABASE.md)** | Database schema and relationships |
+| **[DEVELOPMENT.md](./DEVELOPMENT.md)** | Local development quick start |
+| **[CODEBASE_DOCUMENTATION.md](./CODEBASE_DOCUMENTATION.md)** | Comprehensive codebase docs |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | System architecture & patterns |
+| **[API.md](./API.md)** | Complete REST API reference |
+| **[DATABASE.md](./DATABASE.md)** | Database schema & models |
 | **[GUIDES.md](./GUIDES.md)** | Implementation guides |
-| **[DEPLOYMENT.md](./DEPLOYMENT.md)** | Deployment instructions |
+| **[DEPLOYMENT.md](./DEPLOYMENT.md)** | Deployment guide (all platforms) |
+| **[RBAC_ROLE_SYSTEM.md](./RBAC_ROLE_SYSTEM.md)** | Role-based access control |
+
+## 🌐 Platform-Specific Deployment
+
+| Platform | Guide |
+|----------|-------|
+| Windows (Waitress) | [WINDOWS_WAITRESS_DEPLOYMENT.md](./WINDOWS_WAITRESS_DEPLOYMENT.md) |
+| Docker | [DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md) |
+| VPS + Nginx | [VPS_NGINX_DEPLOYMENT.md](./VPS_NGINX_DEPLOYMENT.md) |
+| PythonAnywhere | [PYTHONANYWHERE_DEPLOYMENT.md](./PYTHONANYWHERE_DEPLOYMENT.md) |
 
 ---
 
@@ -80,8 +87,11 @@ python manage.py runserver
 
 ### 4. **Recommendation System**
 - TOPSIS-based film recommendations
-- Genre, era, and duration matching
-- Personalized suggestions
+- Hybrid approach (Expert System + SPK)
+- Genre, era, duration, and rating matching
+- Personalized suggestions based on user preferences
+- Content-based similarity (find similar films)
+- User preference profiles
 
 ### 5. **User Reviews & Ratings**
 - Rate films (1-10 stars)

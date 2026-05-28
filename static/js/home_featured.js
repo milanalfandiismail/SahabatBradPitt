@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const ecContainer = document.getElementById("editors-choice-container");
     const trContainer = document.getElementById("top-rated-container");
+    if (!ecContainer || !trContainer) return;
 
     function showEmptyCard(container, message) {
         container.innerHTML = `
@@ -13,12 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderChoiceCard(container, film, isTopRated, idx) {
         container.textContent = "";
 
-        const wrap = document.createElement("div");
+        const wrap = document.createElement("a");
+        wrap.href = `/movies/${film.id}/`;
         wrap.className = `absolute inset-0 bg-[#201f20] rounded-lg overflow-hidden border border-white/5 shadow-2xl z-10 cursor-pointer group
             hover:scale-[1.02] hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)]
-            transition-all duration-400 animate-fade-up`;
+            transition-all duration-400 animate-fade-up block`;
         wrap.style.animationDelay = `${idx * 60}ms`;
-        wrap.addEventListener("click", () => window.renderFilmDetailPanel(film.id));
 
         let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
         if (film.poster) {

@@ -12,8 +12,21 @@
 </div>
 
 <div id="detail-wrapper" class="hidden">
-    <!-- Hero Backdrop -->
+
     <section class="relative w-full h-[450px] overflow-hidden">
+        <!-- Breadcrumbs inside hero top -->
+        <div class="absolute top-0 left-0 w-full z-30 pt-6">
+            <div class="max-w-[1440px] mx-auto px-6 md:px-12">
+                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs">
+                    <a class="hover:text-white transition-colors" href="/">Home</a>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    <a class="hover:text-white transition-colors" href="/movies/">Movies</a>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    <span class="text-white font-semibold" id="bc-name">Detail</span>
+                </nav>
+            </div>
+        </div>
+        
         <div id="backdrop-img" class="absolute inset-0 z-0 bg-cover bg-center blur-sm transform scale-105 opacity-40"></div>
         <div class="absolute inset-0 z-10 bg-gradient-to-t from-[#37353E] via-[#37353E]/85 to-transparent"></div>
 

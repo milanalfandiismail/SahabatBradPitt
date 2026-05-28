@@ -68,12 +68,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         } else {
-            window.location.replace('/login/');
+            loadingShield.classList.add('hidden');
+            document.getElementById('admin-access-denied')?.classList.remove('hidden');
         }
     })
     .catch(err => {
-        console.error(err);
-        window.location.replace('/login/');
+        console.error('Auth check failed:', err);
+        loadingShield.classList.add('hidden');
+        // Session might be expired — show access denied message
+        const deniedEl = document.getElementById('admin-access-denied');
+        if (deniedEl) {
+            deniedEl.classList.remove('hidden');
+            const msg = deniedEl.querySelector('p');
+            if (msg) msg.textContent = 'Autentikasi gagal. Sesi mungkin expired. Silakan login ulang.';
+        }
     });
 
     // Sidebar event listeners

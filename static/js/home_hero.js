@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const heroPoster = document.getElementById("hero-poster");
         const heroContent = document.getElementById("hero-content");
         const heroLoading = document.getElementById("hero-loading");
+        
+        // Safety check if elements don't exist (e.g. navigated to another page via SPA)
+        if (!heroPoster || !heroContent) return;
 
         let posterUrl = "";
         if (film.poster) {
@@ -73,6 +76,27 @@ document.addEventListener("DOMContentLoaded", function () {
         heroLoading.classList.add("hidden");
         heroContent.classList.remove("hidden");
         heroContent.style.animation = 'fadeIn 0.6s ease-out';
+    }
+
+    const prevBtn = document.getElementById("hero-prev-btn");
+    const nextBtn = document.getElementById("hero-next-btn");
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            if (heroFilms.length === 0) return;
+            heroIndex = (heroIndex - 1 + Math.min(heroFilms.length, 5)) % Math.min(heroFilms.length, 5);
+            renderHero(heroFilms[heroIndex]);
+            resetHeroInterval();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            if (heroFilms.length === 0) return;
+            heroIndex = (heroIndex + 1) % Math.min(heroFilms.length, 5);
+            renderHero(heroFilms[heroIndex]);
+            resetHeroInterval();
+        });
     }
 
     function resetHeroInterval() {

@@ -1,11 +1,13 @@
 import os
 import uuid
-from rest_framework import viewsets, permissions, status
+import threading
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Count, Avg, Sum
+from django.db.models import Count, Avg, Sum, Q
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.cache import cache
 
 from apps.films.models import Film, Genre, FilmImage
 from apps.films.serializers import FilmSerializer, GenreSerializer, FilmImageSerializer
@@ -97,31 +99,59 @@ class FilmViewSetBase(viewsets.ModelViewSet):
         
         instance.delete()
 
+def run_sync_task(actor_id, min_rating):
+    cache.set('sync_task_status', {'status': 'running', 'actor_id': actor_id}, timeout=3600)
+    try:
+        from apps.films.services.main_service import TMDBService
+        service = TMDBService()
+        synced_count = service.sync_actor_movies(actor_id=actor_id, min_rating=min_rating)
+        cache.set('sync_task_status', {'status': 'completed', 'synced_count': synced_count, 'actor_id': actor_id}, timeout=300)
+    except Exception as e:
+        cache.set('sync_task_status', {'status': 'error', 'error': str(e), 'actor_id': actor_id}, timeout=300)
+
 class FilmActionsMixin:
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAdminUser])
     def sync(self, request):
-        actor_id = request.data.get('actor_id', 287)
-        limit = request.data.get('limit', None)
+        actor_id = request.data.get('actor_id')
+        min_rating = request.data.get('min_rating', 7.0)
+
+        if not actor_id:
+            return Response({"error": "Parameter actor_id harus diisi."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             actor_id = int(actor_id)
         except ValueError:
             return Response({"error": "Parameter actor_id harus berupa angka."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if limit is not None:
-            try:
-                limit = int(limit)
-            except ValueError:
-                return Response({"error": "Parameter limit harus berupa angka."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            min_rating = float(min_rating)
+        except ValueError:
+            return Response({"error": "Parameter min_rating harus berupa angka/desimal."}, status=status.HTTP_400_BAD_REQUEST)
 
-        service = TMDBService()
-        synced_count = service.sync_actor_movies(actor_id=actor_id, limit=limit)
+        current_status = cache.get('sync_task_status')
+        if current_status and current_status.get('status') == 'running':
+            return Response({"error": "Sinkronisasi lain sedang berjalan."}, status=status.HTTP_400_BAD_REQUEST)
+
+        thread = threading.Thread(target=run_sync_task, args=(actor_id, min_rating))
+        thread.daemon = True
+        thread.start()
         
         return Response({
-            "message": "Sinkronisasi berhasil diselesaikan.",
-            "synced_count": synced_count,
-            "mocked": not service.is_configured()
+            "message": "Sinkronisasi berjalan di background.",
+            "status": "running"
         }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def sync_status(self, request):
+        status_data = cache.get('sync_task_status')
+        if not status_data:
+            return Response({"status": "idle"}, status=status.HTTP_200_OK)
+        
+        # Auto-clear status if completed or error so we don't keep showing it
+        if status_data.get('status') in ['completed', 'error']:
+            cache.delete('sync_task_status')
+            
+        return Response(status_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def stats(self, request):

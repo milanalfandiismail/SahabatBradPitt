@@ -104,7 +104,7 @@ function renderFestivalsTable(festivals) {
         const loc = [fest.city, fest.country].filter(Boolean).join(', ') || '—';
 
         const tr = document.createElement('tr');
-        tr.className = `border-b border-white/5 hover:bg-white/[0.03] transition-colors group animate-fade-up stagger-${Math.min(idx + 1, 20)}`;
+        tr.className = `border-b border-white/5 hover:bg-white/[0.03] transition-colors group`;
 
         tr.innerHTML = `
             <td class="p-4 text-center align-middle shrink-0">
@@ -205,15 +205,14 @@ function openFestivalEditor() {
     }
 
     document.getElementById('festival-editor-title').textContent = 'Tambah Festival Baru';
-    document.getElementById('festival-editor-title').classList.add('hidden');  // hide sub-view management view
-    document.getElementById('section-festivals').style.display = 'none';
+    document.getElementById('festival-editor-title').classList.remove('hidden');
+    document.getElementById('view-festivals-manage').classList.add('hidden');
     document.getElementById('view-festival-editor').classList.remove('hidden');
-    document.getElementById('view-festival-editor').classList.add('animate-fade-up');
 }
 
 function closeFestivalEditor() {
     document.getElementById('view-festival-editor').classList.add('hidden');
-    document.getElementById('section-festivals').style.display = 'flex';
+    document.getElementById('view-festivals-manage').classList.remove('hidden');
 }
 
 // =============================================
@@ -263,9 +262,9 @@ function _populateFestivalEditor(fest) {
     }
 
     document.getElementById('festival-editor-title').textContent = 'Sunting Festival';
-    document.getElementById('section-festivals').style.display = 'none';
+    document.getElementById('festival-editor-title').classList.remove('hidden');
+    document.getElementById('view-festivals-manage').classList.add('hidden');
     document.getElementById('view-festival-editor').classList.remove('hidden');
-    document.getElementById('view-festival-editor').classList.add('animate-fade-up');
 }
 
 // =============================================
@@ -334,7 +333,6 @@ function openWikiImportModal() {
     const statusDiv = document.getElementById('wiki-import-status');
     if (statusDiv) statusDiv.classList.add('hidden');
     document.getElementById('wiki-import-modal').classList.remove('hidden');
-    document.getElementById('wiki-import-modal').classList.add('animate-scale-in');
 
     secureFetch('/api/films/?limit=100')
         .then(res => res.json())

@@ -3,9 +3,18 @@
 {% block title %}Sahabat Bradpitt - AI Film Recommendations{% endblock %}
 
 {% block content %}
-<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto flex flex-col lg:flex-row gap-12">
-    {% include "movies/partials/recommendations_form.html" %}
-    {% include "movies/partials/recommendations_feed.html" %}
+<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto">
+    <!-- Breadcrumbs -->
+    <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs mb-6">
+        <a class="hover:text-white transition-colors" href="/">Home</a>
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        <span class="text-white">Recommendations</span>
+    </nav>
+    
+    <div class="flex flex-col lg:flex-row gap-12">
+        {% include "movies/partials/recommendations_form.html" %}
+        {% include "movies/partials/recommendations_feed.html" %}
+    </div>
 </main>
 {% endblock %}
 

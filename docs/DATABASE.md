@@ -45,15 +45,18 @@ User (1) ──── (M) Rating
 | `release_year` | INTEGER | NULL | Release year |
 | `trailer_url` | VARCHAR(500) | | YouTube trailer URL |
 | `poster_path` | VARCHAR(255) | | TMDB poster path |
+| `poster` | IMAGE | NULL | Local uploaded poster |
 | `duration` | INTEGER | NULL | Duration in minutes |
 | `popularity` | FLOAT | DEFAULT 0.0 | TMDB popularity score |
 | `avg_rating` | FLOAT | DEFAULT 0.0 | Average user rating |
-| `status` | VARCHAR(20) | DEFAULT 'published' | draft/pending/published/rejected |
+| `status` | VARCHAR(20) | DEFAULT 'published' | draft/pending_approval/published/rejected |
 | `rejection_reason` | TEXT | | Reason for rejection |
 | `is_local_edit` | BOOLEAN | DEFAULT FALSE | Has local modifications |
-| `studio_id` | INTEGER | FK | Studio reference |
-| `created_by_id` | INTEGER | FK, NULL | Admin who created |
-| `updated_by_id` | INTEGER | FK, NULL | Admin who updated |
+| `studio_id` | INTEGER | FK (Studio) | Studio reference |
+| `created_by_id` | INTEGER | FK (User), NULL | Admin who created |
+| `updated_by_id` | INTEGER | FK (User), NULL | Admin who updated |
+| `is_tv_series` | BOOLEAN | DEFAULT FALSE | Is TV series |
+| `episodes_count` | INTEGER | NULL | Number of episodes (for TV series) |
 | `created_at` | DATETIME | AUTO | Creation timestamp |
 | `updated_at` | DATETIME | AUTO | Update timestamp |
 
@@ -100,9 +103,28 @@ User (1) ──── (M) Rating
 |--------|------|-------------|-------------|
 | `id` | INTEGER | PRIMARY KEY | Unique identifier |
 | `tmdb_id` | INTEGER | UNIQUE, NOT NULL | TMDB actor ID |
-| `name` | VARCHAR(255) | NOT NULL | Actor name |
-| `biography` | TEXT | | Actor biography |
-| `profile_path` | VARCHAR(255) | | TMDB profile image |
+| `name` | VARCHAR(255) | NOT NULL | Actor name (with native format) |
+| `native_name` | VARCHAR(255) | DEFAULT '' | Native name for non-Latin actors |
+| `bio` | TEXT | | Actor biography |
+| `birth_year` | INTEGER | NULL | Birth year |
+| `birthday` | DATE | NULL | Birth date |
+| `deathday` | DATE | NULL | Death date |
+| `place_of_birth` | VARCHAR(255) | | Birth place |
+| `gender` | INTEGER | NULL | 0=Not specified, 1=Female, 2=Male, 3=Non-binary |
+| `known_for_department` | VARCHAR(255) | | Department (Acting, Directing, etc.) |
+| `photo_path` | VARCHAR(255) | | TMDB profile image path |
+| `photo` | IMAGE | NULL | Local uploaded photo |
+| `instagram_id` | VARCHAR(255) | NULL | Instagram username |
+| `twitter_id` | VARCHAR(255) | NULL | Twitter/X username |
+| `facebook_id` | VARCHAR(255) | NULL | Facebook username |
+| `tiktok_id` | VARCHAR(255) | NULL | TikTok username |
+| `status` | VARCHAR(20) | DEFAULT 'published' | draft/pending_approval/published/rejected |
+| `rejection_reason` | TEXT | | Reason for rejection |
+| `is_local_edit` | BOOLEAN | DEFAULT FALSE | Has local modifications |
+| `created_by_id` | INTEGER | FK (User), NULL | Admin who created |
+| `updated_by_id` | INTEGER | FK (User), NULL | Admin who updated |
+| `created_at` | DATETIME | AUTO | Creation timestamp |
+| `updated_at` | DATETIME | AUTO | Update timestamp |
 
 ---
 
@@ -133,16 +155,23 @@ User (1) ──── (M) Rating
 
 ---
 
-### Profile
-**Purpose**: Store user profile information
+### UserProfile
+**Purpose**: Store user profile and preferences
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | INTEGER | PRIMARY KEY | Unique identifier |
-| `user_id` | INTEGER | FK, UNIQUE | User reference |
-| `display_name` | VARCHAR(255) | | Display name |
+| `user_id` | INTEGER | FK (User), UNIQUE | User reference (1:1) |
+| `avatar` | IMAGE | NULL | Uploaded avatar image |
+| `avatar_uploaded_at` | DATETIME | NULL | Last avatar upload time |
+| `display_name` | VARCHAR(100) | | Display name |
 | `bio` | TEXT | | User biography |
-| `avatar_url` | VARCHAR(500) | | Avatar image URL |
+| `pref_focus` | VARCHAR(20) | DEFAULT 'balanced' | rating/popular/genre/balanced |
+| `pref_genres` | M2M (Genre) | | Favorite genres (ManyToMany) |
+| `pref_era` | VARCHAR(20) | | klasisk/90s/2000s/2010s/terbaru |
+| `pref_duration` | VARCHAR(20) | | pendek/sedang/panjang |
+| `created_at` | DATETIME | AUTO | Creation timestamp |
+| `updated_at` | DATETIME | AUTO | Update timestamp |
 
 ---
 
@@ -167,42 +196,82 @@ User (1) ──── (M) Rating
 
 ---
 
-### Token
-**Purpose**: Store API authentication tokens
+### Filmography
+**Purpose**: Link actors to films (many-to-many with role info)
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| `key` | VARCHAR(40) | PRIMARY KEY | Token string |
-| `user_id` | INTEGER | FK, UNIQUE | User reference |
-| `created` | DATETIME | AUTO | Creation timestamp |
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `actor_id` | INTEGER | FK (Actor), NOT NULL | Actor reference |
+| `film_id` | INTEGER | FK (Film), NOT NULL | Film reference |
+| `role` | VARCHAR(255) | DEFAULT 'Actor' | Character name |
+| `role_type` | VARCHAR(20) | DEFAULT 'supporting' | lead/supporting/cameo/director/producer/writer/other |
+| `order` | INTEGER | DEFAULT 0 | Sort order in credits |
+
+**Unique Constraint**: `(actor_id, film_id, role)`
 
 ---
 
-## Many-to-Many Relationships
+### Watchlist
+**Purpose**: Store user's watchlist items
 
-### Film_Genre
-**Purpose**: Link films to genres
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | FK (User), NOT NULL | User reference |
+| `film_id` | INTEGER | FK (Film), NOT NULL | Film reference |
+| `added_at` | DATETIME | AUTO | Time added to watchlist |
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | INTEGER | PRIMARY KEY |
-| `film_id` | INTEGER | FK |
-| `genre_id` | INTEGER | FK |
-
-**Unique Constraint**: `(film_id, genre_id)`
+**Unique Constraint**: `(user_id, film_id)`
 
 ---
 
-### Film_Actor
-**Purpose**: Link films to actors
+### Festival
+**Purpose**: Store film festival information
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| `id` | INTEGER | PRIMARY KEY |
-| `film_id` | INTEGER | FK |
-| `actor_id` | INTEGER | FK |
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `name` | VARCHAR(255) | NOT NULL | Festival name |
+| `native_name` | VARCHAR(255) | DEFAULT '' | Native name |
+| `country` | VARCHAR(100) | DEFAULT '' | Country |
+| `city` | VARCHAR(100) | DEFAULT '' | City |
+| `founded_year` | INTEGER | NULL | Year founded |
+| `description` | TEXT | DEFAULT '' | Festival description |
+| `logo_path` | VARCHAR(255) | DEFAULT '' | TMDB logo path |
+| `logo` | IMAGE | NULL | Local uploaded logo |
+| `website` | VARCHAR(255) | DEFAULT '' | Official website |
+| `tmdb_id` | INTEGER | UNIQUE, NULL | TMDB festival ID |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Is festival still active |
+| `category` | VARCHAR(100) | DEFAULT '' | Category (backwards compat) |
 
-**Unique Constraint**: `(film_id, actor_id)`
+---
+
+### FestivalAward
+**Purpose**: Store festival award nominations and wins
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `festival_id` | INTEGER | FK (Festival), NOT NULL | Festival reference |
+| `film_id` | INTEGER | FK (Film), NULL | Film reference |
+| `actor_id` | INTEGER | FK (Actor), NULL | Actor reference |
+| `category` | VARCHAR(255) | NOT NULL | Award category |
+| `year` | INTEGER | NOT NULL | Award year |
+| `award_type` | VARCHAR(50) | DEFAULT 'winner' | winner/nominee |
+
+---
+
+### RecommendationLog
+**Purpose**: Log recommendation transactions for analytics
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | FK (User), NULL | User reference (NULL for anonymous) |
+| `input_data` | JSON | NOT NULL | User preferences input |
+| `results` | JSON | NOT NULL | TOPSIS calculation results |
+| `created_at` | DATETIME | AUTO | Creation timestamp |
 
 ---
 
@@ -382,5 +451,5 @@ with CaptureQueriesContext(connection) as context:
 
 ---
 
-**Last Updated**: 2026-05-25  
-**Version**: 1.0.0
+**Last Updated**: 2026-05-28
+**Version**: 2.0.0

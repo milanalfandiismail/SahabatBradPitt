@@ -467,5 +467,5 @@ Results: Drama films with Brad, 2010-2020, rated 7.5+
 
 ---
 
-**Last Updated**: 2026-05-25  
-**Version**: 1.0.0
+**Last Updated**: 2026-05-28
+**Version**: 2.0.0

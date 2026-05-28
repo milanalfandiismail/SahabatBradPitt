@@ -1,318 +1,337 @@
 # 🚀 Deployment Guide
 
-**Complete deployment instructions for SahabatBradPitt project.**
+**Complete guide untuk men-deploy SahabatBradPitt ke berbagai platform production.**
 
 ---
 
-## Deployment Checklist
+## 📋 Deployment Overview
 
-- [ ] Environment setup
-- [ ] Database configuration
-- [ ] Static files collection
-- [ ] Security settings
-- [ ] API keys configuration
-- [ ] Email setup (optional)
-- [ ] Monitoring setup
-- [ ] Backup strategy
-- [ ] SSL/TLS certificate
-- [ ] Domain configuration
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    DEPLOYMENT DECISION FLOWCHART                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   Pilih Platform:                                                        │
+│                                                                          │
+│   ┌──────────────────┐                                                    │
+│   │ Windows Local   │──▶ WINDOWS_WAITRESS_DEPLOYMENT.md               │
+│   └──────────────────┘     (Simple, untuk development/uji coba)         │
+│                                                                          │
+│   ┌──────────────────┐                                                    │
+│   │ Docker           │──▶ DOCKER_DEPLOYMENT.md                          │
+│   └──────────────────┘     (Portable, konsisten, recommended)          │
+│                                                                          │
+│   ┌──────────────────┐                                                    │
+│   │ VPS (Ubuntu)    │──▶ VPS_NGINX_DEPLOYMENT.md                       │
+│   └──────────────────┘     (Full control, scalable)                     │
+│                                                                          │
+│   ┌──────────────────┐                                                    │
+│   │ PythonAnywhere  │──▶ PYTHONANYWHERE_DEPLOYMENT.md                   │
+│   └──────────────────┘     (Managed, easy setup)                        │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Pre-Deployment
+## 🎯 Quick Decision Guide
 
-### 1. Environment Variables
+| Platform | Best For | Difficulty | Cost |
+|----------|----------|------------|------|
+| **Windows + Waitress** | Local dev, testing | Easy | Free |
+| **Docker** | Consistent environments | Medium | Free |
+| **VPS + Nginx** | Production, full control | Hard | $5-20/mo |
+| **PythonAnywhere** | Quick deployment, beginners | Easy | Free-$50/mo |
 
-Create `.env` file with production values:
+---
 
-```env
-# Django
+## 📦 Pre-Deployment Checklist
+
+### 1. Environment Configuration
+
+```bash
+# .env production setup
 DEBUG=False
-SECRET_KEY=your-very-secret-key-here
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-
-# Database
-DATABASE_URL=postgresql://user:password@localhost/sahabatbradpitt
-
-# APIs
+SECRET_KEY=$(python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,server-ip
 TMDB_API_KEY=your-tmdb-api-key
 YOUTUBE_API_KEY=your-youtube-api-key
-
-# Email (Optional)
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-
-# Security
-SECURE_SSL_REDIRECT=True
-SESSION_COOKIE_SECURE=True
-CSRF_COOKIE_SECURE=True
-SECURE_HSTS_SECONDS=31536000
 ```
 
-### 2. Generate Secret Key
+### 2. Generate New Secret Key
 
 ```bash
+# Generate secure secret key
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
+# Or use django-extensions
+pip install django-extensions
+python manage.py generate_secret_key
 ```
 
-### 3. Database Setup
+### 3. Database Preparation
 
-**PostgreSQL Installation**
-
+**SQLite (Development)**
 ```bash
-# Ubuntu/Debian
-sudo apt-get install postgresql postgresql-contrib
-
-# macOS
-brew install postgresql
-
-# Start service
-sudo systemctl start postgresql
+# Just backup the file
+cp db.sqlite3 db.sqlite3.backup
 ```
 
-**Create Database**
-
+**PostgreSQL (Production - Recommended)**
 ```bash
+# Create production database
 sudo -u postgres psql
 CREATE DATABASE sahabatbradpitt;
-CREATE USER sahabatuser WITH PASSWORD 'securepassword';
-ALTER ROLE sahabatuser SET client_encoding TO 'utf8';
-ALTER ROLE sahabatuser SET default_transaction_isolation TO 'read committed';
-ALTER ROLE sahabatuser SET default_transaction_deferrable TO on;
-ALTER ROLE sahabatuser SET timezone TO 'UTC';
+CREATE USER sahabatuser WITH PASSWORD 'strongpassword';
 GRANT ALL PRIVILEGES ON DATABASE sahabatbradpitt TO sahabatuser;
+ALTER ROLE sahabatuser SET client_encoding TO 'utf8';
 \q
 ```
 
----
-
-## Deployment Options
-
-### Option 1: Heroku (Easiest)
-
-**Step 1: Install Heroku CLI**
+### 4. Static Files Collection
 
 ```bash
-curl https://cli.heroku.com/install.sh | sh
+# Collect all static files (CSS, JS)
+python manage.py collectstatic --noinput
+
+# Verify static files
+ls -la staticfiles/
 ```
 
-**Step 2: Login to Heroku**
+### 5. Database Migrations
 
 ```bash
-heroku login
-```
+# Make migrations (if models changed)
+python manage.py makemigrations
 
-**Step 3: Create Heroku App**
+# Apply migrations
+python manage.py migrate
 
-```bash
-heroku create sahabatbradpitt
-```
+# Create admin user
+python manage.py createsuperuser
 
-**Step 4: Add PostgreSQL**
-
-```bash
-heroku addons:create heroku-postgresql:hobby-dev
-```
-
-**Step 5: Set Environment Variables**
-
-```bash
-heroku config:set DEBUG=False
-heroku config:set SECRET_KEY=your-secret-key
-heroku config:set TMDB_API_KEY=your-api-key
-heroku config:set YOUTUBE_API_KEY=your-api-key
-```
-
-**Step 6: Deploy**
-
-```bash
-git push heroku main
-```
-
-**Step 7: Run Migrations**
-
-```bash
-heroku run python manage.py migrate
-heroku run python manage.py createsuperuser
+# Setup RBAC (optional)
+python manage.py setup_rbac
 ```
 
 ---
 
-### Option 2: DigitalOcean (Recommended)
+## 🐳 Platform-Specific Guides
 
-**Step 1: Create Droplet**
-
-1. Go to DigitalOcean
-2. Create new Droplet
-3. Select Ubuntu 22.04
-4. Choose $5/month plan
-5. Add SSH key
-
-**Step 2: Initial Setup**
+### Option 1: Docker Deployment
 
 ```bash
-# SSH into droplet
-ssh root@your_droplet_ip
-
-# Update system
-apt-get update
-apt-get upgrade -y
-
-# Install dependencies
-apt-get install -y python3-pip python3-venv postgresql postgresql-contrib nginx git
-```
-
-**Step 3: Clone Repository**
-
-```bash
-cd /home
-git clone https://github.com/yourusername/SahabatBradPitt.git
+# Quick start
+git clone https://github.com/milanalfandiismail/SahabatBradPitt.git
 cd SahabatBradPitt
+
+# Setup environment
+cp .env.example .env
+# Edit .env with production values
+
+# Build and run
+docker-compose up --build -d
+
+# Setup database
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py createsuperuser
 ```
 
-**Step 4: Setup Virtual Environment**
+**Access:**
+- App: http://localhost:8000
+- Logs: `docker-compose logs -f`
+
+**Update Deployment:**
+```bash
+git pull origin main
+docker-compose up --build -d
+docker-compose exec web python manage.py migrate
+```
+
+---
+
+### Option 2: VPS (Ubuntu/Debian) + Nginx
 
 ```bash
+# 1. Server setup
+ssh root@your-server-ip
+apt update && apt upgrade -y
+apt install python3-pip python3-venv nginx git -y
+
+# 2. Clone & setup
+cd /home
+git clone https://github.com/milanalfandiismail/SahabatBradPitt.git
+cd SahabatBradPitt
+
+# 3. Virtual environment
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install gunicorn
-```
 
-**Step 5: Configure PostgreSQL**
-
-```bash
-sudo -u postgres psql
-CREATE DATABASE sahabatbradpitt;
-CREATE USER sahabatuser WITH PASSWORD 'securepassword';
-GRANT ALL PRIVILEGES ON DATABASE sahabatbradpitt TO sahabatuser;
-\q
-```
-
-**Step 6: Collect Static Files**
-
-```bash
-python manage.py collectstatic --noinput
-```
-
-**Step 7: Run Migrations**
-
-```bash
+# 4. Environment & database
+cp .env.example .env
+nano .env  # Edit production values
 python manage.py migrate
+python manage.py collectstatic --noinput
 python manage.py createsuperuser
-```
 
-**Step 8: Configure Gunicorn**
+# 5. Gunicorn service
+sudo nano /etc/systemd/system/sahabatbradpitt.service
+# [Service] section with gunicorn config
 
-Create `/etc/systemd/system/gunicorn.service`:
+# 6. Nginx config
+sudo nano /etc/nginx/sites-available/sahabatbradpitt
+# Server block with proxy to gunicorn socket
 
-```ini
-[Unit]
-Description=gunicorn daemon for SahabatBradPitt
-After=network.target
-
-[Service]
-User=www-data
-Group=www-data
-WorkingDirectory=/home/SahabatBradPitt
-ExecStart=/home/SahabatBradPitt/venv/bin/gunicorn \
-    --workers 3 \
-    --bind unix:/home/SahabatBradPitt/gunicorn.sock \
-    config.wsgi:application
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Step 9: Configure Nginx**
-
-Create `/etc/nginx/sites-available/sahabatbradpitt`:
-
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com;
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    
-    location /static/ {
-        alias /home/SahabatBradPitt/staticfiles/;
-    }
-
-    location /media/ {
-        alias /home/SahabatBradPitt/media/;
-    }
-
-    location / {
-        include proxy_params;
-        proxy_pass http://unix:/home/SahabatBradPitt/gunicorn.sock;
-    }
-}
-```
-
-**Step 10: Enable Nginx Site**
-
-```bash
+# 7. Start services
+sudo systemctl daemon-reload
+sudo systemctl start sahabatbradpitt
+sudo systemctl enable sahabatbradpitt
 sudo ln -s /etc/nginx/sites-available/sahabatbradpitt /etc/nginx/sites-enabled/
-sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-**Step 11: Start Gunicorn**
+---
 
-```bash
-sudo systemctl start gunicorn
-sudo systemctl enable gunicorn
+### Option 3: Windows + Waitress
+
+```powershell
+# 1. Setup virtual environment
+python -m venv venv
+.\venv\Scripts\activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+pip install waitress
+
+# 3. Environment
+copy .env.example .env
+# Edit .env
+
+# 4. Database
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py createsuperuser
+
+# 5. Run server
+waitress-serve --port=8000 --url-scheme=https --threads=8 config.wsgi:application
+```
+
+**Background Service (Optional):**
+```powershell
+# Using NSSM
+nssm install SahabatBradPitt
+# GUI opens - set paths and arguments
+# Path: C:\path\to\venv\Scripts\waitress-serve.exe
+# Arguments: --port=8000 --threads=8 config.wsgi:application
+# Directory: C:\path\to\SahabatBradPitt
 ```
 
 ---
 
-### Option 3: AWS (Scalable)
-
-**Step 1: Create EC2 Instance**
-
-1. Go to AWS Console
-2. Launch EC2 instance (Ubuntu 22.04)
-3. Configure security groups
-4. Add SSH key pair
-
-**Step 2: Connect and Setup**
+### Option 4: PythonAnywhere
 
 ```bash
-ssh -i your-key.pem ubuntu@your-instance-ip
+# 1. Bash console
+git clone https://github.com/milanalfandiismail/SahabatBradPitt.git
+cd SahabatBradPitt
 
-# Update system
-sudo apt-get update
-sudo apt-get upgrade -y
+# 2. Virtual environment
+mkvirtualenv --python=/usr/bin/python3.10 venv
+pip install -r requirements.txt
 
-# Install dependencies
-sudo apt-get install -y python3-pip python3-venv postgresql postgresql-contrib nginx git
+# 3. Environment & database
+cp .env.example .env
+nano .env
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py createsuperuser
+
+# 4. Web app configuration
+# Dashboard > Web > Add new app > Manual config
+# Set source: /home/username/SahabatBradPitt
+# Set virtualenv: /home/username/.virtualenvs/venv
+
+# 5. WSGI config (replace content)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.production'
+
+# 6. Static files
+# Dashboard > Web > Static files
+# /static/ -> /home/username/SahabatBradPitt/staticfiles
+# /media/ -> /home/username/SahabatBradPitt/media
+
+# 7. Reload web app
 ```
-
-**Step 3: Follow DigitalOcean steps 3-11**
 
 ---
 
-## SSL/TLS Certificate
+## 🔐 Security Configuration
 
-### Using Let's Encrypt (Free)
+### Environment Variables
+
+```bash
+# Always use strong, unique SECRET_KEY
+# Never commit .env to version control
+echo ".env" >> .gitignore
+
+# Production .env example
+DEBUG=False
+SECRET_KEY=your-very-long-random-secret-key-here
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+TMDB_API_KEY=your-tmdb-api-key
+YOUTUBE_API_KEY=your-youtube-api-key
+```
+
+### Django Security Settings (Production)
+
+```python
+# config/settings/production.py
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+```
+
+### Firewall Setup
+
+```bash
+# Ubuntu/Debian
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw enable
+
+# Verify
+sudo ufw status
+```
+
+---
+
+## 🌐 SSL/TLS Certificate
+
+### Let's Encrypt (Free)
 
 ```bash
 # Install Certbot
-sudo apt-get install certbot python3-certbot-nginx
+sudo apt install certbot python3-certbot-nginx
 
-# Get certificate
-sudo certbot certonly --nginx -d yourdomain.com -d www.yourdomain.com
+# Generate certificate
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
-# Auto-renew
-sudo systemctl enable certbot.timer
-sudo systemctl start certbot.timer
+# Auto-renewal (auto-enabled by default)
+sudo systemctl status certbot.timer
+
+# Manual test renewal
+sudo certbot renew --dry-run
 ```
 
-### Update Nginx
+### Nginx HTTPS Configuration
 
 ```nginx
 server {
@@ -321,11 +340,12 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     # ... rest of config
 }
 
-# Redirect HTTP to HTTPS
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
@@ -335,251 +355,249 @@ server {
 
 ---
 
-## Monitoring & Logging
+## 📊 Monitoring & Logging
 
-### Application Logging
+### Application Logs
 
-```python
-# settings/production.py
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django/error.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+```bash
+# Django logs
+python manage.py migrate  # Check for issues
+python manage.py check     # Full system check
+
+# Gunicorn logs
+journalctl -u sahabatbradpitt -f
+
+# Docker logs
+docker-compose logs -f web
 ```
 
 ### System Monitoring
 
 ```bash
-# Monitor CPU/Memory
-top
+# Resource usage
+htop          # CPU/Memory
+df -h         # Disk space
+free -h       # Memory
 
-# Monitor disk space
-df -h
-
-# Monitor logs
+# Nginx logs
 tail -f /var/log/nginx/access.log
-tail -f /var/log/django/error.log
+tail -f /var/log/nginx/error.log
+```
+
+### Health Check
+
+```bash
+# Test endpoint
+curl -I https://yourdomain.com/api/films/
+
+# Expected response
+HTTP/2 200
+content-type: application/json
 ```
 
 ---
 
-## Backup Strategy
+## 💾 Backup Strategy
 
 ### Database Backup
 
+**SQLite:**
 ```bash
-# Daily backup
-0 2 * * * pg_dump sahabatbradpitt > /backups/db_$(date +\%Y\%m\%d).sql
+# Manual backup
+cp db.sqlite3 db_backup_$(date +%Y%m%d).sqlite3
 
-# Restore
-psql sahabatbradpitt < /backups/db_20260525.sql
+# Automated daily (cron)
+0 2 * * * cp /path/to/db.sqlite3 /backup/db_$(date +\%Y\%m\%d).sqlite3
+```
+
+**PostgreSQL:**
+```bash
+# Manual backup
+pg_dump -U sahabatuser sahabatbradpitt > backup_$(date +%Y%m%d).sql
+
+# Automated daily (cron)
+0 2 * * * pg_dump sahabatbradpitt | gzip > /backup/db_$(date +\%Y\%m\%d).sql.gz
 ```
 
 ### Media Files Backup
 
 ```bash
 # Backup media directory
-0 3 * * * tar -czf /backups/media_$(date +\%Y\%m\%d).tar.gz /home/SahabatBradPitt/media/
+tar -czf media_backup_$(date +%Y%m%d).tar.gz /path/to/media/
+
+# Restore
+tar -xzf media_backup_20260501.tar.gz -C /path/to/
 ```
 
-### Automated Backup Script
+### Complete Backup Script
 
 ```bash
 #!/bin/bash
-BACKUP_DIR="/backups"
-DB_NAME="sahabatbradpitt"
+# backup.sh - Run daily via cron
+
+BACKUP_DIR="/backup"
 DATE=$(date +%Y%m%d_%H%M%S)
+PROJECT_DIR="/home/milan/SahabatBradPitt"
 
-# Backup database
-pg_dump $DB_NAME | gzip > $BACKUP_DIR/db_$DATE.sql.gz
+# Create backup directory
+mkdir -p $BACKUP_DIR
 
-# Backup media
-tar -czf $BACKUP_DIR/media_$DATE.tar.gz /home/SahabatBradPitt/media/
+# Database backup
+pg_dump sahabatbradpitt | gzip > $BACKUP_DIR/db_$DATE.sql.gz
 
-# Keep only last 30 days
-find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
+# Media backup
+tar -czf $BACKUP_DIR/media_$DATE.tar.gz $PROJECT_DIR/media/
+
+# Keep only last 7 days
+find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
+
+echo "Backup completed: $DATE"
 ```
 
 ---
 
-## Performance Optimization
+## 🔧 Troubleshooting
 
-### Caching
+### Common Issues
 
-```python
-# Redis cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
-```
-
-### Database Optimization
-
-```bash
-# Analyze query performance
-EXPLAIN ANALYZE SELECT * FROM films WHERE status = 'published';
-
-# Vacuum database
-VACUUM ANALYZE;
-```
-
-### CDN Setup
-
-1. Use CloudFront (AWS) or Cloudflare
-2. Point static files to CDN
-3. Cache static assets for 1 year
-
----
-
-## Security Hardening
-
-### Django Settings
-
-```python
-# settings/production.py
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_CONTENT_SECURITY_POLICY = {
-    'default-src': ("'self'",),
-    'script-src': ("'self'", "'unsafe-inline'"),
-    'style-src': ("'self'", "'unsafe-inline'"),
-}
-```
-
-### Firewall Rules
-
-```bash
-# Allow SSH
-sudo ufw allow 22/tcp
-
-# Allow HTTP
-sudo ufw allow 80/tcp
-
-# Allow HTTPS
-sudo ufw allow 443/tcp
-
-# Enable firewall
-sudo ufw enable
-```
-
-### Regular Updates
-
-```bash
-# Weekly security updates
-0 2 * * 0 apt-get update && apt-get upgrade -y
-```
-
----
-
-## Troubleshooting
-
-### 502 Bad Gateway
-
-**Problem**: Nginx can't connect to Gunicorn
-
-**Solution**:
+**502 Bad Gateway (Nginx can't reach Gunicorn)**
 ```bash
 # Check Gunicorn status
-sudo systemctl status gunicorn
+sudo systemctl status sahabatbradpitt
 
-# Check socket
-ls -la /home/SahabatBradPitt/gunicorn.sock
+# Check socket exists
+ls -la /home/milan/SahabatBradPitt/sahabatbradpitt.sock
 
 # Restart Gunicorn
-sudo systemctl restart gunicorn
+sudo systemctl restart sahabatbradpitt
 ```
 
-### Static Files Not Loading
-
-**Problem**: CSS/JS not loading
-
-**Solution**:
+**Static files not loading**
 ```bash
-# Collect static files
+# Re-collect static files
 python manage.py collectstatic --noinput
 
 # Check permissions
-sudo chown -R www-data:www-data /home/SahabatBradPitt/staticfiles/
+sudo chown -R www-data:www-data /home/milan/SahabatBradPitt/staticfiles/
+
+# Nginx config
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
-### Database Connection Error
-
-**Problem**: Can't connect to PostgreSQL
-
-**Solution**:
+**Database connection error**
 ```bash
-# Check PostgreSQL status
+# Check PostgreSQL
 sudo systemctl status postgresql
 
-# Check connection
+# Test connection
 psql -U sahabatuser -d sahabatbradpitt -h localhost
+
+# Check pg_hba.conf for authentication
+sudo nano /etc/postgresql/14/main/pg_hba.conf
+```
+
+**Docker container exits immediately**
+```bash
+# Check logs
+docker-compose logs web
+
+# Common fix - rebuild
+docker-compose down
+docker-compose up --build -d
+
+# Check environment variables
+docker-compose exec web env
+```
+
+### Debug Mode (Temporary)
+
+```python
+# Only for debugging - NEVER in production
+DEBUG=True  # In .env
+
+# Check logs
+tail -f /var/log/django.log
 ```
 
 ---
 
-## Post-Deployment
+## 🚀 Production Checklist
 
-### Verification Checklist
+### Before Going Live
 
-- [ ] Website loads on HTTPS
-- [ ] Static files load correctly
-- [ ] API endpoints respond
-- [ ] Database queries work
-- [ ] Email notifications send
-- [ ] Logs are being written
-- [ ] Backups are running
-- [ ] Monitoring is active
+- [ ] DEBUG=False
+- [ ] Strong SECRET_KEY
+- [ ] ALLOWED_HOSTS configured
+- [ ] TMDB_API_KEY set
+- [ ] Database migrated
+- [ ] Static files collected
+- [ ] Admin user created
+- [ ] SSL certificate installed
+- [ ] Firewall configured
+- [ ] Backups scheduled
+- [ ] Monitoring active
 
-### Monitoring URLs
+### Post-Deployment Verification
 
-- **Admin Panel**: https://yourdomain.com/admin
-- **API**: https://yourdomain.com/api/films/
-- **Health Check**: https://yourdomain.com/api/health/
+```bash
+# Test all endpoints
+curl https://yourdomain.com/api/films/
+curl https://yourdomain.com/admin/
+curl https://yourdomain.com/
 
----
+# Check SSL
+openssl s_client -connect yourdomain.com:443 -showcerts
 
-## Scaling
-
-### Horizontal Scaling
-
-1. Add more Gunicorn workers
-2. Use load balancer (Nginx, HAProxy)
-3. Separate database server
-4. Redis cache server
-
-### Vertical Scaling
-
-1. Upgrade server resources
-2. Optimize database queries
-3. Enable caching
-4. Use CDN for static files
+# Verify security headers
+curl -I https://yourdomain.com/ | grep -E "(X-Frame-Options|Content-Security-Policy|Strict-Transport)"
+```
 
 ---
 
-**Last Updated**: 2026-05-25  
-**Version**: 1.0.0
+## 📚 Additional Resources
+
+### Documentation
+- [CODEBASE_DOCUMENTATION.md](CODEBASE_DOCUMENTATION.md) - Full codebase docs
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
+- [API.md](API.md) - API reference
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Local development
+
+### External
+- [TMDB API](https://developer.themoviedb.org/docs) - Movie database
+- [Django Docs](https://docs.djangoproject.com/) - Django documentation
+- [Gunicorn](https://docs.gunicorn.org/) - WSGI server
+- [Let's Encrypt](https://letsencrypt.org/) - Free SSL certificates
+
+---
+
+## 💡 Tips
+
+### Performance Optimization
+```bash
+# Use PostgreSQL for production
+# Enable caching (Redis recommended)
+# Use CDN for static files
+# Configure appropriate workers
+
+# Gunicorn workers (4 workers per core)
+workers = cores * 2 + 1
+```
+
+### Scaling
+```bash
+# Horizontal scaling (multiple servers)
+# - Use load balancer (Nginx/HAProxy)
+# - Separate database server
+# - Use Redis for session/cache
+
+# Vertical scaling (bigger server)
+# - Upgrade RAM/CPU
+# - Optimize database queries
+# - Enable query caching
+```
+
+---
+
+**Last Updated**: 2026-05-29
+**Version**: 2.0.0

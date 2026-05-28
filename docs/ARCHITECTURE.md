@@ -1,490 +1,431 @@
 # 🏗️ Architecture Documentation
 
-**System design, components, and data flow for SahabatBradPitt project.**
+**System design dan struktur project SahabatBradPitt untuk development.**
 
 ---
 
-## System Architecture Overview
+## Overview
 
-```mermaid
-graph TB
-    Client["🌐 Client<br/>(Browser)"]
-    Frontend["📱 Frontend<br/>(HTML/CSS/JS)"]
-    Django["🐍 Django<br/>(REST API)"]
-    DB[(💾 Database<br/>(SQLite/PostgreSQL))]
-    TMDB["🎬 TMDB API"]
-    YouTube["▶️ YouTube API"]
-    Cache["⚡ Cache<br/>(Redis/Memory)"]
-    
-    Client -->|HTTP/AJAX| Frontend
-    Frontend -->|REST API| Django
-    Django -->|Query| DB
-    Django -->|Fetch Data| TMDB
-    Django -->|Search Trailer| YouTube
-    Django -->|Cache| Cache
-    Cache -->|Return| Django
+```
+┌─────────────────────────────────────────────────────────┐
+│                     BROWSER                              │
+│              (HTML/CSS/JS Templates)                    │
+└─────────────────────┬─────────────────────────────────────┘
+                      │ HTTP
+                      ▼
+┌─────────────────────────────────────────────────────────┐
+│                   DJANGO                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   Views     │  │    API      │  │   Admin     │       │
+│  │  (SSR)      │  │  (DRF)      │  │  Panel      │       │
+│  └──────┬──────┘  └──────┬──────┘  └─────────────┘       │
+│         │               │                               │
+│         └───────────────┼───────────────────────────┐   │
+│                         ▼                               │   │
+│  ┌─────────────────────────────────────────────────┐     │   │
+│  │              MODELS LAYER                        │     │   │
+│  │  Film │ Actor │ Rating │ User │ Genre │ etc.   │     │   │
+│  └───────────────────────┬─────────────────────────┘     │   │
+│                          │                               │   │
+│         ┌────────────────┴────────────────┐              │   │
+│         ▼                                 ▼              │   │
+│  ┌─────────────┐                 ┌─────────────┐        │   │
+│  │   SQLite    │                 │  TMDB API   │        │   │
+│  │   (local)   │                 │  (external) │        │   │
+│  └─────────────┘                 └─────────────┘        │   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Component Architecture
-
-```mermaid
-graph LR
-    subgraph Frontend["Frontend Layer"]
-        HTML["HTML Templates"]
-        CSS["CSS Styling"]
-        JS["JavaScript Logic"]
-    end
-    
-    subgraph API["API Layer"]
-        Auth["Authentication"]
-        Endpoints["REST Endpoints"]
-        Serializers["Serializers"]
-    end
-    
-    subgraph Business["Business Logic"]
-        Services["Services"]
-        Models["Models"]
-        Validators["Validators"]
-    end
-    
-    subgraph Data["Data Layer"]
-        ORM["Django ORM"]
-        DB["Database"]
-        Cache["Cache"]
-    end
-    
-    Frontend -->|API Calls| API
-    API -->|Process| Business
-    Business -->|Query| Data
-    Data -->|Return| Business
-    Business -->|Response| API
-    API -->|JSON| Frontend
-```
-
----
-
-## Module Structure
+## Apps Structure
 
 ```
-SahabatBradPitt/
+apps/
+├── films/              # Film management
+│   ├── models.py      # Film, Genre, FilmImage
+│   ├── views.py       # FilmViewSet (CRUD + custom actions)
+│   ├── serializers.py  # DRF serializers
+│   ├── urls.py        # /api/films/
+│   └── services/
+│       ├── main_service.py    # TMDB sync engine
+│       ├── limiter.py         # Rate limiter
+│       └── parser.py          # Data parser
 │
-├── apps/
-│   ├── films/                    # Film management
-│   │   ├── models.py            # Film, FilmImage models
-│   │   ├── views.py             # FilmViewSet
-│   │   ├── serializers.py       # Film serializers
-│   │   ├── services.py          # TMDB sync service
-│   │   ├── youtube_service.py   # YouTube trailer service
-│   │   └── urls.py              # Film endpoints
-│   │
-│   ├── actors/                   # Actor management
-│   │   ├── models.py
-│   │   ├── views.py
-│   │   ├── serializers.py
-│   │   └── urls.py
-│   │
-│   ├── users/                    # User authentication
-│   │   ├── models.py            # User profile
-│   │   ├── views.py             # Auth endpoints
-│   │   ├── serializers.py
-│   │   └── urls.py
-│   │
-│   ├── ratings/                  # Rating system
-│   │   ├── models.py            # Rating model
-│   │   ├── views.py
-│   │   ├── serializers.py
-│   │   └── urls.py
-│   │
-│   ├── festivals/                # Festival management
-│   │   ├── models.py
-│   │   ├── views.py
-│   │   ├── serializers.py
-│   │   └── urls.py
-│   │
-│   └── recommendations/          # Recommendation engine
-│       ├── models.py
-│       ├── views.py
-│       ├── spk.py               # TOPSIS algorithm
-│       └── urls.py
+├── actors/             # Actor management
+│   ├── models.py      # Actor, Filmography
+│   ├── views.py
+│   └── urls.py        # /api/actors/
 │
-├── config/
-│   ├── settings/
-│   │   ├── base.py              # Base settings
-│   │   ├── development.py       # Dev settings
-│   │   └── production.py        # Prod settings
-│   ├── urls.py                  # URL routing
-│   └── wsgi.py                  # WSGI config
+├── ratings/            # Rating & Watchlist
+│   ├── models.py      # Rating, Watchlist
+│   ├── views.py
+│   └── urls.py        # /api/ratings/
 │
-├── templates/                    # HTML templates
-│   ├── base.html
-│   ├── home.html
-│   ├── film_detail.html
-│   ├── film_list.html
-│   ├── actor_detail.html
-│   ├── profile.html
-│   └── ...
+├── festivals/          # Festival & Studio
+│   ├── models.py      # Festival, Studio, FestivalAward
+│   └── views.py
 │
-├── static/                       # Static files
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── main.js
+├── recommendations/    # AI Recommendation Engine
+│   ├── views.py       # RecommendationAPIView
+│   ├── engine.py      # ExpertSystemFilter (kandidat filter)
+│   ├── spk.py         # TOPSIS Facade
+│   ├── topsis_user.py      # User-based scoring
+│   └── topsis_similarity.py # Content-based similarity
 │
-├── docs/                         # Documentation
-│   ├── README.md
-│   ├── TECH_STACK.md
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   ├── DATABASE.md
-│   ├── GUIDES.md
-│   └── DEPLOYMENT.md
-│
-└── manage.py                     # Django CLI
+└── users/              # Auth & Profile
+    ├── models.py      # UserProfile (with preferences)
+    ├── views.py       # Login, Register, Profile APIs
+    ├── views_html.py  # SSR login/signup/profile pages
+    ├── permissions.py  # IsAdminOrSuperadmin, IsSuperadmin
+    └── urls.py        # /api/auth/
 ```
 
 ---
 
-## Data Flow Diagrams
+## Data Models
 
-### Film Detail Page Flow
+### Core Models
 
-```mermaid
-sequenceDiagram
-    participant User as User<br/>(Browser)
-    participant Frontend as Frontend<br/>(HTML/JS)
-    participant API as Django API
-    participant DB as Database
-    participant TMDB as TMDB API
-    
-    User->>Frontend: Click film link
-    Frontend->>API: GET /api/films/{id}/
-    API->>DB: Query film data
-    DB-->>API: Return film + images
-    API-->>Frontend: JSON response
-    Frontend->>Frontend: Render film details
-    Frontend->>Frontend: Load gallery images
-    User->>Frontend: Click gallery image
-    Frontend->>Frontend: Open lightbox modal
-    User->>Frontend: Click play trailer
-    Frontend->>Frontend: Extract video ID
-    Frontend->>Frontend: Load YouTube embed
+```
+Film
+├── id (PK)
+├── tmdb_id (unique)
+├── title
+├── synopsis
+├── release_year
+├── poster_path (TMDB)
+├── poster (local upload)
+├── duration
+├── popularity (TMDB)
+├── avg_rating (calculated)
+├── status (draft/pending_approval/published/rejected)
+├── is_tv_series
+├── episodes_count
+├── studio (FK)
+└── genre (M2M)
+
+Actor
+├── id (PK)
+├── tmdb_id (unique)
+├── name
+├── native_name (Korean/Chinese/Japanese)
+├── bio
+├── birth_year
+├── photo_path
+└── filmographies (reverse M2M via Filmography)
+
+Filmography (junction table)
+├── actor (FK)
+├── film (FK)
+├── role (character name)
+├── role_type (lead/supporting/director/etc)
+└── order
+
+Rating
+├── user (FK)
+├── film (FK)
+├── score (1-10)
+└── review
+
+Watchlist
+├── user (FK)
+└── film (FK)
 ```
 
-### Trailer Search Flow
+### Model Relationships
 
-```mermaid
-sequenceDiagram
-    participant Sync as Sync Service
-    participant TMDB as TMDB API
-    participant YouTube as YouTube API
-    participant Cache as Cache
-    participant DB as Database
-    
-    Sync->>TMDB: Fetch film details
-    TMDB-->>Sync: Return film + videos
-    Sync->>Sync: Extract TMDB trailer
-    alt TMDB has trailer
-        Sync->>DB: Save trailer URL
-    else No TMDB trailer
-        Sync->>YouTube: Search trailer
-        YouTube-->>Sync: Return video ID
-        Sync->>Cache: Cache result (30 days)
-        Sync->>DB: Save trailer URL
-    end
 ```
-
-### Approval Workflow
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft: Admin creates film
-    Draft --> PendingApproval: Admin submits
-    PendingApproval --> Published: Super admin approves
-    PendingApproval --> Rejected: Super admin rejects
-    Rejected --> Draft: Admin can resubmit
-    Published --> [*]
-    
-    note right of Draft
-        Only admin can see
-    end note
-    
-    note right of PendingApproval
-        Waiting for super admin
-    end note
-    
-    note right of Published
-        Visible to public
-    end note
+User 1──1 UserProfile
+User 1──M Rating
+User 1──M Watchlist
+Film 1──M Rating
+Film 1──M Watchlist
+Film M──M Genre (via Film_Genre)
+Film M──M Actor (via Filmography)
+Film 1──M FilmImage
+Film 1──1 Studio
 ```
 
 ---
 
-## Database Schema Overview
+## Request Flow
 
-```mermaid
-erDiagram
-    FILM ||--o{ FILMIMAGE : has
-    FILM ||--o{ RATING : has
-    FILM }o--|| STUDIO : "belongs to"
-    FILM }o--o{ GENRE : "has many"
-    FILM }o--o{ ACTOR : "features"
-    USER ||--o{ RATING : writes
-    USER ||--o{ PROFILE : has
-    
-    FILM {
-        int id PK
-        int tmdb_id UK
-        string title
-        text synopsis
-        int release_year
-        string trailer_url
-        string poster_path
-        string status
-        datetime created_at
-    }
-    
-    FILMIMAGE {
-        int id PK
-        int film_id FK
-        string file_path
-        string image_type
-    }
-    
-    RATING {
-        int id PK
-        int film_id FK
-        int user_id FK
-        int score
-        text review
-        datetime created_at
-    }
-    
-    USER {
-        int id PK
-        string username UK
-        string email UK
-        string password
-        datetime created_at
-    }
-    
-    PROFILE {
-        int id PK
-        int user_id FK
-        string display_name
-        text bio
-        string avatar_url
-    }
-    
-    GENRE {
-        int id PK
-        string name UK
-        int tmdb_genre_id
-    }
-    
-    ACTOR {
-        int id PK
-        int tmdb_id UK
-        string name
-        string biography
-        string profile_path
-    }
-    
-    STUDIO {
-        int id PK
-        string name
-        string country
-    }
+### 1. API Request (REST)
+
+```
+GET /api/films/?genre=1&min_rating=7.0
+    │
+    ▼
+URL Router → FilmViewSet.list()
+    │
+    ▼
+QuerySet: Film.objects.filter_by_genres([1]).filter_by_min_rating(7.0)
+    │
+    ▼
+Serializer: FilmSerializer(films, many=True)
+    │
+    ▼
+JSON Response
+```
+
+### 2. SSR Request (HTML Pages)
+
+```
+GET /profile/
+    │
+    ▼
+URL Router → profile_html_view()
+    │
+    ▼
+@login_required decorator → Check auth → Redirect if not logged in
+    │
+    ▼
+render(request, 'auth/profile.html', context)
+    │
+    ▼
+HTML Response
+```
+
+### 3. TMDB Sync Flow
+
+```
+python manage.py sync_tmdb 287
+    │
+    ▼
+TMDBService.sync_multiple_actors()
+    │
+    ▼
+For each actor:
+    │
+    ├── GET /person/{id}/combined_credits
+    ├── For each movie:
+    │   ├── GET /movie/{id} (detail + videos)
+    │   ├── Create/Update Film
+    │   ├── Create/Update Actor
+    │   ├── Link Filmography
+    │   └── Search YouTube trailer
+    │
+    └── rate_limiter.wait_if_needed()
 ```
 
 ---
 
-## API Layer Architecture
+## TOPSIS Algorithm
 
-```mermaid
-graph TB
-    Request["HTTP Request"]
-    Router["URL Router"]
-    Auth["Authentication"]
-    Permission["Permission Check"]
-    ViewSet["ViewSet"]
-    Serializer["Serializer"]
-    Service["Service Layer"]
-    Model["Model/ORM"]
-    DB["Database"]
-    Response["HTTP Response"]
-    
-    Request -->|Route| Router
-    Router -->|Dispatch| ViewSet
-    ViewSet -->|Check| Auth
-    Auth -->|Verify| Permission
-    Permission -->|Validate| Serializer
-    Serializer -->|Process| Service
-    Service -->|Query| Model
-    Model -->|Execute| DB
-    DB -->|Return| Model
-    Model -->|Return| Service
-    Service -->|Return| Serializer
-    Serializer -->|Serialize| ViewSet
-    ViewSet -->|Return| Response
+### User-Based Recommendations
+
+```
+Input: preferences (focus, genres, era, duration, user_id)
+
+Step 1: ExpertSystemFilter.get_candidates()
+        → Filter films by era, duration, genres
+
+Step 2: calculate_user_scores(candidates, preferences)
+        → Build decision matrix X[m,6]
+        → Normalize: R = X / sqrt(sum(X²))
+        → Weight: V = R × weights
+        → A+ = max(V), A- = min(V)
+        → D+ = distance to A+, D- = distance to A-
+        → Score = D- / (D+ + D-)
+
+Output: Top N films sorted by score
+```
+
+### Content-Based Similarity
+
+```
+Input: base_film, candidate_films
+
+Step 1: Extract features from base_film
+        → Genres, Synopsis words, Cast, Director, Studio
+
+Step 2: For each candidate:
+        → Calculate similarity for each feature
+        → Genre: Jaccard similarity
+        → Synopsis: Word overlap
+        → Cast: Actor intersection
+        → Director: Binary match
+        → Studio: Binary match
+
+Step 3: Apply TOPSIS with custom weights
+        → [0.25, 0.20, 0.10, 0.15, 0.15, 0.15]
+
+Output: Similar films ranked by score
 ```
 
 ---
 
-## Caching Strategy
+## Permission System
 
-```mermaid
-graph LR
-    Request["API Request"]
-    CacheCheck{"Cache<br/>Hit?"}
-    CacheGet["Get from Cache"]
-    DBQuery["Query Database"]
-    CacheSet["Set Cache<br/>(30 days)"]
-    Response["Return Response"]
-    
-    Request -->|Check| CacheCheck
-    CacheCheck -->|Yes| CacheGet
-    CacheCheck -->|No| DBQuery
-    CacheGet --> Response
-    DBQuery --> CacheSet
-    CacheSet --> Response
+### Permission Levels
+
+```
+Public (Anyone)
+├── GET / (homepage)
+├── GET /movies/ (film list)
+├── GET /api/films/ (read only)
+
+Authenticated (Logged in)
+├── POST /api/ratings/
+├── GET /profile/
+├── POST /api/recommendations/
+
+Admin (is_staff=True)
+├── POST/PUT/DELETE /api/films/
+├── POST /api/films/sync/
+├── GET /admin-films/
+
+Superadmin (is_superuser=True)
+├── POST /api/films/{id}/approve/
+├── POST /api/films/{id}/reject/
+├── Full Django Admin access
 ```
 
----
+### Decorators Used
 
-## Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant User as User
-    participant Frontend as Frontend
-    participant API as Django API
-    participant DB as Database
-    
-    User->>Frontend: Enter credentials
-    Frontend->>API: POST /api/auth/login/
-    API->>DB: Verify credentials
-    DB-->>API: User found
-    API->>API: Generate token
-    API-->>Frontend: Return token
-    Frontend->>Frontend: Store token
-    Frontend->>API: GET /api/films/ (with token)
-    API->>API: Verify token
-    API-->>Frontend: Return data
-```
-
----
-
-## Deployment Architecture
-
-```mermaid
-graph TB
-    Client["🌐 Client"]
-    CDN["📦 CDN<br/>(Static Files)"]
-    LB["⚖️ Load Balancer"]
-    Web1["🐍 Web Server 1"]
-    Web2["🐍 Web Server 2"]
-    Cache["⚡ Redis Cache"]
-    DB["💾 PostgreSQL"]
-    
-    Client -->|HTTPS| CDN
-    Client -->|HTTPS| LB
-    LB -->|Route| Web1
-    LB -->|Route| Web2
-    Web1 -->|Query| Cache
-    Web2 -->|Query| Cache
-    Web1 -->|Query| DB
-    Web2 -->|Query| DB
-    Cache -->|Return| Web1
-    Cache -->|Return| Web2
-    DB -->|Return| Web1
-    DB -->|Return| Web2
-```
-
----
-
-## Key Design Patterns
-
-### 1. **ViewSet Pattern**
 ```python
-class FilmViewSet(viewsets.ModelViewSet):
-    queryset = Film.objects.all()
-    serializer_class = FilmSerializer
-    permission_classes = [IsAdminUser]
+@login_required          # Django - for SSR views
+@permission_classes      # DRF - for API views
+IsAdminOrSuperadmin      # Custom - for admin actions
+IsSuperadmin             # Custom - for superadmin only
 ```
 
-### 2. **Service Layer Pattern**
+---
+
+## Service Layer
+
+### TMDBService (films/services/main_service.py)
+
 ```python
 class TMDBService:
-    def sync_brad_pitt_movies(self, limit=15):
-        # Business logic here
-        pass
+    def sync_actor_movies(actor_id, min_rating=7.0):
+        """Sync all movies for one actor"""
+        
+    def sync_multiple_actors(actor_list, min_rating=7.0):
+        """Sync multiple actors (serial to avoid DB lock)"""
+        
+    def _format_latin_native_name(name, original_name, ...):
+        """Handle Korean/Chinese/Japanese names"""
+        
+    def _get_protected_actor_names(tmdb_id, name, native_name):
+        """Protect existing actor names from overwrite"""
 ```
 
-### 3. **Serializer Pattern**
+### YouTubeTrailerService (films/youtube_service.py)
+
 ```python
-class FilmSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Film
-        fields = ['id', 'title', 'synopsis', ...]
+class YouTubeTrailerService:
+    def search_trailer(title, year, tmdb_videos):
+        """Find trailer with fallback chain:
+        1. TMDB videos (free)
+        2. YouTube API (needs key)
+        3. Scraper fallback (no key needed)
+        """
 ```
 
-### 4. **Permission Pattern**
+---
+
+## Configuration
+
+### Settings Files
+
+```
+config/settings/
+├── base.py       # Shared settings (all environments)
+│                 # - INSTALLED_APPS
+│                 # - MIDDLEWARE
+│                 # - REST_FRAMEWORK
+│                 # - TMDB settings
+│
+├── development.py  # Local dev
+│                   # - DEBUG=True
+│                   # - SQLite
+│                   # - CORS_ALLOW_ALL_ORIGINS=True
+│
+└── production.py    # Production (belum ada)
+                    # - DEBUG=False
+                    # - PostgreSQL
+                    # - Tight ALLOWED_HOSTS
+```
+
+### Environment Variables (.env)
+
+```
+DEBUG=True                  # Dev only
+SECRET_KEY=xxx              # Required
+ALLOWED_HOSTS=127.0.0.1,localhost
+TMDB_API_KEY=xxx           # Required for sync
+YOUTUBE_API_KEY=xxx        # Optional (fallback scraper exists)
+```
+
+---
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `config/urls.py` | Main URL routing |
+| `apps/films/models.py` | Film, Genre, FilmImage |
+| `apps/films/views.py` | FilmViewSet + mixins |
+| `apps/recommendations/topsis_user.py` | User recommendations |
+| `apps/recommendations/topsis_similarity.py` | Similar films |
+| `apps/films/services/main_service.py` | TMDB sync (1000+ lines) |
+
+---
+
+## Development Workflow
+
+### 1. Model Changes
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 2. Add New Endpoint
 ```python
-def get_permissions(self):
-    if self.action in ['list', 'retrieve']:
-        return [permissions.AllowAny()]
-    return [permissions.IsAdminUser()]
+# apps/films/views.py
+@action(detail=True, methods=['get'])
+def my_action(self, request, pk=None):
+    film = self.get_object()
+    # do something
+    return Response(...)
+```
+
+### 3. Sync TMDB Data
+```bash
+python manage.py sync_tmdb --all
 ```
 
 ---
 
-## Performance Considerations
+## Common Patterns
 
-### Database Optimization
-- ✅ Indexed queries on frequently searched fields
-- ✅ Select_related for foreign keys
-- ✅ Prefetch_related for many-to-many
-- ✅ Query result caching
+### QuerySet Chain
+```python
+films = (Film.objects
+    .filter(status='published')
+    .filter_by_genres([1, 2])
+    .filter_by_year_range(2010, 2020)
+    .search('action')
+    .order_by('-avg_rating'))
+```
 
-### API Optimization
-- ✅ Pagination for large datasets
-- ✅ Filtering and searching
-- ✅ Response compression
-- ✅ Rate limiting
+### ViewSet with Custom Actions
+```python
+class FilmViewSet(FilmApprovalMixin, FilmActionsMixin, FilmGalleryMixin, FilmViewSetBase):
+    """Komposisi mixin untuk separation of concerns"""
+    pass
+```
 
-### Frontend Optimization
-- ✅ Lazy loading images
-- ✅ Minified CSS/JavaScript
-- ✅ Responsive images
-- ✅ Browser caching
-
----
-
-## Security Architecture
-
-```mermaid
-graph TB
-    Request["HTTP Request"]
-    HTTPS["🔒 HTTPS/TLS"]
-    CORS["🔐 CORS Check"]
-    Auth["🔑 Token Auth"]
-    Validation["✓ Input Validation"]
-    Sanitization["🧹 Sanitization"]
-    DB["💾 Parameterized Queries"]
-    Response["HTTP Response"]
-    
-    Request -->|Encrypt| HTTPS
-    HTTPS -->|Check| CORS
-    CORS -->|Verify| Auth
-    Auth -->|Validate| Validation
-    Validation -->|Clean| Sanitization
-    Sanitization -->|Execute| DB
-    DB -->|Return| Response
+### Signal Auto-Update
+```python
+@receiver(post_save, sender=Rating)
+def rating_saved(sender, instance, **kwargs):
+    # Auto-calculate avg_rating
 ```
 
 ---
 
-**Last Updated**: 2026-05-25  
-**Version**: 1.0.0
+**Last Updated**: 2026-05-29
+**Version**: 2.0.0

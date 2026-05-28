@@ -66,12 +66,16 @@ Di Windows, Anda tidak memiliki *Systemd*. Jika Anda ingin Waitress berjalan oto
    ```cmd
    nssm install SahabatBradPitt
    ```
-4. Jendela GUI NSSM akan terbuka. Isi konfigurasinya:
+6. Jendela GUI NSSM akan terbuka. Isi konfigurasinya:
    - **Path:** `C:\path\ke\project\Anda\venv\Scripts\waitress-serve.exe`
-   - **Arguments:** `--port=8000 config.wsgi:application`
+   - **Arguments:** `--port=8000 --url-scheme=https --threads=8 --connection-limit=200 --channel-timeout=60 config.wsgi:application`
    - **Directory:** `C:\path\ke\project\Anda`
-5. Klik **Install service**.
-6. Sekarang Anda bisa menyalakan/mematikan web server Anda melalui **Windows Services** (`services.msc`) layaknya service Windows biasa!
+
+> [!CAUTION]
+> **Sangat Penting:** Kolom **Directory** (Startup directory) WAJIB diisi dengan alamat folder utama project Anda (tempat `manage.py` berada). Jika tidak diubah, NSSM akan menggunakan folder `Scripts` dan *service* Waitress Anda akan langsung **CRASH** (gagal berjalan).
+
+7. Klik **Install service**.
+8. Sekarang Anda bisa menyalakan/mematikan web server Anda melalui **Windows Services** (`services.msc`) layaknya service Windows biasa!
 
 ## Selesai!
 Aplikasi Anda kini sudah siap menerima *traffic production* di ekosistem Windows. File statis (CSS/JS) akan di-handle secara otomatis oleh `WhiteNoise` yang sebelumnya sudah dikonfigurasi di `base.py`.

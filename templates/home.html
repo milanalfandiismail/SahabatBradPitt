@@ -4,12 +4,16 @@
 
 {% block content %}
 <!-- 1. HERO BANNER -->
-<header class="relative w-full h-screen overflow-hidden flex items-center pt-[80px] bg-[#141314]" id="hero-section">
+<!-- KUNCI DESKTOP: md:pt-[80px] dan md:h-screen mengembalikan posisi poster & text desktop tepat pada tempatnya -->
+<header
+    class="relative w-full min-h-screen md:h-screen overflow-hidden flex items-center pt-[120px] md:pt-[80px] pb-12 md:pb-0 bg-[#141314]"
+    id="hero-section">
     <!-- Base Gradient -->
     <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#37353E] to-transparent z-0"></div>
-    
+
     <!-- Loading skeleton -->
-    <div id="hero-loading" class="relative z-20 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-12 h-full py-12">
+    <div id="hero-loading"
+        class="relative z-20 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 h-full py-12">
         <div class="flex-1 w-full animate-pulse flex flex-col justify-center">
             <div class="h-5 w-40 bg-white/10 rounded-full mb-6"></div>
             <div class="h-14 w-full bg-white/10 rounded mb-4"></div>
@@ -18,51 +22,65 @@
             <div class="h-11 w-32 bg-white/10 rounded"></div>
         </div>
         <div class="flex-1 w-full animate-pulse flex justify-center md:justify-end items-center h-full">
-            <div class="w-[300px] md:w-[400px] aspect-[2/3] bg-white/5 rounded-lg shadow-2xl"></div>
+            <div class="w-[220px] md:w-[400px] aspect-[2/3] bg-white/5 rounded-lg shadow-2xl"></div>
         </div>
     </div>
 
     <!-- Dynamic hero content -->
-    <div id="hero-content" class="hidden relative z-10 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 h-full font-['DM_Sans'] py-12">
+    <div id="hero-content"
+        class="hidden relative z-10 w-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-12 h-full font-['DM_Sans'] py-6 md:py-12">
         <!-- Kiri: Teks -->
-        <div class="flex-1 w-full flex flex-col justify-center h-full">
+        <div
+            class="flex-1 w-full flex flex-col justify-center h-full text-center md:text-left items-center md:items-start">
             <!-- Meta badge -->
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#715A5A] text-xs mb-6 text-stone-300 w-max">
-                <span class="material-symbols-outlined text-sm text-[#F5C518]" style="font-variation-settings: 'FILL' 1;">star</span>
+            <span
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#715A5A] text-xs mb-4 md:mb-6 text-stone-300 w-max">
+                <span class="material-symbols-outlined text-sm text-[#F5C518]"
+                    style="font-variation-settings: 'FILL' 1;">star</span>
                 <span id="hero-rating" class="text-[#D3DAD9] font-bold"></span>
                 <span class="w-1 h-1 rounded-full bg-stone-500"></span>
                 <span id="hero-year" class="text-[#D3DAD9]"></span>
                 <span class="w-1 h-1 rounded-full bg-stone-500"></span>
                 <span id="hero-duration" class="text-[#D3DAD9]"></span>
             </span>
-            <h1 id="hero-title" class="font-['Playfair_Display'] text-4xl md:text-5xl lg:text-6xl text-white font-bold leading-tight mb-4 drop-shadow-xl"></h1>
-            <p id="hero-synopsis" class="text-sm text-stone-300 mb-8 max-w-xl leading-relaxed line-clamp-4"></p>
+            <h1 id="hero-title"
+                class="font-['Playfair_Display'] text-3xl md:text-5xl lg:text-6xl text-white font-bold leading-tight mb-4 drop-shadow-xl">
+            </h1>
+            <p id="hero-synopsis"
+                class="text-sm text-stone-300 mb-6 md:mb-8 max-w-xl leading-relaxed line-clamp-3 md:line-clamp-4"></p>
             <div class="flex items-center gap-4">
-                <a id="hero-detail-btn" href="#" class="bg-[#C0392B] text-white px-6 py-3 rounded font-semibold text-sm flex items-center gap-2 hover:bg-[#A93226] hover:scale-[1.02] transition-all duration-300 shadow-lg w-max">
+                <a id="hero-detail-btn" href="#"
+                    class="bg-[#C0392B] text-white px-6 py-3 rounded font-semibold text-sm flex items-center gap-2 hover:bg-[#A93226] hover:scale-[1.02] transition-all duration-300 shadow-lg w-max">
                     <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">info</span>
                     Detail Film
                 </a>
             </div>
             <!-- Hero navigation -->
-            <div class="flex items-center gap-3 mt-8">
-                <button id="hero-prev-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
-                    <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
+            <div class="flex items-center gap-3 mt-6 md:mt-8">
+                <button id="hero-prev-btn"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
+                    <span
+                        class="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
                 </button>
                 <div id="hero-dots" class="flex gap-2 mx-2"></div>
-                <button id="hero-next-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
-                    <span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+                <button id="hero-next-btn"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-[#37353E]/80 border border-white/10 hover:bg-[#715A5A] hover:border-transparent text-white transition-all cursor-pointer group">
+                    <span
+                        class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
                 </button>
             </div>
         </div>
-        <!-- Kanan: Gambar -->
-        <div class="flex-1 w-full flex justify-center md:justify-end items-center h-full pb-8 md:pb-0">
-            <img id="hero-poster" src="" alt="Hero Poster" class="w-auto h-[60vh] md:h-[75vh] object-contain rounded-xl shadow-2xl transition-transform duration-700 ease-in-out hover:scale-[1.02]" />
+        <!-- Kanan: Gambar Poster -->
+        <!-- KUNCI DESKTOP: md:w-auto md:h-[75vh] md:pt-0 mengembalikan ukuran & gap poster desktop agar proporsional semestinya -->
+        <div class="flex-1 w-full flex justify-center md:justify-end items-center pt-4 md:pt-0 h-full">
+            <img id="hero-poster" src="" alt="Hero Poster"
+                class="w-[220px] h-auto md:w-auto md:h-[75vh] object-contain rounded-xl shadow-2xl transition-transform duration-700 ease-in-out hover:scale-[1.02]" />
         </div>
     </div>
 </header>
 
 <!-- 2. TRENDING THIS WEEK -->
-<section class="py-16 bg-[#44444E] relative overflow-hidden">
+<section class="py-12 md:py-16 bg-[#44444E] relative overflow-hidden">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 font-['DM_Sans']">
         <div class="flex items-center justify-between mb-8">
             <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Trending This
@@ -73,20 +91,29 @@
             </a>
         </div>
         <div id="trending-carousel" class="flex gap-6 overflow-x-auto pb-4" style="scrollbar-width: none;">
-            <!-- Loading placeholder -->
             <div id="trending-loading" class="flex gap-6">
-                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
-                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
-                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
-                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
-                <div class="w-[200px] md:w-[240px] h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0"></div>
+                <div
+                    class="w-[160px] md:w-[240px] h-[240px] md:h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0">
+                </div>
+                <div
+                    class="w-[160px] md:w-[240px] h-[240px] md:h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0">
+                </div>
+                <div
+                    class="w-[160px] md:w-[240px] h-[240px] md:h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0">
+                </div>
+                <div
+                    class="w-[160px] md:w-[240px] h-[240px] md:h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0">
+                </div>
+                <div
+                    class="w-[160px] md:w-[240px] h-[240px] md:h-[300px] bg-white/5 rounded-lg animate-pulse flex-shrink-0">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- 3. FEATURED ACTORS -->
-<section class="py-16 bg-[#37353E] relative">
+<section class="py-12 md:py-16 bg-[#37353E] relative">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 font-['DM_Sans']">
         <div class="flex items-center justify-between mb-8">
             <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight">Featured
@@ -96,33 +123,32 @@
                 See all <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
         </div>
-        <div id="actors-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-            <!-- Loading skeleton -->
+        <div id="actors-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
             <div
-                class="flex flex-col items-center gap-3 animate-pulse col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+                class="flex flex-col items-center gap-3 animate-pulse col-span-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 animate-pulse">
-                    <div class="w-28 h-28 rounded-full bg-white/5"></div>
-                    <div class="h-3 w-20 bg-white/5 rounded"></div>
+                    <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5"></div>
+                    <div class="h-3 w-16 bg-white/5 rounded"></div>
                 </div>
             </div>
         </div>
@@ -130,22 +156,24 @@
 </section>
 
 <!-- 4. FEATURED MOVIES (EDITOR CHOICES) -->
-<section class="py-16 bg-[#44444E] relative">
+<section class="py-12 md:py-16 bg-[#44444E] relative">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 font-['DM_Sans']">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             <!-- Editor's Choice -->
             <div>
-                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">
+                <h2
+                    class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-6 md:mb-8">
                     Editor's Choice</h2>
-                <div class="relative h-[380px]" id="editors-choice-container">
+                <div class="relative h-[300px] md:h-[380px]" id="editors-choice-container">
                     <div class="animate-pulse absolute inset-0 bg-white/5 rounded-lg"></div>
                 </div>
             </div>
             <!-- Top Rated -->
             <div>
-                <h2 class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-8">Top
-                    Rated Movie</h2>
-                <div class="relative h-[380px]" id="top-rated-container">
+                <h2
+                    class="font-['Playfair_Display'] text-2xl md:text-3xl text-white font-bold tracking-tight mb-6 md:mb-8">
+                    Top Rated Movie</h2>
+                <div class="relative h-[300px] md:h-[380px]" id="top-rated-container">
                     <div class="animate-pulse absolute inset-0 bg-white/5 rounded-lg"></div>
                 </div>
             </div>

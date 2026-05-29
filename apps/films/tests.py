@@ -28,7 +28,7 @@ class FilmImageTests(APITestCase):
             synopsis="A test film synopsis.",
             release_year=2026,
             duration=120,
-            popularity=8.5,
+            tmdb_popularity=8.5,
             avg_rating=7.5,
             status='published'
         )

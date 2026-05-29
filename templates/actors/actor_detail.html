@@ -21,10 +21,10 @@
     <!-- Dynamic Layout -->
     <div id="actor-wrapper" class="hidden">
 
-        <div class="relative h-64 md:h-80 w-full bg-[#201f20] overflow-hidden">
+        <div class="relative h-48 sm:h-64 md:h-80 w-full bg-[#201f20] overflow-hidden">
             <!-- Breadcrumbs inside hero top -->
-            <div class="absolute top-0 left-0 w-full z-30 pt-6">
-                <div class="max-w-[1440px] mx-auto px-6 md:px-12">
+            <div class="absolute top-0 left-0 w-full z-30 pt-4 sm:pt-6">
+                <div class="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12">
                     <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs">
                         <a class="hover:text-white transition-colors" href="/">Home</a>
                         <span class="material-symbols-outlined text-[16px]">chevron_right</span>
@@ -40,17 +40,17 @@
         </div>
 
         <!-- Bio Content Section -->
-        <div class="max-w-[1440px] mx-auto px-6 md:px-12 relative -mt-24 z-10 mb-12">
-            <div class="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12 relative -mt-20 sm:-mt-24 z-10 mb-12">
+            <div class="flex flex-col md:flex-row items-center md:items-end gap-4 sm:gap-6 text-center md:text-left">
                 <!-- Circular Profile Photo -->
-                <div id="photo-container" class="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-[#37353E] overflow-hidden shadow-2xl shrink-0">
+                <div id="photo-container" class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full border-4 border-[#37353E] overflow-hidden shadow-2xl shrink-0">
                     <!-- Populated dynamically with photo or icon -->
                 </div>
                 <!-- Identity -->
                 <div class="flex-grow pb-2">
-                    <h1 id="actor-name" class="font-['Playfair_Display'] text-3xl md:text-5xl text-[#D3DAD9] font-bold mb-1 drop-shadow-md"></h1>
+                    <h1 id="actor-name" class="font-['Playfair_Display'] text-2xl sm:text-3xl md:text-5xl text-[#D3DAD9] font-bold mb-1 drop-shadow-md"></h1>
                     <!-- Nama native (Korea/Mandarin/Jepang dll) -->
-                    <p id="native-name-val" class="hidden font-['DM_Sans'] text-xl text-[#D3DAD9]/50 mb-2"></p>
+                    <p id="native-name-val" class="hidden font-['DM_Sans'] text-base sm:text-xl text-[#D3DAD9]/50 mb-2"></p>
                     <!-- Info badges -->
                     <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
                         <span id="birth-year-badge" class="hidden font-['DM_Sans'] text-xs px-2.5 py-1 rounded-full border border-white/10 text-[#D3DAD9]/70"></span>
@@ -88,9 +88,9 @@
         </div>
 
         <!-- Filmography Section -->
-        <section class="max-w-[1440px] mx-auto px-6 md:px-12 py-6 border-t border-white/5">
-            <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-8">Daftar Filmography</h2>
-            <div id="filmography-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <section class="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12 py-6 border-t border-white/5">
+            <h2 class="font-['Playfair_Display'] text-xl sm:text-2xl text-[#D3DAD9] mb-6 sm:mb-8">Daftar Filmography</h2>
+            <div id="filmography-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
                 <!-- Dynamic film list cards -->
             </div>
         </section>

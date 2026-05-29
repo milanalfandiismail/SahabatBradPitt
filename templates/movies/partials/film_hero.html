@@ -13,10 +13,10 @@
 
 <div id="detail-wrapper" class="hidden">
 
-    <section class="relative w-full h-[450px] overflow-hidden">
+    <section class="relative w-full overflow-hidden">
         <!-- Breadcrumbs inside hero top -->
-        <div class="absolute top-0 left-0 w-full z-30 pt-6">
-            <div class="max-w-[1440px] mx-auto px-6 md:px-12">
+        <div class="absolute top-0 left-0 w-full z-30 pt-4 sm:pt-6">
+            <div class="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12">
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs">
                     <a class="hover:text-white transition-colors" href="/">Home</a>
                     <span class="material-symbols-outlined text-[16px]">chevron_right</span>
@@ -26,37 +26,39 @@
                 </nav>
             </div>
         </div>
-        
+
         <div id="backdrop-img" class="absolute inset-0 z-0 bg-cover bg-center blur-sm transform scale-105 opacity-40"></div>
         <div class="absolute inset-0 z-10 bg-gradient-to-t from-[#37353E] via-[#37353E]/85 to-transparent"></div>
 
-        <div class="relative z-20 max-w-[1440px] mx-auto px-6 md:px-12 h-full flex items-end pb-8">
-            <div class="flex flex-col sm:flex-row gap-8 items-center sm:items-end w-full">
+        <!-- Content wrapper -->
+        <div class="relative z-20 max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12 pt-20 sm:pt-24 md:pt-28 pb-8">
+            <!-- Mobile: Poster centered on top, Desktop: Poster left, content right -->
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center sm:items-end">
                 <!-- Poster -->
-                <div class="w-[180px] shrink-0 transform translate-y-6 hidden sm:block">
+                <div class="w-[120px] sm:w-[140px] md:w-[180px] shrink-0">
                     <img id="poster-img" alt="Poster Film"
-                        class="w-full h-[270px] object-cover rounded-lg shadow-2xl border border-white/10"
+                        class="w-full aspect-[2/3] sm:aspect-auto sm:h-[210px] md:h-[270px] object-cover rounded-lg shadow-2xl border border-white/10"
                         src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500" />
                 </div>
                 <!-- Meta -->
-                <div class="flex-grow text-center sm:text-left pb-4">
+                <div class="flex-grow text-center sm:text-left w-full">
                     <!-- Admin badges -->
-                    <div id="admin-status-container" class="hidden flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-3">
+                    <div id="admin-status-container" class="hidden flex flex-wrap justify-center sm:justify-start gap-3 mb-3">
                         <span id="detail-status-badge"></span>
                         <button id="admin-edit-direct-btn" class="px-3 py-1 rounded text-xs font-semibold border border-white/10 hover:border-[#715A5A] text-stone-300 hover:bg-[#715A5A]/10 transition-all flex items-center gap-1">
                             <span class="material-symbols-outlined text-xs">edit</span> Edit Film
                         </button>
                     </div>
-                    <div id="detail-rejection-alert" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-md text-xs font-['DM_Sans'] mb-4 max-w-xl mx-auto sm:mx-0 flex items-start gap-2">
+                    <div id="detail-rejection-alert" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-md text-xs font-['DM_Sans'] mb-4 flex items-start gap-2">
                         <span class="material-symbols-outlined text-sm shrink-0 mt-0.5">warning</span>
                         <div><span class="font-bold">Ditolak:</span> <span id="detail-rejection-text"></span></div>
                     </div>
 
-                    <h1 id="film-title" class="font-['Playfair_Display'] text-3xl md:text-5xl text-[#D3DAD9] mb-3 font-bold drop-shadow-lg"></h1>
-                    <div id="genre-chips" class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4"></div>
-                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 font-['DM_Sans'] text-[#D3DAD9]/80 text-sm mb-6">
+                    <h1 id="film-title" class="font-['Playfair_Display'] text-2xl sm:text-3xl md:text-5xl text-[#D3DAD9] mb-2 sm:mb-3 font-bold drop-shadow-lg"></h1>
+                    <div id="genre-chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mb-3 sm:mb-4"></div>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 font-['DM_Sans'] text-[#D3DAD9]/80 text-xs sm:text-sm mb-4 sm:mb-6">
                         <div class="flex items-center gap-1 text-[#F5C518]">
-                            <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <span class="material-symbols-outlined text-[16px] sm:text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
                             <span id="avg-rating-val" class="font-bold text-[#D3DAD9]"></span>
                         </div>
                         <span>•</span>
@@ -66,11 +68,11 @@
                         <span>•</span>
                         <span id="popularity-val"></span>
                     </div>
-                    <div class="flex flex-wrap justify-center sm:justify-start gap-4">
-                        <button id="trailer-btn" type="button" class="hidden bg-[#C0392B] hover:bg-[#A93226] text-white px-6 py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2 shadow-lg">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span> Watch Trailer
+                    <div class="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
+                        <button id="trailer-btn" type="button" class="hidden bg-[#C0392B] hover:bg-[#A93226] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2 shadow-lg text-sm">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span> Trailer
                         </button>
-                        <button id="watchlist-btn" class="border border-[#D3DAD9]/30 hover:border-[#D3DAD9]/60 hover:bg-white/5 text-[#D3DAD9] px-6 py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2">
+                        <button id="watchlist-btn" class="border border-[#D3DAD9]/30 hover:border-[#D3DAD9]/60 hover:bg-white/5 text-[#D3DAD9] px-4 sm:px-6 py-2 sm:py-2.5 rounded font-medium transition-all hover:scale-[1.02] flex items-center gap-2 text-sm">
                             <span class="material-symbols-outlined">add</span> Watchlist
                         </button>
                     </div>
@@ -78,3 +80,5 @@
             </div>
         </div>
     </section>
+
+</div>

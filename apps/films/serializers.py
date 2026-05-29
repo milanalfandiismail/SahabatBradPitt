@@ -48,13 +48,14 @@ class FilmSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     actors_data = serializers.JSONField(write_only=True, required=False)
     cast = FilmographySerializer(source='filmographies', many=True, read_only=True)
+    popularity = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Film
         fields = [
             'id', 'tmdb_id', 'title', 'synopsis', 'release_year', 
             'genre', 'genre_display', 'trailer_url', 'poster_path', 'poster', 'duration', 
-            'popularity', 'avg_rating', 'studio', 'studio_name', 'created_at',
+            'tmdb_popularity', 'local_popularity', 'popularity', 'avg_rating', 'studio', 'studio_name', 'created_at',
             'images', 'status', 'status_display', 'rejection_reason', 
             'is_local_edit', 'created_by', 'created_by_name', 
             'updated_by', 'updated_by_name', 'updated_at', 'actors_data', 'cast',

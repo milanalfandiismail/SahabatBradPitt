@@ -4,7 +4,7 @@ import threading
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Count, Avg, Sum, Q
+from django.db.models import Count, Avg, Sum, Q, F
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.cache import cache
@@ -26,7 +26,7 @@ class GenreViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
 class FilmViewSetBase(viewsets.ModelViewSet):
-    queryset = Film.objects.all().order_by('-popularity')
+    queryset = Film.objects.annotate(popularity=F('tmdb_popularity') + F('local_popularity')).order_by('-popularity')
     serializer_class = FilmSerializer
 
     def get_permissions(self):
@@ -182,7 +182,7 @@ class FilmActionsMixin:
     @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
     def similar(self, request, pk=None):
         film = self.get_object()
-        candidates = Film.objects.exclude(id=film.id)
+        candidates = self.get_queryset().exclude(id=film.id)
         ranked_results = TopsisSPK.calculate_similarity_scores(film, candidates)
         top_similar = ranked_results[:6]
         

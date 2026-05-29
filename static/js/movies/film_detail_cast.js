@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         else if (isSecondCast) borderClass = "border-2 border-[#715A5A]/40 group-hover:border-[#715A5A] group-hover:shadow-[0_0_12px_rgba(113,90,90,0.3)]";
 
                         const wrapper = document.createElement("div");
-                        wrapper.className = `w-[96px] h-[96px] rounded-full overflow-hidden shrink-0 bg-[#37353E] transition-all duration-300 ${borderClass}`;
+                        wrapper.className = "w-16 h-16 sm:w-[96px] sm:h-[96px] rounded-full overflow-hidden shrink-0 bg-[#37353E] transition-all duration-300";
 
                         if (actor.photo) {
                             const img = document.createElement("img");

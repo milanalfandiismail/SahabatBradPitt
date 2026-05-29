@@ -45,7 +45,7 @@ def calculate_user_scores(candidates, preferences, weights=None):
 
     for i, film in enumerate(films_list):
         X[i, 0] = film.avg_rating if film.avg_rating > 0 else 5.0
-        X[i, 1] = film.popularity
+        X[i, 1] = getattr(film, 'popularity', film.tmdb_popularity + film.local_popularity)
 
         film_genre_names = [g.name for g in film.genre.all()]
         film_genre_ids = [g.id for g in film.genre.all()]
@@ -113,7 +113,7 @@ def _format_user_results(films_list, scores, X, era_pref, duration_pref):
         score = round(float(scores[i]), 4)
         reasons = []
         if film.avg_rating >= 8.0: reasons.append("ratingnya yang sangat tinggi")
-        if film.popularity >= 80.0: reasons.append("sangat populer di kalangan penonton")
+        if getattr(film, 'popularity', film.tmdb_popularity + film.local_popularity) >= 80.0: reasons.append("sangat populer di kalangan penonton")
         if X[i, 2] >= 0.7: reasons.append("sangat sesuai dengan genre pilihan")
         elif X[i, 2] >= 0.4: reasons.append("memiliki genre yang cocok")
         if X[i, 3] == 1.0: reasons.append(f"dirilis tepat di era {era_pref or 'yang sesuai'}")

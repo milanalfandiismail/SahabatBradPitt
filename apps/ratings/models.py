@@ -53,3 +53,17 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.film.title}"
+
+# Signal helper untuk memperbarui local_popularity pada model Film
+@receiver(post_save, sender=Watchlist)
+def watchlist_saved(sender, instance, created, **kwargs):
+    if created:
+        # Tambah +10 popularity setiap kali dimasukkan ke watchlist
+        instance.film.local_popularity += 10.0
+        instance.film.save(update_fields=['local_popularity'])
+
+@receiver(post_delete, sender=Watchlist)
+def watchlist_deleted(sender, instance, **kwargs):
+    # Kurangi -10 popularity saat dihapus, minimum 0.0
+    instance.film.local_popularity = max(0.0, instance.film.local_popularity - 10.0)
+    instance.film.save(update_fields=['local_popularity'])

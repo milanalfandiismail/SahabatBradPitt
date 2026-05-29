@@ -320,7 +320,7 @@ class TMDBService:
             return genres_created
 
         url = f"{self.base_url}/genre/movie/list"
-        params = {"api_key": self.api_key, "language": "id-ID"}
+        params = {"api_key": self.api_key, "language": "en-US"}
         try:
             response = requests.get(url, headers=self.headers, params=params, timeout=10)
             if response.status_code == 200:
@@ -333,8 +333,8 @@ class TMDBService:
                     for attempt in range(max_retries):
                         try:
                             genre, _ = Genre.objects.update_or_create(
-                                name=item["name"],
-                                defaults={"tmdb_genre_id": item["id"]}
+                                tmdb_genre_id=item["id"],
+                                defaults={"name": item["name"]}
                             )
                             genres_created.append(genre)
                             break  # Success, exit retry loop
@@ -376,7 +376,7 @@ class TMDBService:
 
         # Gunakan combined_credits untuk menarik Film dan Serial TV (K-Drama) sekaligus
         url = f"{self.base_url}/person/{actor_id}/combined_credits"
-        params = {"api_key": self.api_key, "language": "id-ID"}
+        params = {"api_key": self.api_key, "language": "en-US"}
         try:
             if rate_limiter:
                 rate_limiter.wait_if_needed()
@@ -492,7 +492,7 @@ class TMDBService:
                     continue
 
                 # Ambil detail lengkap film/serial tv (termasuk runtime, studio produksi, dan videos)
-                detail_params = {"api_key": self.api_key, "language": "id-ID", "append_to_response": "credits,images,videos", "include_image_language": "id,en,null", "include_video_language": "id,en,null"}
+                detail_params = {"api_key": self.api_key, "language": "en-US", "append_to_response": "credits,images,videos", "include_image_language": "en,null", "include_video_language": "en,null"}
                 
                 runtime = 120
                 if media_type == "tv":
@@ -615,7 +615,7 @@ class TMDBService:
                         "trailer_url": trailer_url,
                         "poster_path": cast.get("poster_path") or "",
                         "duration": runtime,
-                        "popularity": cast.get("popularity", 0.0),
+                        "tmdb_popularity": cast.get("popularity", 0.0),
                         "avg_rating": cast.get("vote_average", 0.0),
                         "studio": studios[0] if studios else None,
                         "is_tv_series": media_type == "tv",
@@ -834,7 +834,14 @@ class TMDBService:
             return synced_count
 
         except Exception as e:
-            logger.exception(f"Error saat sinkronisasi TMDB {actor_name or f'actor ID {actor_id}'}: {str(e)}")
+            err_msg = f"Error saat sinkronisasi TMDB {actor_name or f'actor ID {actor_id}'}: {str(e)}"
+            logger.exception(err_msg)
+            from django.conf import settings
+            import os
+            import traceback
+            log_path = os.path.join(settings.BASE_DIR, "sync_error.log")
+            with open(log_path, "a") as f:
+                f.write(err_msg + "\n" + traceback.format_exc() + "\n")
         return 0
 
     def _create_mock_data(self):
@@ -957,7 +964,7 @@ class TMDBService:
                     "trailer_url": item["trailer_url"],
                     "poster_path": item["poster_path"],
                     "duration": item["duration"],
-                    "popularity": item["popularity"],
+                    "tmdb_popularity": item["popularity"],
                     "avg_rating": item["avg_rating"],
                     "studio": item["studio"]
                 }

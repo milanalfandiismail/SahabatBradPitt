@@ -12,7 +12,7 @@ from apps.users.views_html import (
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('dapur-bradpitt/', admin.site.urls),  # Obfuscated admin URL untuk keamanan
     
     # REST API Endpoints
     path('api/films/', include('apps.films.urls')),

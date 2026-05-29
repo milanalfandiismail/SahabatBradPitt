@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html class="dark" lang="id">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{% block title %}Sahabat Bradpitt - Cine-Noir Database{% endblock %}</title>
-    
-    <!-- Scripts & Fonts CDNs -->
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet"/>
-    <link href="/static/css/toast.css" rel="stylesheet"/>
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet" />
+    <link href="/static/css/toast.css" rel="stylesheet" />
+
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -89,11 +92,11 @@
                         "card-title": ["DM Sans"]
                     },
                     "fontSize": {
-                        "section-title": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "meta-label": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400"}],
-                        "hero-display": ["52px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-main": ["15px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "card-title": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}]
+                        "section-title": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "meta-label": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                        "hero-display": ["52px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-main": ["15px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "card-title": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }]
                     }
                 },
             }
@@ -105,83 +108,132 @@
         }
     </style>
 
-    <!-- CSRF Token global — digunakan oleh secureFetch() di toast.js untuk request mutating -->
     <script>
         const CSRF_TOKEN = "{{ csrf_token }}";
         const isAuthenticated = JSON.parse("{% if user.is_authenticated %}true{% else %}false{% endif %}");
     </script>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-[#37353E] text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
 
-    <!-- TopNavBar -->
-    <nav class="bg-[#37353E]/95 backdrop-blur-md fixed top-0 w-full h-[80px] z-50 border-b border-white/5 transition-all duration-300">
-        <div class="flex justify-between items-center px-6 md:px-12 max-w-[1440px] mx-auto h-full relative">
-            
-            <!-- Logo -->
-            <div class="text-2xl font-bold tracking-tight text-white font-['Noto_Serif']">
+<body
+    class="bg-[#37353E] text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+
+    <nav
+        class="bg-[#37353E]/95 backdrop-blur-md fixed top-0 w-full h-[80px] z-50 border-b border-white/5 transition-all duration-300">
+        <div class="flex justify-between items-center px-4 md:px-12 max-w-[1440px] mx-auto h-full relative">
+
+            <button id="mobile-menu-btn"
+                class="block md:hidden text-[#D3DAD9] hover:text-white transition-all focus:outline-none p-1">
+                <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+            </button>
+
+            <div class="text-xl md:text-2xl font-bold tracking-tight text-white font-['Noto_Serif']">
                 <a href="/">Sahabat Bradpitt</a>
             </div>
-            
-            <!-- Navigation Links — dirender server-side, tanpa flicker -->
+
             <div class="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
-                <a id="nav-home" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/">Home</a>
-                <a id="nav-movies" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/movies/">Movies</a>
-                <a id="nav-actors" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/actors/">Actors</a>
-                <a id="nav-festivals" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5" href="/festivals/">Festivals</a>
+                <a id="nav-home"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5"
+                    href="/">Home</a>
+                <a id="nav-movies"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5"
+                    href="/movies/">Movies</a>
+                <a id="nav-actors"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5"
+                    href="/actors/">Actors</a>
+                <a id="nav-festivals"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5"
+                    href="/festivals/">Festivals</a>
                 {% if user.is_authenticated %}
-                <a id="nav-recommendations" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5" href="/recommendations/"><span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">psychology</span>AI Rec</a>
+                <a id="nav-recommendations"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5"
+                    href="/recommendations/"><span class="material-symbols-outlined text-base"
+                        style="font-variation-settings: 'FILL' 1;">psychology</span>AI Rec</a>
                 {% endif %}
                 {% if user.is_staff or user.is_superuser %}
-                <a id="nav-admin" class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5" href="/admin-films/"><span class="material-symbols-outlined text-base">settings</span>Manage</a>
+                <a id="nav-admin"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5 flex items-center gap-1.5"
+                    href="/admin-films/"><span class="material-symbols-outlined text-base">settings</span>Manage</a>
                 {% endif %}
             </div>
-            
-            <!-- Right Aligned Icons -->
-            <div class="flex items-center gap-6">
+
+            <div class="flex items-center gap-4 md:gap-6">
                 <a href="/movies/?search=1" class="text-[#D3DAD9] hover:text-white transition-all">
-                    <span class="material-symbols-outlined text-2xl">search</span>
+                    <span class="material-symbols-outlined text-xl md:text-2xl">search</span>
                 </a>
                 <a href="/profile/" class="text-[#D3DAD9] hover:text-white transition-all">
-                    <div id="navbar-avatar" class="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#37353E]">
+                    <div id="navbar-avatar"
+                        class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#37353E]">
                         {% if user.is_authenticated and user.profile.avatar %}
-                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover" src="{{ user.profile.avatar.url }}"/>
+                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
+                            src="{{ user.profile.avatar.url }}" />
                         {% else %}
-                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"/>
+                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
+                            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" />
                         {% endif %}
                     </div>
                 </a>
             </div>
         </div>
+
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-[#2D2B33] border-b border-white/5 w-full absolute top-[80px] left-0 px-6 py-4 shadow-xl transition-all duration-300 animate-fadeIn">
+            <div class="flex flex-col gap-4">
+                <a id="mob-nav-home"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5"
+                    href="/">Home</a>
+                <a id="mob-nav-movies"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5"
+                    href="/movies/">Movies</a>
+                <a id="mob-nav-actors"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5"
+                    href="/actors/">Actors</a>
+                <a id="mob-nav-festivals"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5"
+                    href="/festivals/">Festivals</a>
+                {% if user.is_authenticated %}
+                <a id="mob-nav-recommendations"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5 flex items-center gap-2"
+                    href="/recommendations/"><span class="material-symbols-outlined text-sm"
+                        style="font-variation-settings: 'FILL' 1;">psychology</span>AI Rec</a>
+                {% endif %}
+                {% if user.is_staff or user.is_superuser %}
+                <a id="mob-nav-admin"
+                    class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 flex items-center gap-2"
+                    href="/admin-films/"><span class="material-symbols-outlined text-sm">settings</span>Manage
+                    System</a>
+                {% endif %}
+            </div>
+        </div>
     </nav>
 
-    <!-- Main Content Area -->
     <main class="flex-grow">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#141314] text-[#D3DAD9]/60 py-16 px-6 md:px-24 border-t border-white/5 w-full">
-        <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-            <!-- Left Side: Logo and Copyright -->
-            <div class="flex flex-col gap-4">
-                <div class="text-2xl font-bold tracking-tight text-white font-['Noto_Serif']">
+    <footer class="bg-[#141314] text-[#D3DAD9]/60 py-12 px-6 md:py-16 md:px-24 border-t border-white/5 w-full">
+        <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-start gap-8 md:gap-12">
+            <div class="flex flex-col gap-2 md:gap-4">
+                <div class="text-xl md:text-2xl font-bold tracking-tight text-white font-['Noto_Serif']">
                     Sahabat Bradpitt
                 </div>
-                <div class="font-['Noto_Serif'] text-sm opacity-40">
+                <div class="font-['Noto_Serif'] text-xs md:text-sm opacity-40">
                     © 2026 Sahabat Bradpitt. For the love of cinema.
                 </div>
             </div>
-            <!-- Right Side: Links Grid -->
-            <div class="grid grid-cols-2 gap-x-24 gap-y-4">
-                <div class="flex flex-col gap-4">
-                    <a class="font-['Noto_Serif'] text-sm hover:text-white transition-colors opacity-50" href="#">About Us</a>
-                    <a class="font-['Noto_Serif'] text-sm hover:text-white transition-colors opacity-50" href="#">Press Kit</a>
+            <div class="grid grid-cols-2 gap-x-12 md:gap-x-24 gap-y-4 w-full md:w-auto">
+                <div class="flex flex-col gap-3 md:gap-4">
+                    <a class="font-['Noto_Serif'] text-xs md:text-sm hover:text-white transition-colors opacity-50"
+                        href="#">About Us</a>
+                    <a class="font-['Noto_Serif'] text-xs md:text-sm hover:text-white transition-colors opacity-50"
+                        href="#">Press Kit</a>
                 </div>
-                <div class="flex flex-col gap-4">
-                    <a class="font-['Noto_Serif'] text-sm hover:text-white transition-colors opacity-50" href="#">Privacy Policy</a>
-                    <a class="font-['Noto_Serif'] text-sm hover:text-white transition-colors opacity-50" href="#">Terms of Service</a>
+                <div class="flex flex-col gap-3 md:gap-4">
+                    <a class="font-['Noto_Serif'] text-xs md:text-sm hover:text-white transition-colors opacity-50"
+                        href="#">Privacy Policy</a>
+                    <a class="font-['Noto_Serif'] text-xs md:text-sm hover:text-white transition-colors opacity-50"
+                        href="#">Terms of Service</a>
                 </div>
             </div>
         </div>
@@ -189,27 +241,48 @@
 
     <script src="/static/js/toast.js?v=2"></script>
     <script>
-        // Active nav link highlight — pure client-side, tidak butuh token sama sekali
-        document.addEventListener("DOMContentLoaded", function() {
+        // Logika Toggle Menu Hamburger Mobile
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuBtn = document.getElementById("mobile-menu-btn");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const menuIcon = document.getElementById("menu-icon");
+
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener("click", function () {
+                    mobileMenu.classList.toggle("hidden");
+                    // Berubah icon jadi 'close' pas kebuka
+                    if (mobileMenu.classList.contains("hidden")) {
+                        menuIcon.textContent = "menu";
+                    } else {
+                        menuIcon.textContent = "close";
+                    }
+                });
+            }
+
+            // Active nav link highlight (Desktop & Mobile)
             const pathname = window.location.pathname;
             const links = {
-                'nav-home': '/',
-                'nav-movies': '/movies/',
-                'nav-actors': '/actors/',
-                'nav-festivals': '/festivals/',
-                'nav-recommendations': '/recommendations/',
-                'nav-admin': '/admin-films/'
+                'nav-home': '/', 'mob-nav-home': '/',
+                'nav-movies': '/movies/', 'mob-nav-movies': '/movies/',
+                'nav-actors': '/actors/', 'mob-nav-actors': '/actors/',
+                'nav-festivals': '/festivals/', 'mob-nav-festivals': '/festivals/',
+                'nav-recommendations': '/recommendations/', 'mob-nav-recommendations': '/recommendations/',
+                'nav-admin': '/admin-films/', 'mob-nav-admin': '/admin-films/'
             };
+
             Object.entries(links).forEach(([id, path]) => {
                 const el = document.getElementById(id);
                 if (el) {
                     const isMatch = path === '/' ? pathname === '/' : pathname.startsWith(path);
                     if (isMatch) {
                         el.classList.remove("text-[#D3DAD9]/60");
-                        el.classList.add("text-white", "border-b-2", "border-[#715A5A]");
-                    } else {
-                        el.classList.add("text-[#D3DAD9]/60");
-                        el.classList.remove("text-white", "border-b-2", "border-[#715A5A]");
+                        el.classList.add("text-white");
+                        // Efek border bawah cuma di desktop
+                        if (id.startsWith("nav-")) {
+                            el.classList.add("border-b-2", "border-[#715A5A]");
+                        } else {
+                            el.classList.add("font-bold", "text-amber-400"); // Pembeda aktif di mobile menu
+                        }
                     }
                 }
             });
@@ -218,4 +291,5 @@
 
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     window.FilmListState = window.FilmListState || {
         selectedGenreIds: [],
         currentPage: 1,
@@ -7,18 +7,29 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const filmGrid = document.getElementById("film-grid");
     const resultsCount = document.getElementById("results-count");
+    // Desktop search input
     const searchInput = document.getElementById("search-input");
+    // Mobile search inputs
+    const searchInputMobile = document.getElementById("search-input-mobile");
+    const searchInputMobileBottom = document.getElementById("search-input-mobile-bottom");
     const yearFrom = document.getElementById("year-from");
     const yearTo = document.getElementById("year-to");
     const ratingSlider = document.getElementById("rating-slider");
 
-    window.fetchFilms = function(page = 1) {
+    // Get active search value (any input)
+    function getActiveSearchValue() {
+        return searchInput?.value?.trim() ||
+               searchInputMobile?.value?.trim() ||
+               searchInputMobileBottom?.value?.trim() || "";
+    }
+
+    window.fetchFilms = function (page = 1) {
         if (window.FilmListState.isLoading) return;
         window.FilmListState.isLoading = true;
         window.FilmListState.currentPage = page;
-        
+
         filmGrid.innerHTML = "";
-        
+
         const spinner = document.createElement("div");
         spinner.id = "initial-loading";
         spinner.className = "text-center py-12 text-[#c9c5cb]";
@@ -30,8 +41,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const params = new URLSearchParams();
         params.append("page", page);
-        if (searchInput && searchInput.value.trim()) {
-            params.append("search", searchInput.value.trim());
+        const searchValue = getActiveSearchValue();
+        if (searchValue) {
+            params.append("search", searchValue);
         }
         if (window.FilmListState.selectedGenreIds.length > 0) {
             params.append("genre", window.FilmListState.selectedGenreIds.join(","));
@@ -45,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (ratingSlider && ratingSlider.value > 0) {
             params.append("min_rating", ratingSlider.value);
         }
-        
+
         const activeSortRadio = document.querySelector('input[name="sort"]:checked');
         if (activeSortRadio) {
             params.append("ordering", activeSortRadio.value);
@@ -64,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 filmGrid.innerHTML = "";
 
                 if (results.length === 0) {
-                    if(resultsCount) resultsCount.textContent = "Menampilkan 0 hasil";
+                    if (resultsCount) resultsCount.textContent = "Menampilkan 0 hasil";
                     const emptyState = document.createElement("div");
                     emptyState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";
                     emptyState.innerHTML = `
@@ -79,9 +91,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 results.forEach((film, index) => {
                     const card = document.createElement("div");
-                    card.className = `bg-[#201f20] rounded-lg overflow-hidden flex shadow-lg hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 group border border-white/5 cursor-pointer animate-fade-up`;
+                    card.className = `bg-[#201f20] rounded-lg overflow-hidden flex flex-col sm:flex-row shadow-lg hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 group border border-white/5 cursor-pointer animate-fade-up`;
                     card.style.animationDelay = `${index * 60}ms`;
-                    
+
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
                     if (film.poster) {
                         posterUrl = film.poster;
@@ -90,8 +102,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
 
                     const thumbDiv = document.createElement("div");
-                    thumbDiv.className = "w-[100px] sm:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden";
-                    
+                    thumbDiv.className = "w-full sm:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden aspect-[2/3] sm:aspect-auto";
+
                     const img = document.createElement("img");
                     img.alt = film.title;
                     img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
@@ -99,14 +111,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     thumbDiv.appendChild(img);
 
                     const contentDiv = document.createElement("div");
-                    contentDiv.className = "flex-grow p-5 flex flex-col justify-between gap-3 relative";
+                    contentDiv.className = "flex-grow p-4 flex flex-col justify-between gap-3 relative";
 
                     const mainInfoDiv = document.createElement("div");
                     const titleHeader = document.createElement("div");
-                    titleHeader.className = "flex justify-between items-start gap-4";
-                    
+                    titleHeader.className = "flex justify-between items-start gap-2";
+
                     const title = document.createElement("h2");
-                    title.className = "font-['DM_Sans'] text-lg md:text-xl font-medium text-[#c7c5d1] group-hover:text-white transition-colors line-clamp-1";
+                    title.className = "font-['DM_Sans'] text-base sm:text-lg font-medium text-[#c7c5d1] group-hover:text-white transition-colors line-clamp-1";
                     title.textContent = film.title;
                     titleHeader.appendChild(title);
 
@@ -118,13 +130,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     const metaRow = document.createElement("div");
                     metaRow.className = "flex flex-wrap items-center gap-x-2 gap-y-1 font-['DM_Sans'] text-xs text-stone-400 mt-2";
-                    
+
                     const yearSpan = document.createElement("span");
                     yearSpan.textContent = film.release_year;
                     metaRow.appendChild(yearSpan);
-                    
+
                     metaRow.appendChild(document.createTextNode(" • "));
-                    
+
                     const durationSpan = document.createElement("span");
                     if (film.is_tv_series) {
                         durationSpan.textContent = film.episodes_count ? `${film.episodes_count} Eps` : "TV Series";
@@ -143,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     ratingText.textContent = film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : "N/A";
                     ratingDiv.appendChild(ratingText);
                     metaRow.appendChild(ratingDiv);
-                    
+
                     if (film.genre_display && film.genre_display.length > 0) {
                         metaRow.appendChild(document.createTextNode(" • "));
                         const genreSpan = document.createElement("span");
@@ -151,21 +163,21 @@ document.addEventListener("DOMContentLoaded", function() {
                         genreSpan.textContent = genreNames;
                         metaRow.appendChild(genreSpan);
                     }
-                    
+
                     mainInfoDiv.appendChild(metaRow);
 
                     const synopsis = document.createElement("p");
-                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 mt-3 leading-relaxed";
+                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 sm:line-clamp-2 mt-2 leading-relaxed hidden sm:block";
                     synopsis.textContent = film.synopsis || "Tidak ada sinopsis tersedia.";
                     mainInfoDiv.appendChild(synopsis);
                     contentDiv.appendChild(mainInfoDiv);
 
                     const actionsDiv = document.createElement("div");
-                    actionsDiv.className = "flex items-center gap-3 mt-1";
-                    
+                    actionsDiv.className = "flex items-center gap-2 mt-2";
+
                     const detailBtn = document.createElement("button");
                     detailBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all flex items-center gap-1";
-                    detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail Film`;
+                    detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail`;
                     detailBtn.addEventListener("click", (e) => {
                         e.stopPropagation();
                         window.location.href = `/movies/${film.id}/`;
@@ -185,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     card.appendChild(thumbDiv);
                     card.appendChild(contentDiv);
-                    
+
                     card.addEventListener("click", () => {
                         window.location.href = `/movies/${film.id}/`;
                     });
@@ -195,8 +207,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const startIdx = (page - 1) * 12 + 1;
                 const endIdx = Math.min(page * 12, totalCount);
-                if(resultsCount) resultsCount.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
-                
+                if (resultsCount) resultsCount.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
+
                 renderPagination(page, totalCount);
             })
             .catch(err => {
@@ -225,9 +237,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if (totalPages <= 1) return;
 
         const prevBtn = document.createElement("button");
-        prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
-            (page === 1 
-                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+        prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+            (page === 1
+                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
                 : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
         prevBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_left</span>`;
         if (page > 1) {
@@ -254,9 +266,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         for (let i = startPage; i <= endPage; i++) {
             const pageBtn = document.createElement("button");
-            pageBtn.className = "w-8 h-8 rounded border text-xs font-bold transition-all " + 
-                (i === page 
-                    ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md" 
+            pageBtn.className = "w-8 h-8 rounded border text-xs font-bold transition-all " +
+                (i === page
+                    ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md"
                     : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
             pageBtn.textContent = i;
             pageBtn.addEventListener("click", () => window.fetchFilms(i));
@@ -264,9 +276,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         const nextBtn = document.createElement("button");
-        nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " + 
-            (page === totalPages 
-                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50" 
+        nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+            (page === totalPages
+                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
                 : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
         nextBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_right</span>`;
         if (page < totalPages) {

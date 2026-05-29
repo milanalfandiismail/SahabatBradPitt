@@ -22,7 +22,7 @@ class RecommendationSystemTestCase(TestCase):
             synopsis="Klub pertarungan bawah tanah.",
             release_year=1999,
             duration=139,
-            popularity=92.5,
+            tmdb_popularity=92.5,
             avg_rating=8.8
         )
         self.film1.genre.add(self.drama)
@@ -32,7 +32,7 @@ class RecommendationSystemTestCase(TestCase):
             synopsis="Pasukan Yahudi memburu Nazi.",
             release_year=2009,
             duration=153,
-            popularity=78.4,
+            tmdb_popularity=78.4,
             avg_rating=8.3
         )
         self.film2.genre.add(self.action, self.drama)
@@ -42,7 +42,7 @@ class RecommendationSystemTestCase(TestCase):
             synopsis="Film komedi yang menyenangkan.",
             release_year=2015,
             duration=95,
-            popularity=50.0,
+            tmdb_popularity=50.0,
             avg_rating=7.2
         )
         self.film3.genre.add(self.comedy)

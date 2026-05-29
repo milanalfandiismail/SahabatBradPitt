@@ -39,8 +39,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (user.profile && user.profile.avatar_url) {
                     document.getElementById("avatar-img").src = user.profile.avatar_url;
+                    document.getElementById("avatar-preview").src = user.profile.avatar_url;
+                    const navAvatar = document.getElementById("navbar-avatar-img");
+                    if (navAvatar) navAvatar.src = user.profile.avatar_url;
                 } else {
-                    document.getElementById("avatar-img").src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+                    const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+                    document.getElementById("avatar-img").src = defaultAvatar;
+                    document.getElementById("avatar-preview").src = defaultAvatar;
+                    const navAvatar = document.getElementById("navbar-avatar-img");
+                    if (navAvatar) navAvatar.src = defaultAvatar;
                 }
 
                 if (user.profile) {

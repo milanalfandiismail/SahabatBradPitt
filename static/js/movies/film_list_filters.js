@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     window.FilmListState = window.FilmListState || {
         selectedGenreIds: [],
         currentPage: 1,
@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     const searchInput = document.getElementById("search-input");
+    const searchInputMobile = document.getElementById("search-input-mobile");
+    const searchInputMobileBottom = document.getElementById("search-input-mobile-bottom");
     const genresContainer = document.getElementById("genres-container");
     const yearFrom = document.getElementById("year-from");
     const yearTo = document.getElementById("year-to");
@@ -25,9 +27,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchParam = urlParams.get('search');
     if (searchParam) {
         if (searchParam === '1') {
-            setTimeout(() => { if(searchInput) searchInput.focus(); }, 100);
+            setTimeout(() => {
+                if (searchInputMobileBottom) searchInputMobileBottom.focus();
+                else if (searchInputMobile) searchInputMobile.focus();
+                else if (searchInput) searchInput.focus();
+            }, 100);
         } else {
-            if(searchInput) searchInput.value = searchParam;
+            if (searchInput) searchInput.value = searchParam;
+            if (searchInputMobile) searchInputMobile.value = searchParam;
+            if (searchInputMobileBottom) searchInputMobileBottom.value = searchParam;
         }
     }
 
@@ -47,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
         genresList.forEach(genre => {
             const btn = document.createElement("button");
             btn.className = "px-3 py-1 rounded-full border text-xs font-medium transition-all";
+            btn.dataset.genreId = genre.id;
             if (window.FilmListState.selectedGenreIds.includes(genre.id)) {
                 btn.classList.add("border-[#715A5A]", "bg-[#715A5A]/20", "text-[#c7c5d1]");
             } else {
@@ -84,6 +93,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Mobile search inputs - sync to desktop and trigger search on Enter
+    [searchInputMobile, searchInputMobileBottom].forEach(input => {
+        if (input) {
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    if (searchInput) searchInput.value = input.value;
+                    triggerSearch();
+                }
+            });
+            input.addEventListener("input", () => {
+                if (searchInput) searchInput.value = input.value;
+            });
+        }
+    });
+
     if (yearFrom) yearFrom.addEventListener("input", triggerSearch);
     if (yearTo) yearTo.addEventListener("input", triggerSearch);
 
@@ -101,6 +125,8 @@ document.addEventListener("DOMContentLoaded", function() {
     if (resetBtn) {
         resetBtn.addEventListener("click", () => {
             if (searchInput) searchInput.value = "";
+            if (searchInputMobile) searchInputMobile.value = "";
+            if (searchInputMobileBottom) searchInputMobileBottom.value = "";
             window.FilmListState.selectedGenreIds = [];
             if (yearFrom) yearFrom.value = "";
             if (yearTo) yearTo.value = "";

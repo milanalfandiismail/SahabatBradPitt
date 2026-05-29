@@ -106,7 +106,10 @@ class Film(models.Model):
     duration = models.IntegerField(null=True, blank=True)
     
     # Popularitas dari TMDB API
-    popularity = models.FloatField(default=0.0)
+    tmdb_popularity = models.FloatField(default=0.0)
+    
+    # Popularitas lokal berdasarkan interaksi user (misal: tambah ke watchlist = +10)
+    local_popularity = models.FloatField(default=0.0)
     
     # Rata-rata rating ulasan dari pengguna (1-10)
     avg_rating = models.FloatField(default=0.0)

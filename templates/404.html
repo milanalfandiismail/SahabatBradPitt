@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Halaman Tidak Ditemukan - Sahabat Bradpitt{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[80px] flex items-center justify-center min-h-[70vh]">
+    <div class="text-center px-4 py-12">
+        <!-- Icon -->
+        <div class="mb-8">
+            <span class="material-symbols-outlined text-8xl sm:text-9xl text-[#715A5A]/50" style="font-variation-settings: 'FILL' 1;">
+                movie_filter
+            </span>
+        </div>
+
+        <!-- Error Code -->
+        <h1 class="font-['Playfair_Display'] text-6xl sm:text-8xl font-bold text-white mb-4">404</h1>
+
+        <!-- Message -->
+        <h2 class="font-['Playfair_Display'] text-xl sm:text-2xl text-[#D3DAD9] mb-4">Halaman Tidak Ditemukan</h2>
+        <p class="font-['DM_Sans'] text-base sm:text-lg text-[#D3DAD9]/60 mb-8 max-w-md mx-auto leading-relaxed">
+            Maaf, halaman yang kamu cari tidak ditemukan. Mungkin sudah dipindahkan atau tidak lagi tersedia.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/"
+                class="inline-flex items-center justify-center gap-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white px-6 py-3 rounded-lg font-medium transition-all">
+                <span class="material-symbols-outlined">home</span>
+                Kembali ke Home
+            </a>
+            <a href="/movies/"
+                class="inline-flex items-center justify-center gap-2 border border-white/20 text-[#D3DAD9] px-6 py-3 rounded-lg font-medium hover:bg-white/5 transition-all">
+                <span class="material-symbols-outlined">movie</span>
+                Jelajahi Film
+            </a>
+        </div>
+
+        <!-- Search suggestion -->
+        <div class="mt-12 pt-8 border-t border-white/10">
+            <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/50 mb-4">Atau coba cari film favoritmu</p>
+            <a href="/movies/?search=1"
+                class="inline-flex items-center gap-2 text-[#715A5A] hover:text-white transition-colors">
+                <span class="material-symbols-outlined">search</span>
+                Buka Pencarian
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

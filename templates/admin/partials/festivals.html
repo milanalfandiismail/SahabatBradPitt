@@ -33,11 +33,11 @@
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
                     <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
-                        <th class="p-4 w-[80px] text-center">LOGO</th>
-                        <th class="p-4 min-w-[200px]">NAMA & LOKASI</th>
-                        <th class="p-4 w-[120px] text-center">TAHUN BERDIRI</th>
-                        <th class="p-4 w-[120px] text-center">STATUS</th>
-                        <th class="p-4 w-[150px] text-right">AKSI</th>
+                        <th class="p-2 sm:p-4 w-[60px] sm:w-[80px] text-center hidden sm:table-cell">LOGO</th>
+                        <th class="p-2 sm:p-4 min-w-[100px] sm:min-w-[150px]">NAMA & LOKASI</th>
+                        <th class="p-2 sm:p-4 w-[80px] sm:w-[100px] text-center hidden md:table-cell">TAHUN BERDIRI</th>
+                        <th class="p-2 sm:p-4 w-[80px] sm:w-[100px] text-center">STATUS</th>
+                        <th class="p-2 sm:p-4 w-[100px] sm:w-[120px] text-right">AKSI</th>
                     </tr>
                 </thead>
                 <tbody id="festivals-tbody" class="text-sm font-['DM_Sans'] text-stone-300 divide-y divide-white/5">
@@ -59,7 +59,7 @@
     </div>
 
     <!-- ==================== FESTIVAL EDITOR SUB-VIEW ==================== -->
-    <div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+    <div id="view-festival-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-4 sm:p-6 md:p-8 flex flex-col gap-8 shadow-xl w-full max-w-full min-w-0">
         <div class="flex justify-between items-center border-b border-white/5 pb-4">
             <div class="flex flex-col">
                 <h2 id="festival-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Festival Baru</h2>
@@ -121,7 +121,7 @@
             <div class="flex flex-col gap-6">
                 <div class="flex flex-col gap-3">
                     <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">LOGO FESTIVAL</span>
-                    <div class="aspect-square bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                    <div class="aspect-square max-w-[200px] sm:max-w-none bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg mx-auto sm:mx-0">
                         <img id="festival-logo-preview" alt="Logo Preview" class="hidden w-full h-full object-contain p-4" />
                         <div id="festival-logo-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
                             <span class="material-symbols-outlined text-4xl">emoji_events</span>

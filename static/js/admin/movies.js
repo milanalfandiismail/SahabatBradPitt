@@ -106,7 +106,7 @@ function renderFilmsTable(films) {
 
         // Poster
         const tdPoster = document.createElement('td');
-        tdPoster.className = "p-4 text-center align-middle shrink-0 w-[80px]";
+        tdPoster.className = "p-2 sm:p-4 text-center align-middle shrink-0 w-[60px] sm:w-[80px] hidden sm:table-cell";
         let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=100";
         if (film.poster) {
             posterUrl = film.poster;
@@ -115,29 +115,29 @@ function renderFilmsTable(films) {
         }
         const img = document.createElement('img');
         img.src = posterUrl;
-        img.className = "w-10 h-14 object-cover rounded shadow-md mx-auto";
+        img.className = "w-8 h-11 sm:w-10 sm:h-14 object-cover rounded shadow-md mx-auto";
         img.alt = film.title;
         tdPoster.appendChild(img);
         tr.appendChild(tdPoster);
 
         // Title
         const tdTitle = document.createElement('td');
-        tdTitle.className = "p-4 font-medium text-stone-200 align-middle min-w-[200px]";
+        tdTitle.className = "p-2 sm:p-4 font-medium text-stone-200 align-middle min-w-[100px] sm:min-w-[150px]";
         const titleSpan = document.createElement('span');
-        titleSpan.className = "block text-sm line-clamp-1";
+        titleSpan.className = "block text-xs sm:text-sm line-clamp-2 sm:line-clamp-1";
         titleSpan.textContent = film.title;
         tdTitle.appendChild(titleSpan);
         tr.appendChild(tdTitle);
 
         // Year
         const tdYear = document.createElement('td');
-        tdYear.className = "p-4 text-center text-stone-400 align-middle w-[100px]";
+        tdYear.className = "p-2 sm:p-4 text-center text-stone-400 align-middle w-[60px] sm:w-[80px] hidden md:table-cell";
         tdYear.textContent = film.release_year || "N/A";
         tr.appendChild(tdYear);
 
         // Genres
         const tdGenres = document.createElement('td');
-        tdGenres.className = "p-4 text-stone-400 align-middle min-w-[150px]";
+        tdGenres.className = "p-2 sm:p-4 text-stone-400 align-middle min-w-[100px] hidden lg:table-cell";
         const genresWrapper = document.createElement('div');
         genresWrapper.className = "line-clamp-1 max-w-[200px] text-xs";
         genresWrapper.textContent = (film.genre_display && film.genre_display.length > 0) ? film.genre_display.map(g => g.name).join(', ') : "None";
@@ -146,7 +146,7 @@ function renderFilmsTable(films) {
 
         // Status Badge
         const tdStatus = document.createElement('td');
-        tdStatus.className = "p-4 text-center align-middle w-[150px]";
+        tdStatus.className = "p-2 sm:p-4 text-center align-middle w-[100px] sm:w-[120px]";
         const badge = document.createElement('span');
         badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase whitespace-nowrap ";
         const statusMap = {
@@ -161,7 +161,7 @@ function renderFilmsTable(films) {
 
         // Actions
         const tdActions = document.createElement('td');
-        tdActions.className = "p-4 text-center align-middle";
+        tdActions.className = "p-2 sm:p-4 text-center align-middle w-[100px] sm:w-[120px]";
         const actionsWrapper = document.createElement('div');
         actionsWrapper.className = "flex items-center justify-center gap-1.5";
 

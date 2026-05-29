@@ -3,7 +3,7 @@
 {% block title %}Sahabat Bradpitt - Festival Detail{% endblock %}
 
 {% block content %}
-<main class="flex-grow pt-[120px] pb-24 px-6 md:px-12 max-w-[1440px] w-full mx-auto relative z-10" id="festival-container">
+<main class="flex-grow pt-[120px] pb-24 px-4 sm:px-6 md:px-12 max-w-[1440px] w-full mx-auto relative z-10" id="festival-container">
     <div id="loading-state" class="text-center py-20 text-[#c9c5cb]">
         <span class="material-symbols-outlined text-4xl animate-spin">sync</span>
         <p class="mt-2 font-['DM_Sans']">Memuat data festival...</p>
@@ -25,7 +25,7 @@
             <span class="text-white font-semibold" id="bc-name">Detail</span>
         </nav>
 
-        <header class="flex flex-col md:flex-row gap-8 items-start mb-16">
+        <header class="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left mb-16">
             <div id="festival-logo" class="w-32 h-32 md:w-48 md:h-48 shrink-0 bg-[#141314] border border-white/10 p-4 rounded-xl flex items-center justify-center shadow-2xl">
                 <!-- Logo will be inserted here -->
             </div>
@@ -34,7 +34,7 @@
                 <h1 id="festival-name" class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white mb-2 leading-tight"></h1>
                 <p id="festival-native-name" class="font-['DM_Sans'] text-lg text-[#D3DAD9]/60 mb-6"></p>
                 
-                <div class="flex flex-wrap gap-4 font-['DM_Sans'] text-sm text-[#D3DAD9]">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 font-['DM_Sans'] text-sm text-[#D3DAD9]">
                     <div class="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full" id="festival-location">
                         <span class="material-symbols-outlined text-[16px] text-[#715A5A]">location_on</span>
                         <span id="location-text"></span>

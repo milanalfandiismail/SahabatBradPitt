@@ -24,6 +24,7 @@ urlpatterns = [
 
     # Frontend Views — Public (tetap TemplateView karena tidak membutuhkan guard)
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
     path('movies/', TemplateView.as_view(template_name='movies/film_list.html'), name='film_list'),
     path('movies/<int:id>/', TemplateView.as_view(template_name='movies/film_detail.html'), name='film_detail'),
     path('actors/', TemplateView.as_view(template_name='actors/actor_list.html'), name='actor_list'),
@@ -42,6 +43,14 @@ urlpatterns = [
 
 from django.urls import re_path
 from django.views.static import serve
+from django.conf import settings
+from django.shortcuts import render
+
+# Custom error handlers
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+handler404 = custom_404
 
 # Serve media and static files
 if settings.DEBUG:

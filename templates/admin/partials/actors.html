@@ -26,12 +26,12 @@
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
                     <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
-                        <th class="p-4 w-[80px] text-center">FOTO</th>
-                        <th class="p-4 min-w-[200px]">NAMA SINEAS</th>
-                        <th class="p-4 w-[120px] text-center">TMDB ID</th>
-                        <th class="p-4 w-[120px] text-center">TAHUN LAHIR</th>
-                        <th class="p-4 min-w-[250px]">BIOGRAFI</th>
-                        <th class="p-4 w-[120px] text-center">AKSI</th>
+                        <th class="p-2 sm:p-4 w-[60px] sm:w-[80px] text-center hidden sm:table-cell">FOTO</th>
+                        <th class="p-2 sm:p-4 min-w-[100px] sm:min-w-[150px]">NAMA SINEAS</th>
+                        <th class="p-2 sm:p-4 w-[80px] sm:w-[100px] text-center hidden md:table-cell">TMDB ID</th>
+                        <th class="p-2 sm:p-4 w-[80px] sm:w-[100px] text-center hidden md:table-cell">TAHUN LAHIR</th>
+                        <th class="p-2 sm:p-4 min-w-[150px] hidden lg:table-cell">BIOGRAFI</th>
+                        <th class="p-2 sm:p-4 w-[100px] sm:w-[120px] text-center">AKSI</th>
                     </tr>
                 </thead>
                 <tbody id="actors-table-body"><!-- Dynamic rows --></tbody>
@@ -50,7 +50,7 @@
     </div>
 
     <!-- SUB-VIEW: ACTOR EDITOR -->
-    <div id="view-actor-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+    <div id="view-actor-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-4 sm:p-6 md:p-8 flex flex-col gap-8 shadow-xl w-full max-w-full min-w-0">
         <div class="flex justify-between items-center border-b border-white/5 pb-4">
             <div class="flex flex-col">
                 <h2 id="actor-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Sineas Baru</h2>
@@ -111,7 +111,7 @@
             <div class="flex flex-col gap-6">
                 <div class="flex flex-col gap-3">
                     <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">FOTO PROFIL</span>
-                    <div class="aspect-[2/3] bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                    <div class="aspect-[2/3] max-w-[200px] sm:max-w-none bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg mx-auto sm:mx-0">
                         <img id="actor-form-photo-preview" alt="Photo Preview" class="hidden w-full h-full object-cover" />
                         <div id="actor-form-photo-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
                             <span class="material-symbols-outlined text-4xl">person</span>

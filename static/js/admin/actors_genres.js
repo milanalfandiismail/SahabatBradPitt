@@ -52,9 +52,9 @@ function renderActorsTable(actors) {
         tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans']";
 
         const tdPhoto = document.createElement('td');
-        tdPhoto.className = "p-4 text-center align-middle w-[80px]";
+        tdPhoto.className = "p-2 sm:p-4 text-center align-middle w-[60px] sm:w-[80px] hidden sm:table-cell";
         const avatar = document.createElement('div');
-        avatar.className = "w-10 h-10 rounded-full overflow-hidden border border-white/10 mx-auto bg-stone-700 flex items-center justify-center text-stone-500 shadow-md";
+        avatar.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-white/10 mx-auto bg-stone-700 flex items-center justify-center text-stone-500 shadow-md";
         if (actor.photo) {
             const img = document.createElement('img');
             img.src = actor.photo;
@@ -66,28 +66,28 @@ function renderActorsTable(actors) {
             img.className = "w-full h-full object-cover";
             avatar.appendChild(img);
         } else {
-            avatar.innerHTML = `<span class="material-symbols-outlined text-xl">person</span>`;
+            avatar.innerHTML = `<span class="material-symbols-outlined text-base">person</span>`;
         }
         tdPhoto.appendChild(avatar);
         tr.appendChild(tdPhoto);
 
         const tdName = document.createElement('td');
-        tdName.className = "p-4 font-semibold text-stone-200 text-sm align-middle";
+        tdName.className = "p-2 sm:p-4 font-semibold text-stone-200 text-sm align-middle min-w-[100px] sm:min-w-[150px]";
         tdName.textContent = actor.name;
         tr.appendChild(tdName);
 
         const tdTmdb = document.createElement('td');
-        tdTmdb.className = "p-4 text-center text-stone-400 align-middle";
+        tdTmdb.className = "p-2 sm:p-4 text-center text-stone-400 align-middle w-[80px] sm:w-[100px] hidden md:table-cell";
         tdTmdb.textContent = actor.tmdb_id || "Manual";
         tr.appendChild(tdTmdb);
 
         const tdBirth = document.createElement('td');
-        tdBirth.className = "p-4 text-center text-stone-400 align-middle";
+        tdBirth.className = "p-2 sm:p-4 text-center text-stone-400 align-middle w-[80px] sm:w-[100px] hidden md:table-cell";
         tdBirth.textContent = actor.birth_year || "N/A";
         tr.appendChild(tdBirth);
 
         const tdBio = document.createElement('td');
-        tdBio.className = "p-4 text-stone-400 align-middle";
+        tdBio.className = "p-2 sm:p-4 text-stone-400 align-middle min-w-[150px] hidden lg:table-cell";
         const bioWrapper = document.createElement('div');
         bioWrapper.className = "line-clamp-2 max-w-sm text-xs leading-relaxed";
         bioWrapper.textContent = actor.bio || "-";
@@ -95,7 +95,7 @@ function renderActorsTable(actors) {
         tr.appendChild(tdBio);
 
         const tdActions = document.createElement('td');
-        tdActions.className = "p-4 text-center align-middle";
+        tdActions.className = "p-2 sm:p-4 text-center align-middle w-[100px] sm:w-[120px]";
         const actionsWrapper = document.createElement('div');
         actionsWrapper.className = "flex items-center justify-center gap-1.5";
 

@@ -184,21 +184,27 @@ function renderFilmCastRows() {
     castTableBody.textContent = "";
     castCount.textContent = `${selectedCastData.length} Sineas`;
     if (selectedCastData.length === 0) {
-        castTableBody.innerHTML = `<tr id="cast-empty-row"><td colspan="5" class="p-6 text-center text-stone-500 italic">Belum ada pemeran yang ditambahkan.</td></tr>`;
+        castTableBody.innerHTML = `<tr id="cast-empty-row" class="block sm:table-row"><td colspan="5" class="p-6 text-center text-stone-500 italic block sm:table-cell">Belum ada pemeran yang ditambahkan.</td></tr>`;
         return;
     }
     selectedCastData.sort((a, b) => a.order - b.order).forEach((cast, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors";
+        tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors block sm:table-row p-4 sm:p-0 flex flex-col sm:flex-none gap-3.5 sm:gap-0";
         if (cast.actorData && cast.actorData.photo) {
             photoUrl = cast.actorData.photo;
         } else if (cast.actorData && cast.actorData.photo_path) {
             photoUrl = cast.actorData.photo_path.startsWith('http') ? cast.actorData.photo_path : `https://image.tmdb.org/t/p/w200${cast.actorData.photo_path}`;
         }
         tr.innerHTML = `
-            <td class="p-3 text-center"><img src="${photoUrl}" class="w-10 h-10 object-cover rounded-full border border-white/10 mx-auto" alt="Photo" /></td>
-            <td class="p-3 font-semibold text-stone-200">
-                <div class="mb-1.5">${cast.actorData ? cast.actorData.name : 'Unknown'}</div>
+            <td class="p-0 sm:p-3 block sm:table-cell text-left sm:text-center">
+                <div class="flex items-center gap-3 sm:block">
+                    <img src="${photoUrl}" class="w-10 h-10 object-cover rounded-full border border-white/10 sm:mx-auto shadow-md" alt="Photo" />
+                    <div class="block sm:hidden font-semibold text-stone-200 text-sm">${cast.actorData ? cast.actorData.name : 'Unknown'}</div>
+                </div>
+            </td>
+            <td class="p-0 sm:p-3 block sm:table-cell">
+                <div class="hidden sm:block font-semibold text-stone-200 mb-1.5">${cast.actorData ? cast.actorData.name : 'Unknown'}</div>
+                <div class="text-[9px] font-bold text-stone-400 tracking-wider uppercase mb-1 block sm:hidden">PERAN SINEAS</div>
                 <select class="w-full bg-[#141314] border border-white/10 rounded-md py-1.5 px-2 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" onchange="updateCastRoleType(${idx}, this.value)">
                     <option value="lead" ${cast.role_type === 'lead' ? 'selected' : ''}>Pemeran Utama</option>
                     <option value="supporting" ${cast.role_type === 'supporting' || !cast.role_type ? 'selected' : ''}>Pemeran Pendukung</option>
@@ -209,11 +215,20 @@ function renderFilmCastRows() {
                     <option value="other" ${cast.role_type === 'other' ? 'selected' : ''}>Lainnya</option>
                 </select>
             </td>
-            <td class="p-3 text-stone-400 align-bottom">
+            <td class="p-0 sm:p-3 block sm:table-cell text-stone-400 align-bottom">
+                <div class="text-[9px] font-bold text-stone-400 tracking-wider uppercase mb-1 block sm:hidden">NAMA PERAN</div>
                 <input type="text" class="w-full bg-[#141314] border border-white/10 rounded-md py-1.5 px-2 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" value="${cast.role_name}" onchange="updateCastRole(${idx}, this.value)" />
             </td>
-            <td class="p-3 text-center text-stone-400 align-bottom"><input type="number" class="w-16 bg-[#141314] border border-white/10 rounded-md py-1.5 px-2 text-xs text-stone-200 text-center focus:border-[#715A5A] focus:outline-none" value="${cast.order}" onchange="updateCastOrder(${idx}, this.value)" /></td>
-            <td class="p-3 text-center align-bottom"><button type="button" class="w-7 h-7 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center mx-auto mb-[2px]" onclick="removeCastRow(${idx})"><span class="material-symbols-outlined text-sm">delete</span></button></td>
+            <td class="p-0 sm:p-3 block sm:table-cell text-left sm:text-center text-stone-400 align-bottom font-['DM_Sans']">
+                <div class="text-[9px] font-bold text-stone-400 tracking-wider uppercase mb-1 block sm:hidden">URUTAN TAMPIL</div>
+                <input type="number" class="w-full sm:w-16 bg-[#141314] border border-white/10 rounded-md py-1.5 px-2 text-xs text-stone-200 text-left sm:text-center focus:border-[#715A5A] focus:outline-none" value="${cast.order}" onchange="updateCastOrder(${idx}, this.value)" />
+            </td>
+            <td class="p-0 sm:p-3 block sm:table-cell text-center align-middle sm:align-bottom">
+                <button type="button" class="w-full sm:w-7 h-9 sm:h-7 rounded border border-rose-500/10 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400/50 transition-all flex items-center justify-center gap-1.5 sm:gap-0 font-semibold text-xs sm:text-base sm:mx-auto mb-[2px]" onclick="removeCastRow(${idx})">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                    <span class="inline sm:hidden">Hapus Pemeran</span>
+                </button>
+            </td>
         `;
         castTableBody.appendChild(tr);
     });

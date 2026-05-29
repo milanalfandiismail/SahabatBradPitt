@@ -107,24 +107,24 @@ function renderFestivalsTable(festivals) {
         tr.className = `border-b border-white/5 hover:bg-white/[0.03] transition-colors group`;
 
         tr.innerHTML = `
-            <td class="p-4 text-center align-middle shrink-0">
+            <td class="p-2 sm:p-4 text-center align-middle shrink-0 hidden sm:table-cell">
                 ${logoHtml}
             </td>
-            <td class="p-4 align-middle">
+            <td class="p-2 sm:p-4 align-middle">
                 <div class="font-semibold text-stone-100 text-sm leading-tight mb-1">${fest.name}</div>
                 ${fest.native_name ? `<div class="text-[11px] text-stone-500 italic mb-1">${fest.native_name}</div>` : ''}
                 <div class="text-xs text-stone-500">${loc}</div>
             </td>
-            <td class="p-4 text-center align-middle">
+            <td class="p-2 sm:p-4 text-center align-middle hidden md:table-cell">
                 <span class="text-sm text-stone-400 font-['DM_Sans']">${fest.founded_year || '—'}</span>
             </td>
-            <td class="p-4 text-center align-middle">
+            <td class="p-2 sm:p-4 text-center align-middle w-[80px] sm:w-[100px]">
                 ${fest.is_active
                     ? `<span class="inline-flex px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[10px] font-bold uppercase tracking-wider">Active</span>`
                     : `<span class="inline-flex px-2.5 py-1 bg-stone-500/10 text-stone-500 border border-white/5 rounded text-[10px] font-bold uppercase tracking-wider">Inactive</span>`
                 }
             </td>
-            <td class="p-4 text-right align-middle">
+            <td class="p-2 sm:p-4 text-right align-middle w-[100px] sm:w-[120px]">
                 <div class="flex items-center justify-end gap-1.5">
                     <button onclick="editFestival(${fest.id})" class="w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-white/40 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center shadow-sm" title="Sunting">
                         <span class="material-symbols-outlined text-sm">edit</span>

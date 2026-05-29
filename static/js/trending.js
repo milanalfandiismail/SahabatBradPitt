@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const spotlightLoading = document.getElementById("spotlight-loading");
     const spotlightContainer = document.getElementById("spotlight-container");
     const risingList = document.getElementById("rising-list");
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("rank-1-year").textContent = rank1YearText;
             document.getElementById("rank-1-synopsis").textContent = f1.synopsis || "Sinopsis tidak tersedia.";
             document.getElementById("backdrop-banner").style.backgroundImage = `url('${poster1}')`;
-            
+
             document.getElementById("rank-1-card").addEventListener("click", () => window.location.href = '/movies/' + f1.id + '/');
             document.getElementById("rank-1-btn").addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 document.getElementById("rank-2-year").textContent = rank2YearText;
                 document.getElementById("rank-2-synopsis").textContent = f2.synopsis || "Sinopsis tidak tersedia.";
-                
+
                 document.getElementById("rank-2-card").addEventListener("click", () => window.location.href = '/movies/' + f2.id + '/');
             } else {
                 document.getElementById("rank-2-card").classList.add("hidden");
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 document.getElementById("rank-3-year").textContent = rank3YearText;
                 document.getElementById("rank-3-synopsis").textContent = f3.synopsis || "Sinopsis tidak tersedia.";
-                
+
                 document.getElementById("rank-3-card").addEventListener("click", () => window.location.href = '/movies/' + f3.id + '/');
             } else {
                 document.getElementById("rank-3-card").classList.add("hidden");
@@ -89,76 +89,79 @@ document.addEventListener("DOMContentLoaded", function() {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(30px)';
                 el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
-                el.classList.remove('hidden');
+                el.classList.remove("hidden");
                 setTimeout(() => {
                     el.style.opacity = '1';
                     el.style.transform = 'translateY(0)';
                 }, 200 + i * 60);
             });
 
-            // Rising items with stagger
+            // Rising items with stagger - MOBILE FIXED layout
             risingFilms.forEach((film, index) => {
                 const rankNum = index + 4;
                 const item = document.createElement("div");
-                item.className = "flex items-center gap-4 bg-[#141314]/50 hover:bg-[#141314] rounded-lg p-3 cursor-pointer group border border-transparent hover:border-white/5 transition-all";
+                item.style.cssText = `display:flex !important; align-items:center !important; justify-content:flex-start; gap:12px; background:rgba(20,19,20,0.5); border-radius:8px; padding:8px; cursor:pointer; min-height:88px; overflow:hidden; position:relative; flex-wrap:nowrap; transition:all 0.3s;`;
                 item.style.animationDelay = `${index * 60}ms`;
-                item.addEventListener("click", () => window.location.href = '/movies/' + film.id + '/');
+                item.onclick = () => { window.location.href = '/movies/' + film.id + '/'; };
+                item.onmouseenter = () => {
+                    item.style.background = "rgba(20,19,20,0.8)";
+                };
+                item.onmouseleave = () => {
+                    item.style.background = "rgba(20,19,20,0.5)";
+                };
 
+                // Rank number - Right-aligned with fixed width and premium Serif font to keep gap perfectly uniform
                 const num = document.createElement("div");
-                num.className = "text-2xl font-serif font-bold text-stone-600 w-12 text-center group-hover:text-[#715A5A] transition-colors";
+                num.style.cssText = "font-family:'Playfair Display', 'Noto Serif', serif; font-size:36px; font-weight:900; color:rgba(120,119,126,0.3); width:36px; text-align:right; flex-shrink:0; display:flex; justify-content:flex-end; align-items:center; line-height:1;";
                 num.textContent = rankNum;
 
+                // Poster - FIXED SIZE
                 const posterWrap = document.createElement("div");
-                posterWrap.className = "w-12 h-16 bg-surface-dim rounded overflow-hidden shrink-0";
-                
+                posterWrap.style.cssText = "width:56px; height:80px; flex-shrink:0; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;";
+                posterWrap.onmouseenter = () => { img.style.opacity = "1"; };
+                posterWrap.onmouseleave = () => { img.style.opacity = "0.8"; };
+
                 let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200";
                 if (film.poster_path) {
                     pUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                 }
                 const img = document.createElement("img");
-                img.className = "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity";
+                img.style.cssText = "width:100%; height:100%; object-fit:cover; opacity:0.8; transition:opacity 0.3s;";
                 img.src = pUrl;
                 img.alt = film.title;
                 posterWrap.appendChild(img);
 
+                // Text content
                 const mid = document.createElement("div");
-                mid.className = "flex-grow";
+                mid.style.cssText = "flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;";
+
                 const title = document.createElement("h4");
-                title.className = "font-['DM_Sans'] text-base text-[#D3DAD9] font-medium mb-1";
-                title.textContent = film.title;
-                const meta = document.createElement("p");
-                meta.className = "font-['DM_Sans'] text-xs text-stone-500 uppercase tracking-wider";
-                let metaText = `${film.release_year} • ${film.duration ? film.duration + ' menit' : 'N/A'}`;
+                title.style.cssText = "font-family:DM Sans,sans-serif; font-size:14px; color:#D3DAD9; font-weight:500; margin:0 0 4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;";
+
+                let metaText = `${film.release_year || 'N/A'}`;
                 if (film.genre_display && film.genre_display.length > 0) {
                     const genreNames = film.genre_display.map(g => g.name || g).join(", ");
                     metaText += ` • ${genreNames}`;
                 }
+                const meta = document.createElement("p");
+                meta.style.cssText = "font-family:DM Sans,sans-serif; font-size:11px; color:rgba(168,162,158,1); text-transform:uppercase; letter-spacing:0.05em; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;";
+
+                // Arrow button
+                const btn = document.createElement("button");
+                btn.style.cssText = "width:32px; height:32px; border-radius:9999px; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; background:transparent; flex-shrink:0; cursor:pointer; transition:all 0.3s; color:#D3DAD9;";
+
+                title.textContent = film.title;
                 meta.textContent = metaText;
+                btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M4.5 2L9.5 6L4.5 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+                btn.onmouseenter = () => { btn.style.background = "#715A5A"; btn.style.borderColor = "#715A5A"; };
+                btn.onmouseleave = () => { btn.style.background = "transparent"; btn.style.borderColor = "rgba(255,255,255,0.1)"; };
+
                 mid.appendChild(title);
                 mid.appendChild(meta);
-
-                const end = document.createElement("div");
-                end.className = "flex flex-col items-end gap-1 mr-4 hidden sm:flex";
-                
-                const trend = document.createElement("span");
-                trend.className = "flex items-center gap-1 text-[#D3DAD9] text-xs font-['DM_Sans']";
-                trend.innerHTML = `<span class="material-symbols-outlined text-sm text-[#715A5A]">trending_up</span> Rising`;
-                
-                const rate = document.createElement("span");
-                rate.className = "text-[11px] text-stone-500 font-bold";
-                rate.textContent = `★ ${film.avg_rating ? parseFloat(film.avg_rating).toFixed(1) : 'N/A'}`;
-                
-                end.appendChild(trend);
-                end.appendChild(rate);
-
-                const btn = document.createElement("button");
-                btn.className = "w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-[#D3DAD9] hover:bg-[#715A5A] hover:border-[#715A5A] transition-colors shrink-0";
-                btn.innerHTML = `<span class="material-symbols-outlined text-xs">arrow_forward_ios</span>`;
 
                 item.appendChild(num);
                 item.appendChild(posterWrap);
                 item.appendChild(mid);
-                item.appendChild(end);
                 item.appendChild(btn);
                 risingList.appendChild(item);
             });

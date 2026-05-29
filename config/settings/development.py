@@ -20,3 +20,6 @@ DATABASES = {
 
 # Development CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Custom Error Handlers
+handler404 = 'django.views.defaults.page_not_found'

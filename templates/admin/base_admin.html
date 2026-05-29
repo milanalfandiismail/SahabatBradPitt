@@ -46,10 +46,10 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="bg-[#141314] text-stone-200 antialiased min-h-screen flex font-['DM_Sans'] select-none">
+<body class="bg-[#141314] text-stone-200 antialiased min-h-screen flex flex-col md:flex-row font-['DM_Sans'] select-none">
 
-    <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-[#201f20] border-r border-white/5 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-40">
+    <!-- SIDEBAR NAVIGATION (DESKTOP) -->
+    <aside class="hidden md:flex w-64 bg-[#201f20] border-r border-white/5 flex-col justify-between shrink-0 h-screen sticky top-0 z-40">
         <div>
             <!-- Logo Header -->
             <div class="px-6 py-8 border-b border-white/5">
@@ -100,11 +100,81 @@
         </div>
     </aside>
 
+    <!-- MOBILE HEADER NAVBAR -->
+    <header class="flex md:hidden items-center justify-between px-4 h-14 bg-[#201f20] border-b border-white/5 sticky top-0 z-40 w-full shrink-0">
+        <button id="mobile-admin-menu-btn" class="text-stone-300 hover:text-white transition-all p-1.5 focus:outline-none rounded hover:bg-white/5">
+            <span class="material-symbols-outlined text-2xl" id="admin-menu-icon">menu</span>
+        </button>
+        <span class="font-['Playfair_Display'] text-sm font-bold tracking-wider text-stone-100 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-amber-500 text-lg fill-1" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+            Sineas Admin
+        </span>
+        <a href="/profile/" class="w-7 h-7 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#141314]">
+            <span class="material-symbols-outlined text-stone-400 text-base" style="font-variation-settings: 'opsz' 18;">person</span>
+        </a>
+    </header>
+
+    <!-- MOBILE SIDEBAR DRAWER OVERLAY -->
+    <div id="mobile-admin-drawer" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 md:hidden">
+        <div id="mobile-admin-drawer-content" class="w-64 bg-[#201f20] border-r border-white/5 h-full flex flex-col justify-between transition-transform duration-300 -translate-x-full shadow-2xl">
+            <div>
+                <!-- Drawer Header -->
+                <div class="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-[#141314]/30">
+                    <div>
+                        <h2 class="font-['Playfair_Display'] text-lg font-bold tracking-wider text-stone-100 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-500 text-lg" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                            SahabatBradPitt
+                        </h2>
+                        <span class="text-[9px] font-bold text-amber-500/70 tracking-widest uppercase mt-0.5 block">ADMIN SYSTEM</span>
+                    </div>
+                    <button id="close-admin-drawer-btn" class="text-stone-400 hover:text-white transition-all p-1 focus:outline-none rounded hover:bg-white/5">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                    </button>
+                </div>
+
+                <!-- Nav Items inside Drawer -->
+                <nav class="p-4 flex flex-col gap-1.5" id="mobile-drawer-nav">
+                    <button id="drawer-dashboard-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all bg-[#715A5A] text-white">
+                        <span class="material-symbols-outlined text-lg">dashboard</span> Dashboard
+                    </button>
+                    <button id="drawer-movies-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">movie</span> Movies & Content
+                    </button>
+                    <button id="drawer-festivals-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">emoji_events</span> Festivals & Awards
+                    </button>
+                    <button id="drawer-actors-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">groups</span> Actors
+                    </button>
+                    <button id="drawer-genres-btn" class="w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">category</span> Genre Kustom
+                    </button>
+                    <button id="drawer-approvals-btn" class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">done_all</span> Persetujuan Konten
+                    </button>
+                    <button id="drawer-users-btn" class="hidden w-full px-4 py-3 rounded-lg text-left font-medium text-sm flex items-center gap-3 transition-all text-stone-400 hover:text-white hover:bg-white/5">
+                        <span class="material-symbols-outlined text-lg">group</span> Pengguna & Peran
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="p-4 border-t border-white/5 bg-[#141314]/30">
+                <a href="/" class="w-full px-4 py-3 rounded-lg text-left font-medium text-xs flex items-center justify-between text-stone-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all border border-white/5 bg-[#141314]/30 shadow-md">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">arrow_back</span>
+                        Kembali ke Website
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST NOTIFICATION SHELL -->
     <div id="toast-container" class="toast-container"></div>
 
     <!-- MAIN VIEW CONTAINER -->
-    <main class="flex-grow overflow-y-auto p-8 lg:p-12 h-screen flex flex-col relative custom-scroll">
+    <main class="flex-grow overflow-y-auto p-4 sm:p-6 lg:p-12 h-[calc(100vh-56px)] md:h-screen flex flex-col relative custom-scroll">
 
         <!-- ACCESS CONTROL & LOADING SHIELD -->
         <div id="admin-loading-shield" class="absolute inset-0 bg-[#141314] z-50 flex flex-col items-center justify-center text-[#c9c5cb]">
@@ -129,6 +199,8 @@
     <!-- Common Scripts -->
     <script src="/static/js/toast.js?v=4"></script>
     {% block scripts %}{% endblock %}
+
+
 
 </body>
 </html>

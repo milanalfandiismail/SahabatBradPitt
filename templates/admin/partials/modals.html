@@ -1,6 +1,6 @@
 <!-- ======================= MODAL: REJECTION FILM REASON ======================= -->
 <div id="reject-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
-    <div class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-8 flex flex-col gap-6 shadow-2xl">
+    <div class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-5 sm:p-8 flex flex-col gap-6 shadow-2xl">
         <div class="flex items-center gap-2 text-rose-400 font-bold text-lg">
             <span class="material-symbols-outlined">cancel</span>
             <span>Tolak Publikasi Film</span>
@@ -19,7 +19,7 @@
 
 <!-- ======================= MODAL: USER & ADMIN ROLES EDITOR ======================= -->
 <div id="user-editor-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
-    <form id="user-form" class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-8 flex flex-col gap-6 shadow-2xl" onsubmit="event.preventDefault();">
+    <form id="user-form" class="bg-[#201f20] border border-white/5 rounded-lg w-full max-w-xl p-5 sm:p-8 flex flex-col gap-6 shadow-2xl" onsubmit="event.preventDefault();">
         <h3 id="user-editor-title" class="font-['Playfair_Display'] text-xl font-bold text-stone-100">Tambah Pengguna Baru</h3>
         <div class="flex flex-col gap-1.5">
             <label for="user-form-username" class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">USERNAME *</label>
@@ -55,7 +55,7 @@
 
 <!-- ======================= MODAL: FILM APPROVAL DETAIL ======================= -->
 <div id="film-approval-detail-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#141314]/90 backdrop-blur-sm">
-    <div class="bg-[#201f20] border border-white/10 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scroll flex flex-col">
+    <div class="bg-[#201f20] border border-white/10 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scroll flex flex-col w-full max-w-full min-w-0">
         <div class="sticky top-0 bg-[#201f20] border-b border-white/5 p-4 sm:p-6 flex justify-between items-center z-10">
             <h2 class="font-['Playfair_Display'] text-xl font-bold text-stone-100 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#715A5A]">movie</span> Detail Film (Approval)
@@ -100,7 +100,7 @@
 
 <!-- ======================= MODAL: ACTOR APPROVAL DETAIL ======================= -->
 <div id="actor-approval-detail-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#141314]/90 backdrop-blur-sm">
-    <div class="bg-[#201f20] border border-white/10 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scroll flex flex-col">
+    <div class="bg-[#201f20] border border-white/10 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scroll flex flex-col w-full max-w-full min-w-0">
         <div class="sticky top-0 bg-[#201f20] border-b border-white/5 p-4 sm:p-6 flex justify-between items-center z-10">
             <h2 class="font-['Playfair_Display'] text-xl font-bold text-stone-100 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#715A5A]">person</span> Detail Sineas (Approval)

@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 results.forEach((film, index) => {
                     const card = document.createElement("div");
-                    card.className = `bg-[#201f20] rounded-lg overflow-hidden flex flex-col sm:flex-row shadow-lg hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 group border border-white/5 cursor-pointer animate-fade-up`;
+                    card.className = `bg-[#201f20] rounded-lg overflow-hidden flex flex-col lg:flex-row shadow-lg hover:-translate-y-1 hover:shadow-2xl hover:border-[#715A5A]/50 transition-all duration-300 group border border-white/5 cursor-pointer animate-fade-up`;
                     card.style.animationDelay = `${index * 60}ms`;
 
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     const thumbDiv = document.createElement("div");
-                    thumbDiv.className = "w-full sm:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden aspect-[2/3] sm:aspect-auto";
+                    thumbDiv.className = "w-full lg:w-[130px] shrink-0 bg-surface-dim relative overflow-hidden aspect-[2/3] lg:aspect-auto";
 
                     const img = document.createElement("img");
                     img.alt = film.title;
@@ -111,14 +111,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     thumbDiv.appendChild(img);
 
                     const contentDiv = document.createElement("div");
-                    contentDiv.className = "flex-grow p-4 flex flex-col justify-between gap-3 relative";
+                    contentDiv.className = "flex-grow p-3 sm:p-4 flex flex-col justify-between gap-2 sm:gap-3 relative";
 
                     const mainInfoDiv = document.createElement("div");
                     const titleHeader = document.createElement("div");
                     titleHeader.className = "flex justify-between items-start gap-2";
 
                     const title = document.createElement("h2");
-                    title.className = "font-['DM_Sans'] text-base sm:text-lg font-medium text-[#c7c5d1] group-hover:text-white transition-colors line-clamp-1";
+                    title.className = "font-['DM_Sans'] text-sm sm:text-base font-medium text-[#c7c5d1] group-hover:text-white transition-colors";
                     title.textContent = film.title;
                     titleHeader.appendChild(title);
 
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     mainInfoDiv.appendChild(metaRow);
 
                     const synopsis = document.createElement("p");
-                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 sm:line-clamp-2 mt-2 leading-relaxed hidden sm:block";
+                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 leading-relaxed hidden lg:block";
                     synopsis.textContent = film.synopsis || "Tidak ada sinopsis tersedia.";
                     mainInfoDiv.appendChild(synopsis);
                     contentDiv.appendChild(mainInfoDiv);

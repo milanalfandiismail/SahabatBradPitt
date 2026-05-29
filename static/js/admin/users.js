@@ -63,19 +63,19 @@ function renderUsersTable(users) {
         tr.style.animationDelay = `${idx * 60}ms`;
 
         const tdUsername = document.createElement('td');
-        tdUsername.className = 'p-4 font-semibold text-stone-200 text-sm align-middle';
+        tdUsername.className = 'p-2 sm:p-4 font-semibold text-stone-200 text-sm align-middle min-w-[100px] sm:min-w-[150px]';
         tdUsername.textContent = user.username;
         tr.appendChild(tdUsername);
 
         const tdEmail = document.createElement('td');
-        tdEmail.className = 'p-4 text-stone-400 align-middle text-sm';
+        tdEmail.className = 'p-2 sm:p-4 text-stone-400 align-middle text-sm hidden md:table-cell';
         tdEmail.textContent = user.email || '-';
         tr.appendChild(tdEmail);
 
         const tdStaff = document.createElement('td');
-        tdStaff.className = 'p-4 text-center align-middle';
+        tdStaff.className = 'p-2 sm:p-4 text-center align-middle w-[80px] sm:w-[120px]';
         const staffBadge = document.createElement('span');
-        staffBadge.className = 'inline-flex px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ' +
+        staffBadge.className = 'inline-flex px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-bold uppercase tracking-wider ' +
             (user.is_staff
                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                 : 'bg-stone-500/10 text-stone-500');
@@ -84,9 +84,9 @@ function renderUsersTable(users) {
         tr.appendChild(tdStaff);
 
         const tdSuper = document.createElement('td');
-        tdSuper.className = 'p-4 text-center align-middle';
+        tdSuper.className = 'p-2 sm:p-4 text-center align-middle w-[80px] sm:w-[120px]';
         const superBadge = document.createElement('span');
-        superBadge.className = 'inline-flex px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ' +
+        superBadge.className = 'inline-flex px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-bold uppercase tracking-wider ' +
             (user.is_superuser
                 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                 : 'bg-stone-500/10 text-stone-500');
@@ -95,7 +95,7 @@ function renderUsersTable(users) {
         tr.appendChild(tdSuper);
 
         const tdActions = document.createElement('td');
-        tdActions.className = 'p-4 text-center align-middle';
+        tdActions.className = 'p-2 sm:p-4 text-center align-middle w-[80px] sm:w-[100px]';
         const actionsWrapper = document.createElement('div');
         actionsWrapper.className = 'flex items-center justify-center gap-1.5';
 

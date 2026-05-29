@@ -1,5 +1,5 @@
 <!-- SUB-VIEW 1.2: FILM CRUD EDITOR FORM -->
-<div id="view-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-6 md:p-8 flex flex-col gap-8 shadow-xl">
+<div id="view-editor" class="hidden bg-[#201f20] rounded-lg border border-white/5 p-4 sm:p-6 md:p-8 flex flex-col gap-8 shadow-xl w-full max-w-full min-w-0">
     <!-- Editor Title -->
     <div class="flex justify-between items-center border-b border-white/5 pb-4">
         <div class="flex flex-col">
@@ -74,7 +74,7 @@
             <!-- Poster block -->
             <div class="flex flex-col gap-3">
                 <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">POSTER UTAMA *</span>
-                <div class="aspect-[2/3] bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg">
+                <div class="aspect-[2/3] max-w-[200px] sm:max-w-none bg-black/45 rounded border border-white/10 relative overflow-hidden group flex items-center justify-center shadow-lg mx-auto sm:mx-0">
                     <img id="form-poster-preview" alt="Poster Preview" class="hidden w-full h-full object-cover" />
                     <div id="form-poster-placeholder" class="text-center text-[#c9c5cb]/30 font-['DM_Sans'] flex flex-col items-center justify-center gap-1.5">
                         <span class="material-symbols-outlined text-4xl">image</span>
@@ -93,7 +93,7 @@
             <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">GALERI BACKDROP</span>
             <span id="gallery-image-count" class="text-amber-500 text-sm font-semibold">0/8</span>
         </div>
-        <div id="editor-gallery-grid" class="grid grid-cols-4 gap-3"><!-- Dynamic backdrop thumb grid --></div>
+        <div id="editor-gallery-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"><!-- Dynamic backdrop thumb grid --></div>
         <input id="form-gallery-input" class="hidden" type="file" multiple accept="image/jpeg,image/png,image/webp" />
         <button id="form-gallery-trigger-btn" class="w-full py-3 rounded border border-white/10 hover:border-white/30 text-stone-300 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1" type="button">
             <span class="material-symbols-outlined text-xs">add_photo_alternate</span> Unggah Backdrop
@@ -101,7 +101,7 @@
     </div>
 
     <!-- Cast / Filmography section -->
-    <div id="editor-cast-section" class="flex flex-col gap-4 border-t border-white/5 pt-6">
+    <div id="editor-cast-section" class="flex flex-col gap-4 border-t border-white/5 pt-6 w-full max-w-full min-w-0">
         <div class="flex justify-between items-center">
             <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DAFTAR PEMERAN (CAST)</span>
             <span id="cast-count" class="text-emerald-500 text-sm font-semibold">0 Sineas</span>
@@ -123,9 +123,9 @@
             <input id="cast-role-input" class="w-full sm:w-1/3 bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Peran (mis: Iron Man)" type="text" />
             <button id="add-cast-btn" type="button" class="px-4 py-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-semibold text-xs transition-all whitespace-nowrap" disabled>Tambah</button>
         </div>
-        <div class="bg-[#141314]/30 rounded-md border border-white/5 overflow-hidden">
-            <table class="w-full text-left text-xs border-collapse">
-                <thead>
+        <div class="bg-[#141314]/30 rounded-md border border-white/5 overflow-hidden overflow-x-auto custom-scroll w-full">
+            <table class="w-full text-left text-xs border-collapse min-w-0 sm:min-w-[500px] block sm:table">
+                <thead class="hidden sm:table-header-group">
                     <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
                         <th class="p-3 w-[60px] text-center">FOTO</th>
                         <th class="p-3">NAMA SINEAS</th>
@@ -134,9 +134,9 @@
                         <th class="p-3 w-[60px] text-center">AKSI</th>
                     </tr>
                 </thead>
-                <tbody id="cast-table-body">
-                    <tr id="cast-empty-row">
-                        <td colspan="5" class="p-6 text-center text-stone-500 italic">Belum ada pemeran yang ditambahkan.</td>
+                <tbody id="cast-table-body" class="block sm:table-row-group divide-y divide-white/5 sm:divide-none">
+                    <tr id="cast-empty-row" class="block sm:table-row">
+                        <td colspan="5" class="p-6 text-center text-stone-500 italic block sm:table-cell">Belum ada pemeran yang ditambahkan.</td>
                     </tr>
                 </tbody>
             </table>

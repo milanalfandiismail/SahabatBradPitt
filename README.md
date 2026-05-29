@@ -270,12 +270,24 @@ TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) digunaka
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Team
 
-**Milan Alfandi Ismail**
-- GitHub: [@milanalfandiismail](https://github.com/milanalfandiismail)
+**Milan Alfandi Ismail**  
+- GitHub: [@milanalfandiismail](https://github.com/milanalfandiismail)  
+
+**Muhammad Ariandra Anugrah**    
+- Github: [@Muhammad Ariandra Anugrah](https://github.com/bluumovingon)  
+
+**Deri Fadillah**    
+- Github: [@Deri Fadillah](https://github.com/derriifadill-boop)  
+
+**Muhammad Rio**    
+- Github: [@Muhammad Rio](https://github.com/MuhammadRio21)  
+
+**Ridho Aliyya Ananda**    
+- Github: [@Ridho Aliyya Ananda](https://github.com/ridhoananda729-coder)  
 
 ---
 
-**Last Updated**: 2026-05-29
+**Last Updated**: 2026-05-30
 **Version**: 2.0.0

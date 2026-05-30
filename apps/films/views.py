@@ -65,7 +65,17 @@ class FilmViewSetBase(viewsets.ModelViewSet):
 
         ordering = self.request.query_params.get('ordering', None)
         if ordering:
-            queryset = queryset.order_by(ordering)
+            if q:
+                if ordering == '-popularity':
+                    queryset = queryset.order_by('search_rank', '-popularity', '-release_year', 'title')
+                elif ordering == '-avg_rating':
+                    queryset = queryset.order_by('search_rank', '-avg_rating', '-release_year', 'title')
+                elif ordering == '-release_year':
+                    queryset = queryset.order_by('search_rank', '-release_year', 'title')
+                else:
+                    queryset = queryset.order_by('search_rank', ordering)
+            else:
+                queryset = queryset.order_by(ordering)
 
         return queryset.distinct()
 

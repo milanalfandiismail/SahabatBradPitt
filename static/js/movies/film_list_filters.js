@@ -85,25 +85,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (searchIconBtn) {
         searchIconBtn.addEventListener("click", triggerSearch);
     }
-    if (searchInput) {
-        searchInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                triggerSearch();
-            }
-        });
+    function syncSearchInputs(value) {
+        if (searchInput && searchInput.value !== value) searchInput.value = value;
+        if (searchInputMobile && searchInputMobile.value !== value) searchInputMobile.value = value;
+        if (searchInputMobileBottom && searchInputMobileBottom.value !== value) searchInputMobileBottom.value = value;
     }
 
-    // Mobile search inputs - sync to desktop and trigger search on Enter
-    [searchInputMobile, searchInputMobileBottom].forEach(input => {
+    [searchInput, searchInputMobile, searchInputMobileBottom].forEach(input => {
         if (input) {
+            input.addEventListener("input", (e) => syncSearchInputs(e.target.value));
             input.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") {
-                    if (searchInput) searchInput.value = input.value;
+                    e.preventDefault();
                     triggerSearch();
                 }
-            });
-            input.addEventListener("input", () => {
-                if (searchInput) searchInput.value = input.value;
             });
         }
     });

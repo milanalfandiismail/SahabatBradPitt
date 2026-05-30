@@ -27,20 +27,21 @@ class FilmImageUploadSerializer(serializers.ModelSerializer):
 class FilmographySerializer(serializers.ModelSerializer):
     actor_id = serializers.IntegerField(source='actor.id', read_only=True)
     actor_name = serializers.CharField(source='actor.name', read_only=True)
-    actor_photo = serializers.CharField(source='actor.photo_path', read_only=True)
+    actor_photo = serializers.CharField(source='actor.tmdb_photo', read_only=True)
+    actor_local_photo = serializers.ImageField(source='actor.local_photo', read_only=True)
     role_name = serializers.CharField(source='role', read_only=True)
     role_type = serializers.CharField(read_only=True)
     role_type_display = serializers.CharField(source='get_role_type_display', read_only=True)
 
     class Meta:
         model = Filmography
-        fields = ['id', 'actor_id', 'actor_name', 'actor_photo', 'role_name', 'role_type', 'role_type_display', 'order']
+        fields = ['id', 'actor_id', 'actor_name', 'actor_photo', 'actor_local_photo', 'role_name', 'role_type', 'role_type_display', 'order']
 
 
 class FilmSerializer(serializers.ModelSerializer):
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all(), many=True)
     genre_display = GenreSerializer(source='genre', many=True, read_only=True)
-    poster = serializers.ImageField(required=False, allow_null=True)
+    local_poster = serializers.ImageField(required=False, allow_null=True)
     studio_name = serializers.CharField(source='studio.name', read_only=True)
     images = FilmImageSerializer(many=True, read_only=True)
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
@@ -54,7 +55,7 @@ class FilmSerializer(serializers.ModelSerializer):
         model = Film
         fields = [
             'id', 'tmdb_id', 'title', 'synopsis', 'release_year', 
-            'genre', 'genre_display', 'trailer_url', 'poster_path', 'poster', 'duration', 
+            'genre', 'genre_display', 'trailer_url', 'tmdb_poster', 'local_poster', 'duration', 
             'tmdb_popularity', 'local_popularity', 'popularity', 'avg_rating', 'studio', 'studio_name', 'created_at',
             'images', 'status', 'status_display', 'rejection_reason', 
             'is_local_edit', 'created_by', 'created_by_name', 

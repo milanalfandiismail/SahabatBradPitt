@@ -27,10 +27,10 @@ document.addEventListener("DOMContentLoaded", function () {
             inner.className = "bg-[#37353E] rounded-lg overflow-hidden border border-white/5 group-hover:scale-[1.03] group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 aspect-[2/3] relative w-full";
 
             let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400";
-            if (film.poster) {
-                posterUrl = film.poster;
-            } else if (film.poster_path) {
-                posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+            if (film.local_poster) {
+                posterUrl = film.local_poster;
+            } else if (film.tmdb_poster) {
+                posterUrl = film.tmdb_poster.startsWith("http") ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
             }
 
             const img = document.createElement("img");

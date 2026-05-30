@@ -55,14 +55,14 @@ function renderActorsTable(actors) {
         tdPhoto.className = "p-2 sm:p-4 text-center align-middle w-[60px] sm:w-[80px] hidden sm:table-cell";
         const avatar = document.createElement('div');
         avatar.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-white/10 mx-auto bg-stone-700 flex items-center justify-center text-stone-500 shadow-md";
-        if (actor.photo) {
+        if (actor.local_photo) {
             const img = document.createElement('img');
-            img.src = actor.photo;
+            img.src = actor.local_photo;
             img.className = "w-full h-full object-cover";
             avatar.appendChild(img);
-        } else if (actor.photo_path) {
+        } else if (actor.tmdb_photo) {
             const img = document.createElement('img');
-            img.src = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
+            img.src = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w185${actor.tmdb_photo}`;
             img.className = "w-full h-full object-cover";
             avatar.appendChild(img);
         } else {
@@ -181,10 +181,10 @@ function openActorEditor(actor) {
         const placeholder = document.getElementById('actor-form-photo-placeholder');
         if (preview && placeholder) {
             let photoUrl = '';
-            if (actor.photo) {
-                photoUrl = actor.photo;
-            } else if (actor.photo_path) {
-                photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w400${actor.photo_path}`; // Using w400 for better HD quality
+            if (actor.local_photo) {
+                photoUrl = actor.local_photo;
+            } else if (actor.tmdb_photo) {
+                photoUrl = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w400${actor.tmdb_photo}`; // Using w400 for better HD quality
             }
             if (photoUrl) {
                 preview.src = photoUrl;
@@ -367,10 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const photoInput = document.getElementById('actor-form-photo');
         if (photoInput.files && photoInput.files[0]) {
-            formData.append('photo', photoInput.files[0]);
+            formData.append('local_photo', photoInput.files[0]);
         }
         const hiddenPath = document.getElementById('actor-form-photo-path-hidden').value.trim();
-        if (hiddenPath) formData.append('photo_path', hiddenPath);
+        if (hiddenPath) formData.append('tmdb_photo', hiddenPath);
         
         const url = selectedActorId ? `/api/actors/${selectedActorId}/` : '/api/actors/';
         const method = selectedActorId ? 'PUT' : 'POST';

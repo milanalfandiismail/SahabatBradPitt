@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
             spotlightContainer.classList.remove("hidden");
 
             const f1 = films[0];
-            let poster1 = f1.poster_path ? (f1.poster_path.startsWith("http") ? f1.poster_path : `https://image.tmdb.org/t/p/w500${f1.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
+            let poster1 = f1.local_poster ? f1.local_poster : (f1.tmdb_poster ? (f1.tmdb_poster.startsWith("http") ? f1.tmdb_poster : `https://image.tmdb.org/t/p/w500${f1.tmdb_poster}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800");
             document.getElementById("rank-1-img").src = poster1;
             document.getElementById("rank-1-title").textContent = f1.title;
             document.getElementById("rank-1-rating").textContent = f1.avg_rating ? parseFloat(f1.avg_rating).toFixed(1) : "N/A";
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (films.length > 1) {
                 const f2 = films[1];
-                let poster2 = f2.poster_path ? (f2.poster_path.startsWith("http") ? f2.poster_path : `https://image.tmdb.org/t/p/w500${f2.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                let poster2 = f2.local_poster ? f2.local_poster : (f2.tmdb_poster ? (f2.tmdb_poster.startsWith("http") ? f2.tmdb_poster : `https://image.tmdb.org/t/p/w500${f2.tmdb_poster}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500");
                 document.getElementById("rank-2-img").src = poster2;
                 document.getElementById("rank-2-title").textContent = f2.title;
                 document.getElementById("rank-2-rating").textContent = f2.avg_rating ? parseFloat(f2.avg_rating).toFixed(1) : "N/A";
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (films.length > 2) {
                 const f3 = films[2];
-                let poster3 = f3.poster_path ? (f3.poster_path.startsWith("http") ? f3.poster_path : `https://image.tmdb.org/t/p/w500${f3.poster_path}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
+                let poster3 = f3.local_poster ? f3.local_poster : (f3.tmdb_poster ? (f3.tmdb_poster.startsWith("http") ? f3.tmdb_poster : `https://image.tmdb.org/t/p/w500${f3.tmdb_poster}`) : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500");
                 document.getElementById("rank-3-img").src = poster3;
                 document.getElementById("rank-3-title").textContent = f3.title;
                 document.getElementById("rank-3-rating").textContent = f3.avg_rating ? parseFloat(f3.avg_rating).toFixed(1) : "N/A";
@@ -122,8 +122,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 posterWrap.onmouseleave = () => { img.style.opacity = "0.8"; };
 
                 let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200";
-                if (film.poster_path) {
-                    pUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+                if (film.local_poster) {
+                    pUrl = film.local_poster;
+                } else if (film.tmdb_poster) {
+                    pUrl = film.tmdb_poster.startsWith("http") ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
                 }
                 const img = document.createElement("img");
                 img.style.cssText = "width:100%; height:100%; object-fit:cover; opacity:0.8; transition:opacity 0.3s;";

@@ -143,10 +143,10 @@ function loadPendingActorsForApproval() {
 // =============================================
 function _buildFilmApprovalCard(film) {
     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400";
-    if (film.poster) {
-        posterUrl = film.poster;
-    } else if (film.poster_path) {
-        posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w342${film.poster_path}`;
+    if (film.local_poster) {
+        posterUrl = film.local_poster;
+    } else if (film.tmdb_poster) {
+        posterUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w342${film.tmdb_poster}`;
     }
 
     const card = document.createElement('div');
@@ -204,10 +204,10 @@ function _buildFilmApprovalCard(film) {
 // =============================================
 function _buildActorApprovalCard(actor) {
     let photoUrl = "/static/images/placeholder-poster.jpg";
-    if (actor.photo) {
-        photoUrl = actor.photo;
-    } else if (actor.photo_path) {
-        photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
+    if (actor.local_photo) {
+        photoUrl = actor.local_photo;
+    } else if (actor.tmdb_photo) {
+        photoUrl = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w185${actor.tmdb_photo}`;
     }
 
     const card = document.createElement('div');
@@ -295,8 +295,8 @@ function showFilmApprovalDetail(film) {
     document.getElementById('detail-film-rating').textContent = `★ ${film.avg_rating || '0.0'}`;
 
     let posterUrl = "/static/images/placeholder-poster.jpg";
-    if (film.poster) posterUrl = film.poster;
-    else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    if (film.local_poster) posterUrl = film.local_poster;
+    else if (film.tmdb_poster) posterUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
     document.getElementById('detail-film-poster').src = posterUrl;
 
     let genreText = '-';
@@ -342,8 +342,8 @@ function showActorApprovalDetail(actor) {
     document.getElementById('detail-actor-tmdb').textContent = `TMDB: ${actor.tmdb_id || '-'}`;
 
     let photoUrl = "/static/images/placeholder-poster.jpg";
-    if (actor.photo) photoUrl = actor.photo;
-    else if (actor.photo_path) photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+    if (actor.local_photo) photoUrl = actor.local_photo;
+    else if (actor.tmdb_photo) photoUrl = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w500${actor.tmdb_photo}`;
     document.getElementById('detail-actor-photo').src = photoUrl;
     document.getElementById('detail-actor-bio').textContent = actor.bio || 'Tidak ada biografi.';
 

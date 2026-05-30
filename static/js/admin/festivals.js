@@ -87,12 +87,12 @@ function renderFestivalsTable(festivals) {
 
     festivals.forEach((fest, idx) => {
         let logoUrl = '';
-        if (fest.logo) {
-            logoUrl = fest.logo;
-        } else if (fest.logo_path) {
-            logoUrl = fest.logo_path.startsWith('http')
-                ? fest.logo_path
-                : `https://image.tmdb.org/t/p/w200${fest.logo_path}`;
+        if (fest.local_logo) {
+            logoUrl = fest.local_logo;
+        } else if (fest.tmdb_logo) {
+            logoUrl = fest.tmdb_logo.startsWith('http')
+                ? fest.tmdb_logo
+                : `https://image.tmdb.org/t/p/w200${fest.tmdb_logo}`;
         }
 
         const logoHtml = logoUrl
@@ -248,8 +248,8 @@ function _populateFestivalEditor(fest) {
     const placeholder = document.getElementById('festival-logo-placeholder');
     if (preview && placeholder) {
         let logoUrl = '';
-        if (fest.logo) logoUrl = fest.logo;
-        else if (fest.logo_path) logoUrl = fest.logo_path.startsWith('http') ? fest.logo_path : `https://image.tmdb.org/t/p/w200${fest.logo_path}`;
+        if (fest.local_logo) logoUrl = fest.local_logo;
+        else if (fest.tmdb_logo) logoUrl = fest.tmdb_logo.startsWith('http') ? fest.tmdb_logo : `https://image.tmdb.org/t/p/w200${fest.tmdb_logo}`;
         if (logoUrl) {
             preview.src = logoUrl;
             preview.classList.remove('hidden');
@@ -285,9 +285,9 @@ function saveFestival(e) {
     formData.append('is_active', document.getElementById('festival-active-input').checked);
 
     const logoFile = document.getElementById('festival-logo-input').files?.[0];
-    if (logoFile) formData.append('logo', logoFile);
+    if (logoFile) formData.append('local_logo', logoFile);
     const logoPath = document.getElementById('festival-logo-path-input').value;
-    if (logoPath) formData.append('logo_path', logoPath);
+    if (logoPath) formData.append('tmdb_logo', logoPath);
 
     const url = id ? `/api/festivals/festivals/${id}/` : '/api/festivals/festivals/';
     const method = id ? 'PUT' : 'POST';

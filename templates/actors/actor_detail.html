@@ -212,10 +212,10 @@
 
                 const photoContainer = document.getElementById("photo-container");
                 let photoUrl = '';
-                if (actor.photo) {
-                    photoUrl = actor.photo;
-                } else if (actor.photo_path) {
-                    photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                if (actor.local_photo) {
+                    photoUrl = actor.local_photo;
+                } else if (actor.tmdb_photo) {
+                    photoUrl = actor.tmdb_photo.startsWith("http") ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w500${actor.tmdb_photo}`;
                 }
 
                 if (photoUrl) {
@@ -255,10 +255,10 @@
                     imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
                     
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-                    if (item.poster) {
-                        posterUrl = item.poster;
-                    } else if (item.poster_path) {
-                        posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w342${item.poster_path}`;
+                    if (item.local_poster) {
+                        posterUrl = item.local_poster;
+                    } else if (item.tmdb_poster) {
+                        posterUrl = item.tmdb_poster.startsWith("http") ? item.tmdb_poster : `https://image.tmdb.org/t/p/w342${item.tmdb_poster}`;
                     }
 
                     const img = document.createElement("img");

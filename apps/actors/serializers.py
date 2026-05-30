@@ -3,13 +3,13 @@ from apps.actors.models import Actor, Filmography
 
 class FilmographySerializer(serializers.ModelSerializer):
     film_title = serializers.CharField(source='film.title', read_only=True)
-    poster_path = serializers.CharField(source='film.poster_path', read_only=True)
-    poster = serializers.ImageField(source='film.poster', read_only=True)
+    tmdb_poster = serializers.CharField(source='film.tmdb_poster', read_only=True)
+    local_poster = serializers.ImageField(source='film.local_poster', read_only=True)
     release_year = serializers.IntegerField(source='film.release_year', read_only=True)
 
     class Meta:
         model = Filmography
-        fields = ['id', 'film', 'film_title', 'poster_path', 'poster', 'release_year', 'role']
+        fields = ['id', 'film', 'film_title', 'tmdb_poster', 'local_poster', 'release_year', 'role']
 
 class ActorSerializer(serializers.ModelSerializer):
     filmographies = FilmographySerializer(many=True, read_only=True)
@@ -28,7 +28,7 @@ class ActorSerializer(serializers.ModelSerializer):
         model = Actor
         fields = [
             'id', 'tmdb_id', 'name', 'native_name',
-            'bio', 'birth_year', 'photo_path', 'photo',
+            'bio', 'birth_year', 'tmdb_photo', 'local_photo',
             'gender', 'birthday', 'deathday', 'place_of_birth', 'known_for_department',
             'instagram_id', 'twitter_id', 'facebook_id', 'tiktok_id',
             'genre_spec', 'filmographies', 'film_role', 'film_order', 'film_role_type',

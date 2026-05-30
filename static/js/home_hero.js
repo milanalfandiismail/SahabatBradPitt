@@ -19,12 +19,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!heroPoster || !heroContent) return;
 
         let posterUrl = "";
-        if (film.poster) {
-            posterUrl = film.poster;
-        } else if (film.poster_path) {
-            posterUrl = film.poster_path.startsWith("http")
-                ? film.poster_path
-                : `https://image.tmdb.org/t/p/original${film.poster_path}`;
+        if (film.local_poster) {
+            posterUrl = film.local_poster;
+        } else if (film.tmdb_poster) {
+            posterUrl = film.tmdb_poster.startsWith("http")
+                ? film.tmdb_poster
+                : `https://image.tmdb.org/t/p/original${film.tmdb_poster}`;
         }
         if (posterUrl) heroPoster.src = posterUrl;
 

@@ -64,7 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function fetchUserRatings(userId) {
         const grid = document.getElementById("rated-movies-grid");
+        const moreContainer = document.getElementById("reviews-more-container");
         grid.textContent = "";
+        if (moreContainer) moreContainer.classList.add("hidden");
 
         fetch(`/api/ratings/?user=${userId}`)
             .then(res => res.json())
@@ -75,16 +77,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                results.forEach(item => {
+                const isMobile = window.innerWidth < 768;
+                results.forEach((item, index) => {
                     const card = document.createElement("div");
-                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg";
+                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg animate-fade-in";
+                    if (isMobile && index >= 4) {
+                        card.classList.add("hidden", "js-more-ratings");
+                    }
                     card.addEventListener("click", () => { window.location.href = `/movies/${item.film}/`; });
 
                     const imgWrap = document.createElement("div");
                     imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-                    if (item.poster) posterUrl = item.poster;
-                    else if (item.poster_path) posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                    if (item.local_poster) posterUrl = item.local_poster;
+                    else if (item.tmdb_poster) posterUrl = item.tmdb_poster.startsWith("http") ? item.tmdb_poster : `https://image.tmdb.org/t/p/w500${item.tmdb_poster}`;
 
                     const img = document.createElement("img");
                     img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
@@ -111,12 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     card.appendChild(imgWrap); card.appendChild(p);
                     grid.appendChild(card);
                 });
+
+                if (isMobile && results.length > 4 && moreContainer) {
+                    moreContainer.classList.remove("hidden");
+                    const btn = document.getElementById("btn-reviews-more");
+                    btn.onclick = () => {
+                        document.querySelectorAll(".js-more-ratings").forEach(c => c.classList.remove("hidden"));
+                        moreContainer.classList.add("hidden");
+                    };
+                }
             });
     }
 
     function fetchUserWatchlist(userId) {
         const grid = document.getElementById("watchlist-grid");
+        const moreContainer = document.getElementById("watchlist-more-container");
         grid.textContent = "";
+        if (moreContainer) moreContainer.classList.add("hidden");
 
         fetch(`/api/ratings/watchlist/?user=${userId}`)
             .then(res => res.json())
@@ -131,15 +148,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                results.forEach(item => {
+                const isMobile = window.innerWidth < 768;
+                results.forEach((item, index) => {
                     const card = document.createElement("div");
-                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg relative";
+                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg relative animate-fade-in";
+                    if (isMobile && index >= 4) {
+                        card.classList.add("hidden", "js-more-watchlist");
+                    }
                     card.addEventListener("click", () => { window.location.href = `/movies/${item.film}/`; });
 
                     const imgWrap = document.createElement("div");
                     imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-                    if (item.poster_path) posterUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                    if (item.local_poster) posterUrl = item.local_poster;
+                    else if (item.tmdb_poster) posterUrl = item.tmdb_poster.startsWith("http") ? item.tmdb_poster : `https://image.tmdb.org/t/p/w500${item.tmdb_poster}`;
 
                     const img = document.createElement("img");
                     img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
@@ -173,6 +195,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     card.appendChild(imgWrap); card.appendChild(overlay); card.appendChild(p);
                     grid.appendChild(card);
                 });
+
+                if (isMobile && results.length > 4 && moreContainer) {
+                    moreContainer.classList.remove("hidden");
+                    const btn = document.getElementById("btn-watchlist-more");
+                    btn.onclick = () => {
+                        document.querySelectorAll(".js-more-watchlist").forEach(c => c.classList.remove("hidden"));
+                        moreContainer.classList.add("hidden");
+                    };
+                }
             });
     }
 
@@ -194,29 +225,82 @@ document.addEventListener("DOMContentLoaded", function () {
     const sectionWatchlist = document.getElementById("section-watchlist");
     const sectionPrefs = document.getElementById("section-prefs");
 
+    const tabActiveBar = document.getElementById("tab-active-bar");
+
+    function updateActiveBar(btn) {
+        if (!tabActiveBar || !btn) return;
+        const rect = btn.getBoundingClientRect();
+        const containerRect = btn.parentElement.getBoundingClientRect();
+        tabActiveBar.style.width = `${rect.width}px`;
+        tabActiveBar.style.left = `${rect.left - containerRect.left + btn.parentElement.scrollLeft}px`;
+    }
+
     function switchTab(activeTab) {
-        tabReviewsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
-        tabWatchlistBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
-        tabPrefsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white border-b-2 border-transparent transition-all flex items-center gap-1.5 focus:outline-none";
+        tabReviewsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+        tabWatchlistBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+        tabPrefsBtn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
         sectionReviews.classList.add("hidden");
         sectionWatchlist.classList.add("hidden");
         sectionPrefs.classList.add("hidden");
 
+        let activeBtn = null;
         if (activeTab === 'reviews') {
-            tabReviewsBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
+            tabReviewsBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
             sectionReviews.classList.remove("hidden");
+            activeBtn = tabReviewsBtn;
         } else if (activeTab === 'watchlist') {
-            tabWatchlistBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
+            tabWatchlistBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
             sectionWatchlist.classList.remove("hidden");
+            activeBtn = tabWatchlistBtn;
         } else if (activeTab === 'prefs') {
-            tabPrefsBtn.className = "pb-3 text-white border-b-2 border-[#715A5A] font-semibold transition-all flex items-center gap-1.5 focus:outline-none";
+            tabPrefsBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
             sectionPrefs.classList.remove("hidden");
+            activeBtn = tabPrefsBtn;
+        }
+
+        if (activeBtn) {
+            updateActiveBar(activeBtn);
         }
     }
 
     tabReviewsBtn?.addEventListener("click", () => switchTab('reviews'));
     tabWatchlistBtn?.addEventListener("click", () => switchTab('watchlist'));
-    tabPrefsBtn?.addEventListener("click", () => switchTab('prefs'));
+    tabPrefsBtn?.addEventListener("click", () => {
+        switchTab('prefs');
+        setTimeout(() => updateActiveBar(tabPrefsBtn), 50);
+    });
+
+    // Make active bar responsive to window resizing
+    window.addEventListener("resize", () => {
+        const activeBtn = sectionReviews.classList.contains("hidden") 
+            ? (sectionWatchlist.classList.contains("hidden") ? tabPrefsBtn : tabWatchlistBtn)
+            : tabReviewsBtn;
+        if (activeBtn) updateActiveBar(activeBtn);
+    });
+
+    // Initialize active bar on first load
+    setTimeout(() => {
+        if (tabReviewsBtn) updateActiveBar(tabReviewsBtn);
+    }, 150);
+
+    // Accordion Toggle for Mobile (Preferensi Film)
+    const accordionToggleBtn = document.getElementById("accordion-toggle-btn");
+    const accordionContent = document.getElementById("accordion-content");
+    const accordionChevron = document.getElementById("accordion-chevron");
+
+    accordionToggleBtn?.addEventListener("click", () => {
+        if (window.innerWidth >= 768) return; // Disable accordion on desktop
+        const isCollapsed = accordionContent.classList.contains("hidden");
+        if (isCollapsed) {
+            accordionContent.classList.remove("hidden");
+            accordionContent.classList.add("flex");
+            accordionChevron.style.transform = "rotate(180deg)";
+        } else {
+            accordionContent.classList.add("hidden");
+            accordionContent.classList.remove("flex");
+            accordionChevron.style.transform = "rotate(0deg)";
+        }
+    });
 
     // Preferensi Film Logic
     let prefFocus = ""; let prefGenres = []; let prefEra = ""; let prefDuration = "";

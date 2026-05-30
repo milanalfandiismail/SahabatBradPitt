@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sahabat Bradpitt - Festival Detail{% endblock %}
+{% block title %}Sahabat Bradpitt - Festival & Awards Detail{% endblock %}
 
 {% block content %}
 <main class="flex-grow pt-[120px] pb-24 px-4 sm:px-6 md:px-12 max-w-[1440px] w-full mx-auto relative z-10" id="festival-container">
@@ -20,7 +20,7 @@
         <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs mb-8">
             <a class="hover:text-white transition-colors" href="/">Home</a>
             <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-            <a class="hover:text-white transition-colors" href="/festivals/">Festivals</a>
+            <a class="hover:text-white transition-colors" href="/festivals/">Festival & Awards</a>
             <span class="material-symbols-outlined text-[16px]">chevron_right</span>
             <span class="text-white font-semibold" id="bc-name">Detail</span>
         </nav>
@@ -98,10 +98,10 @@
 
                 // Logo
                 const logoContainer = document.getElementById('festival-logo');
-                if (data.logo) {
-                    logoContainer.innerHTML = `<img src="${data.logo}" alt="${data.name}" class="w-full h-full object-contain filter drop-shadow-lg" />`;
-                } else if (data.logo_path) {
-                    let url = data.logo_path.startsWith("http") ? data.logo_path : `https://image.tmdb.org/t/p/original${data.logo_path}`;
+                if (data.local_logo) {
+                    logoContainer.innerHTML = `<img src="${data.local_logo}" alt="${data.name}" class="w-full h-full object-contain filter drop-shadow-lg" />`;
+                } else if (data.tmdb_logo) {
+                    let url = data.tmdb_logo.startsWith("http") ? data.tmdb_logo : `https://image.tmdb.org/t/p/original${data.tmdb_logo}`;
                     logoContainer.innerHTML = `<img src="${url}" alt="${data.name}" class="w-full h-full object-contain filter drop-shadow-lg" />`;
                 } else {
                     logoContainer.innerHTML = `<span class="material-symbols-outlined text-6xl text-amber-500">emoji_events</span>`;

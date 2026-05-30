@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Sahabat Bradpitt - All Festivals{% endblock %}
+{% block title %}Sahabat Bradpitt - Festival & Awards{% endblock %}
 
 {% block content %}
 <main class="flex-grow pt-[120px] pb-24 px-4 sm:px-6 md:px-12 max-w-[1440px] w-full mx-auto">
     <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[#D3DAD9]/70 font-['DM_Sans'] text-xs mb-6">
         <a class="hover:text-white transition-colors" href="/">Home</a>
         <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-        <span class="text-white">Festivals</span>
+        <span class="text-white">Festival & Awards</span>
     </nav>
     
     <header class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
-            <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">Festival Film</h1>
-            <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 mt-2">Daftar perhelatan penghargaan film prestisius di seluruh dunia.</p>
+            <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-bold tracking-tight">Festival & Awards</h1>
+            <p class="font-['DM_Sans'] text-sm text-[#D3DAD9]/80 mt-2">Daftar perhelatan penghargaan film dan festival prestisius di seluruh dunia.</p>
         </div>
         <div class="relative w-full md:w-80 shrink-0 flex items-center">
             <span id="search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-lg transition-colors">search</span>
@@ -90,10 +90,10 @@
 
                         let topHtml = `<div class="w-full flex justify-between items-start mb-4">
                             <div class="w-16 h-16 rounded bg-[#141314] flex items-center justify-center p-2 border border-white/5 shadow-inner">`;
-                        if (festival.logo) {
-                            topHtml += `<img src="${festival.logo}" alt="${festival.name}" class="w-full h-full object-contain" />`;
-                        } else if (festival.logo_path) {
-                            let url = festival.logo_path.startsWith("http") ? festival.logo_path : `https://image.tmdb.org/t/p/w500${festival.logo_path}`;
+                        if (festival.local_logo) {
+                            topHtml += `<img src="${festival.local_logo}" alt="${festival.name}" class="w-full h-full object-contain" />`;
+                        } else if (festival.tmdb_logo) {
+                            let url = festival.tmdb_logo.startsWith("http") ? festival.tmdb_logo : `https://image.tmdb.org/t/p/w500${festival.tmdb_logo}`;
                             topHtml += `<img src="${url}" alt="${festival.name}" class="w-full h-full object-contain" />`;
                         } else {
                             topHtml += `<span class="material-symbols-outlined text-3xl text-amber-500">emoji_events</span>`;

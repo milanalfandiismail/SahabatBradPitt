@@ -125,7 +125,8 @@ def _format_user_results(films_list, scores, X, era_pref, duration_pref):
         results.append({
             "id": film.id,
             "title": film.title,
-            "poster_path": film.poster_path,
+            "poster_path": film.tmdb_poster,
+            "local_poster": film.local_poster.url if film.local_poster else None,
             "avg_rating": film.avg_rating,
             "release_year": film.release_year,
             "duration": film.duration,

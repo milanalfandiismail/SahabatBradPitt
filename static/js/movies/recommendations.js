@@ -192,7 +192,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const posterWrap = document.createElement("div");
             posterWrap.className = "w-20 h-28 sm:w-28 sm:h-40 rounded-lg overflow-hidden shrink-0 bg-surface-dim shadow-md";
             let pUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300";
-            if (item.poster_path) pUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+            if (item.local_poster) pUrl = item.local_poster;
+            else if (item.poster_path) pUrl = item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
             const img = document.createElement("img");
             img.className = "w-full h-full object-cover"; img.src = pUrl; img.alt = item.title;
             posterWrap.appendChild(img);

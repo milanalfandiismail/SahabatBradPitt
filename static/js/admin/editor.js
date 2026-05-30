@@ -74,7 +74,7 @@ function openEditor(filmId) {
 
                 selectedCastData = film.cast ? film.cast.map(c => ({
                     actor_id: c.actor_id, role_name: c.role_name, role_type: c.role_type, order: c.order,
-                    actorData: { name: c.actor_name, photo_path: c.actor_photo }
+                    actorData: { name: c.actor_name, local_photo: c.actor_local_photo, tmdb_photo: c.actor_photo }
                 })) : [];
                 renderFilmCastRows();
                 showMoviesSubView('editor');
@@ -102,10 +102,10 @@ function openEditor(filmId) {
 
 function _loadFilmPoster(film, previewEl, placeholderEl) {
     let url = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
-    if (film.poster) {
-        url = film.poster;
-    } else if (film.poster_path) {
-        url = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+    if (film.local_poster) {
+        url = film.local_poster;
+    } else if (film.tmdb_poster) {
+        url = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
     }
     if (url) {
         previewEl.src = url;
@@ -190,10 +190,13 @@ function renderFilmCastRows() {
     selectedCastData.sort((a, b) => a.order - b.order).forEach((cast, idx) => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-white/5 hover:bg-white/[0.02] transition-colors block sm:table-row p-4 sm:p-0 flex flex-col sm:flex-none gap-3.5 sm:gap-0";
-        if (cast.actorData && cast.actorData.photo) {
-            photoUrl = cast.actorData.photo;
-        } else if (cast.actorData && cast.actorData.photo_path) {
-            photoUrl = cast.actorData.photo_path.startsWith('http') ? cast.actorData.photo_path : `https://image.tmdb.org/t/p/w200${cast.actorData.photo_path}`;
+        let photoUrl = "/static/images/placeholder-poster.jpg";
+        if (cast.actorData) {
+            if (cast.actorData.local_photo) {
+                photoUrl = cast.actorData.local_photo;
+            } else if (cast.actorData.tmdb_photo) {
+                photoUrl = cast.actorData.tmdb_photo.startsWith('http') ? cast.actorData.tmdb_photo : `https://image.tmdb.org/t/p/w200${cast.actorData.tmdb_photo}`;
+            }
         }
         tr.innerHTML = `
             <td class="p-0 sm:p-3 block sm:table-cell text-left sm:text-center">
@@ -328,10 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             const div = document.createElement('div');
                             div.className = "px-4 py-2 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0";
                             let photoUrl = "/static/images/placeholder-poster.jpg";
-                            if (actor.photo) {
-                                photoUrl = actor.photo;
-                            } else if (actor.photo_path) {
-                                photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w200${actor.photo_path}`;
+                            if (actor.local_photo) {
+                                photoUrl = actor.local_photo;
+                            } else if (actor.tmdb_photo) {
+                                photoUrl = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w200${actor.tmdb_photo}`;
                             }
                             div.innerHTML = `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0" /><div class="flex flex-col"><span class="text-xs font-semibold text-stone-200 line-clamp-1">${actor.name}</span><span class="text-[10px] text-stone-500">${actor.tmdb_id ? 'TMDB: ' + actor.tmdb_id : 'Local'}</span></div>`;
                             div.addEventListener('click', () => {

@@ -7,15 +7,15 @@ class RatingSerializer(serializers.ModelSerializer):
     display_name = serializers.CharField(source='user.profile.display_name', read_only=True)
     avatar_url = serializers.SerializerMethodField()
     film_title = serializers.CharField(source='film.title', read_only=True)
-    poster_path = serializers.CharField(source='film.poster_path', read_only=True)
-    poster = serializers.ImageField(source='film.poster', read_only=True)
+    tmdb_poster = serializers.CharField(source='film.tmdb_poster', read_only=True)
+    local_poster = serializers.ImageField(source='film.local_poster', read_only=True)
     release_year = serializers.IntegerField(source='film.release_year', read_only=True)
 
     class Meta:
         model = Rating
         fields = [
             'id', 'user', 'user_name', 'display_name', 'avatar_url', 
-            'film', 'film_title', 'poster_path', 'poster', 'release_year', 'score', 'review', 'created_at', 'updated_at'
+            'film', 'film_title', 'tmdb_poster', 'local_poster', 'release_year', 'score', 'review', 'created_at', 'updated_at'
         ]
         read_only_fields = ['user']
 
@@ -36,11 +36,12 @@ class RatingSerializer(serializers.ModelSerializer):
 
 class WatchlistSerializer(serializers.ModelSerializer):
     film_title = serializers.CharField(source='film.title', read_only=True)
-    poster_path = serializers.CharField(source='film.poster_path', read_only=True)
+    tmdb_poster = serializers.CharField(source='film.tmdb_poster', read_only=True)
+    local_poster = serializers.ImageField(source='film.local_poster', read_only=True)
     release_year = serializers.IntegerField(source='film.release_year', read_only=True)
     avg_rating = serializers.FloatField(source='film.avg_rating', read_only=True)
 
     class Meta:
         model = Watchlist
-        fields = ['id', 'user', 'film', 'film_title', 'poster_path', 'release_year', 'avg_rating', 'added_at']
+        fields = ['id', 'user', 'film', 'film_title', 'tmdb_poster', 'local_poster', 'release_year', 'avg_rating', 'added_at']
         read_only_fields = ['user']

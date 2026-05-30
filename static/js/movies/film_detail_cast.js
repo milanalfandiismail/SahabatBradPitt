@@ -44,13 +44,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         const wrapper = document.createElement("div");
                         wrapper.className = "w-16 h-16 sm:w-[96px] sm:h-[96px] rounded-full overflow-hidden shrink-0 bg-[#37353E] transition-all duration-300";
 
-                        if (actor.photo) {
+                        if (actor.local_photo) {
                             const img = document.createElement("img");
                             img.className = "w-full h-full object-cover group-hover:scale-110 transition-transform duration-400";
-                            img.src = actor.photo; img.alt = actor.name;
+                            img.src = actor.local_photo; img.alt = actor.name;
                             wrapper.appendChild(img);
-                        } else if (actor.photo_path) {
-                            const photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w185${actor.photo_path}`;
+                        } else if (actor.tmdb_photo) {
+                            const photoUrl = actor.tmdb_photo.startsWith("http") ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w185${actor.tmdb_photo}`;
                             const img = document.createElement("img");
                             img.className = "w-full h-full object-cover group-hover:scale-110 transition-transform duration-400";
                             img.src = photoUrl; img.alt = actor.name;

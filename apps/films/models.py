@@ -23,16 +23,20 @@ class FilmQuerySet(models.QuerySet):
         if not q:
             return self
         q = q.strip()
-        strict_query = (
-            Q(title__iexact=q) | 
-            Q(title__istartswith=f"{q} ") | 
-            Q(title__iendswith=f" {q}") | 
-            Q(title__icontains=f" {q} ")
-        )
-        strict_qs = self.filter(strict_query)
-        if strict_qs.exists():
-            return strict_qs
-        return self.filter(Q(title__icontains=q) | Q(synopsis__icontains=q))
+        from django.db.models import Case, When, Value, IntegerField
+        # Cari semua film yang mengandung q di judul atau sinopsis
+        qs = self.filter(Q(title__icontains=q) | Q(synopsis__icontains=q))
+        
+        # Peringkatkan: 1 (eksak), 2 (awalan), 3 (substring judul), 4 (lainnya)
+        return qs.annotate(
+            search_rank=Case(
+                When(title__iexact=q, then=Value(1)),
+                When(title__istartswith=q, then=Value(2)),
+                When(title__icontains=q, then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField()
+            )
+        ).order_by('search_rank', '-release_year', 'title')
 
     def filter_by_genres(self, genre_ids):
         if not genre_ids:
@@ -95,8 +99,8 @@ class Film(models.Model):
     
     # Path poster film dari TMDB (misal: /p8Z42i4nu5z95xxiMK3ycsAd4hF.jpg)
     # Dirender menggunakan TMDB CDN: https://image.tmdb.org/t/p/w500/<path>
-    poster_path = models.CharField(max_length=255, blank=True)
-    poster = models.ImageField(upload_to=film_poster_upload_path, null=True, blank=True)
+    tmdb_poster = models.CharField(max_length=255, blank=True)
+    local_poster = models.ImageField(upload_to=film_poster_upload_path, null=True, blank=True)
     
     # Menggunakan ManyToMany atau ForeignKey untuk Studio
     # Berdasarkan keputusan optimalisasi: Studio memiliki relasi dinamis dengan Film
@@ -135,19 +139,19 @@ class Film(models.Model):
 
 @receiver(post_delete, sender=Film)
 def auto_delete_film_poster_on_delete(sender, instance, **kwargs):
-    if instance.poster:
-        if os.path.isfile(instance.poster.path):
-            os.remove(instance.poster.path)
+    if instance.local_poster:
+        if os.path.isfile(instance.local_poster.path):
+            os.remove(instance.local_poster.path)
 
 @receiver(pre_save, sender=Film)
 def auto_delete_film_poster_on_change(sender, instance, **kwargs):
     if not instance.pk:
         return False
     try:
-        old_file = Film.objects.get(pk=instance.pk).poster
+        old_file = Film.objects.get(pk=instance.pk).local_poster
     except Film.DoesNotExist:
         return False
-    new_file = instance.poster
+    new_file = instance.local_poster
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

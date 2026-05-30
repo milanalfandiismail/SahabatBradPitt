@@ -26,8 +26,8 @@ class Festival(models.Model):
     city = models.CharField(max_length=100, blank=True, default='')
     founded_year = models.IntegerField(null=True, blank=True)
     description = models.TextField(blank=True, default='')
-    logo_path = models.CharField(max_length=255, blank=True, default='')
-    logo = models.ImageField(upload_to=festival_logo_upload_path, null=True, blank=True)
+    tmdb_logo = models.CharField(max_length=255, blank=True, default='')
+    local_logo = models.ImageField(upload_to=festival_logo_upload_path, null=True, blank=True)
     website = models.URLField(blank=True, default='')
     tmdb_id = models.IntegerField(null=True, blank=True, unique=True)
     is_active = models.BooleanField(default=True)
@@ -41,19 +41,19 @@ class Festival(models.Model):
 
 @receiver(post_delete, sender=Festival)
 def auto_delete_festival_logo_on_delete(sender, instance, **kwargs):
-    if instance.logo:
-        if os.path.isfile(instance.logo.path):
-            os.remove(instance.logo.path)
+    if instance.local_logo:
+        if os.path.isfile(instance.local_logo.path):
+            os.remove(instance.local_logo.path)
 
 @receiver(pre_save, sender=Festival)
 def auto_delete_festival_logo_on_change(sender, instance, **kwargs):
     if not instance.pk:
         return False
     try:
-        old_file = Festival.objects.get(pk=instance.pk).logo
+        old_file = Festival.objects.get(pk=instance.pk).local_logo
     except Festival.DoesNotExist:
         return False
-    new_file = instance.logo
+    new_file = instance.local_logo
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

@@ -32,10 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 wrap.className = "w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-[#715A5A] group-hover:scale-105 transition-all duration-300 shadow-lg shadow-white/5";
 
                 let photoUrl = '';
-                if (actor.photo) {
-                    photoUrl = actor.photo;
-                } else if (actor.photo_path) {
-                    photoUrl = actor.photo_path.startsWith("http") ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+                if (actor.local_photo) {
+                    photoUrl = actor.local_photo;
+                } else if (actor.tmdb_photo) {
+                    photoUrl = actor.tmdb_photo.startsWith("http") ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w500${actor.tmdb_photo}`;
                 }
 
                 if (photoUrl) {

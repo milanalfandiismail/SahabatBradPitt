@@ -439,7 +439,7 @@ class TMDBService:
                     "native_name": native_name,
                     "bio": bio,
                     "birth_year": birth_year,
-                    "photo_path": photo_path,
+                    "tmdb_photo": photo_path,
                     **extra_actor_fields
                 }
             )
@@ -613,7 +613,7 @@ class TMDBService:
                         "synopsis": synopsis,
                         "release_year": release_year,
                         "trailer_url": trailer_url,
-                        "poster_path": cast.get("poster_path") or "",
+                        "tmdb_poster": cast.get("poster_path") or "",
                         "duration": runtime,
                         "tmdb_popularity": cast.get("popularity", 0.0),
                         "avg_rating": cast.get("vote_average", 0.0),
@@ -739,7 +739,7 @@ class TMDBService:
                             defaults={
                                 "name": cast_name,
                                 "native_name": cast_native_name,
-                                "photo_path": cast_photo,
+                                "tmdb_photo": cast_photo,
                                 "bio": cast_bio,
                                 "birth_year": cast_birth_year,
                                 **extra_actor_fields
@@ -812,7 +812,7 @@ class TMDBService:
                         defaults={
                             "name": director_name,
                             "native_name": director_native_name,
-                            "photo_path": director_photo,
+                            "tmdb_photo": director_photo,
                             "bio": dir_bio,
                             "birth_year": dir_birth_year
                         }
@@ -861,7 +861,7 @@ class TMDBService:
                 "tmdb_id": 287,
                 "bio": "William Bradley Pitt adalah seorang aktor dan produser film terkenal asal Amerika Serikat.",
                 "birth_year": 1963,
-                "photo_path": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg"
+                "tmdb_photo": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg"
             }
         )
 
@@ -872,7 +872,7 @@ class TMDBService:
                 "tmdb_id": 7467,
                 "bio": "Sutradara thriller psikologis Amerika terkenal.",
                 "birth_year": 1962,
-                "photo_path": "/tpEczFclQZeKAiCeKZZ0adRvtfz.jpg"
+                "tmdb_photo": "/tpEczFclQZeKAiCeKZZ0adRvtfz.jpg"
             }
         )
         quentin_tarantino, _ = Actor.objects.get_or_create(
@@ -881,7 +881,7 @@ class TMDBService:
                 "tmdb_id": 138,
                 "bio": "Sutradara, penulis skenario, dan aktor berkebangsaan Amerika Serikat.",
                 "birth_year": 1963,
-                "photo_path": "/9Bb8Q0n0hE2i9J6t7S9eD4.jpg"
+                "tmdb_photo": "/9Bb8Q0n0hE2i9J6t7S9eD4.jpg"
             }
         )
 
@@ -962,7 +962,7 @@ class TMDBService:
                     "synopsis": item["synopsis"],
                     "release_year": item["release_year"],
                     "trailer_url": item["trailer_url"],
-                    "poster_path": item["poster_path"],
+                    "tmdb_poster": item["poster_path"],
                     "duration": item["duration"],
                     "tmdb_popularity": item["popularity"],
                     "avg_rating": item["avg_rating"],
@@ -1142,7 +1142,7 @@ class TMDBService:
                             defaults={
                                 "name": cast_name,
                                 "native_name": cast_native_name,
-                                "photo_path": cast_photo,
+                                "tmdb_photo": cast_photo,
                                 "bio": f"Aktor/aktris yang bermain di {film.title}."
                             }
                         )
@@ -1192,7 +1192,7 @@ class TMDBService:
                                 defaults={
                                     "name": director_name,
                                     "native_name": director_native_name,
-                                    "photo_path": director_photo,
+                                    "tmdb_photo": director_photo,
                                     "bio": f"Sutradara ternama yang menyutradarai {film.title}."
                                 }
                             )

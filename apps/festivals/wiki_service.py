@@ -266,7 +266,7 @@ class WikipediaAccoladesImporter:
             if not html_content:
                 return {"success": False, "error": f"Halaman Wikipedia '{page_title}' tidak ditemukan atau tidak memiliki data."}
 
-        film_year = film.release_date.year if film.release_date else None
+        film_year = film.release_year
         extracted_awards = self.parse_accolades_tables(html_content, film_year=film_year)
 
         if not extracted_awards:

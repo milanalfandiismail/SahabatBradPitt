@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     card.addEventListener("click", () => { window.location.href = `/movies/${film.id}/`; });
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300";
                     if (film.local_poster) posterUrl = film.local_poster;
-                    else if (film.tmdb_poster) posterUrl = film.tmdb_poster.startsWith("http") ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
+                    else if (film.poster_path) posterUrl = film.poster_path.startsWith("http") ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
                     const imgDiv = document.createElement("div");
                     imgDiv.className = "h-[200px] w-full overflow-hidden";
                     const img = document.createElement("img");

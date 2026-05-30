@@ -5,19 +5,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const filmId = pathParts[pathParts.length - 1];
-// ---- Watchlist ----
+    // ---- Watchlist ----
     let userWatchlistEntry = null;
     const watchlistBtn = document.getElementById("watchlist-btn");
 
     if (typeof isAuthenticated !== 'undefined' && isAuthenticated) {
         fetch("/api/auth/me/")
-            .then(res => { if(!res.ok) throw new Error(); return res.json(); })
+            .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(me => checkWatchlistState(me.id))
             .catch(err => console.log("Failed to fetch user for watchlist state"));
     }
 
     function checkWatchlistState(userId) {
-        fetch(`/api/ratings/watchlist/?user=${userId}`, {  })
+        fetch(`/api/ratings/watchlist/?user=${userId}`, {})
             .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(data => {
                 const list = Array.isArray(data.results || data) ? (data.results || data) : [];
@@ -41,24 +41,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (watchlistBtn) {
         watchlistBtn.addEventListener("click", () => {
             if (typeof isAuthenticated === 'undefined' || !isAuthenticated) {
-                if(window.showToast) window.showToast("Silakan sign in terlebih dahulu.", "warning"); 
+                if (window.showToast) window.showToast("Silakan sign in terlebih dahulu.", "warning");
                 setTimeout(() => { window.location.href = "/login/"; }, 1500);
             } else {
                 executeWatchlistToggle();
             }
 
             function executeWatchlistToggle() {
-            watchlistBtn.disabled = true;
-            if (userWatchlistEntry) {
-                secureFetch(`/api/ratings/watchlist/${userWatchlistEntry.id}/`, { method: "DELETE" })
-                    .then(res => { watchlistBtn.disabled = false; if (res.ok) { userWatchlistEntry = null; updateWatchlistButton(); } })
-                    .catch(() => { watchlistBtn.disabled = false; });
-            } else {
-                secureFetch("/api/ratings/watchlist/", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify({ film: parseInt(filmId) }) })
-                    .then(res => { if (!res.ok) return res.json().then(e => { throw new Error(e.error || "Gagal"); }); return res.json(); })
-                    .then(data => { watchlistBtn.disabled = false; userWatchlistEntry = data; updateWatchlistButton(); })
-                    .catch(err => { watchlistBtn.disabled = false; if(window.showToast) window.showToast(err.message || "Gagal menambah ke watchlist.", "error"); });
-            }
+                watchlistBtn.disabled = true;
+                if (userWatchlistEntry) {
+                    secureFetch(`/api/ratings/watchlist/${userWatchlistEntry.id}/`, { method: "DELETE" })
+                        .then(res => { watchlistBtn.disabled = false; if (res.ok) { userWatchlistEntry = null; updateWatchlistButton(); } })
+                        .catch(() => { watchlistBtn.disabled = false; });
+                } else {
+                    secureFetch("/api/ratings/watchlist/", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify({ film: parseInt(filmId) }) })
+                        .then(res => { if (!res.ok) return res.json().then(e => { throw new Error(e.error || "Gagal"); }); return res.json(); })
+                        .then(data => { watchlistBtn.disabled = false; userWatchlistEntry = data; updateWatchlistButton(); })
+                        .catch(err => { watchlistBtn.disabled = false; if (window.showToast) window.showToast(err.message || "Gagal menambah ke watchlist.", "error"); });
+                }
             }
         });
     }
@@ -85,8 +85,8 @@ document.addEventListener("DOMContentLoaded", function () {
             let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
             if (film.local_poster) posterUrl = film.local_poster;
             else if (film.tmdb_poster) posterUrl = film.tmdb_poster.startsWith("http") ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
-            const pImg = document.getElementById("poster-img"); if(pImg) pImg.src = posterUrl;
-            const bImg = document.getElementById("backdrop-img"); if(bImg) bImg.style.backgroundImage = `url('${posterUrl}')`;
+            const pImg = document.getElementById("poster-img"); if (pImg) pImg.src = posterUrl;
+            const bImg = document.getElementById("backdrop-img"); if (bImg) bImg.style.backgroundImage = `url('${posterUrl}')`;
 
             const genreContainer = document.getElementById("genre-chips");
             if (genreContainer && film.genre_display && film.genre_display.length > 0) {
@@ -105,51 +105,51 @@ document.addEventListener("DOMContentLoaded", function () {
                     trailerBtn.classList.remove("hidden");
                     trailerBtn.classList.add("inline-flex");
                     trailerBtn.addEventListener("click", () => {
-                        if(window.openTrailerModal) window.openTrailerModal(film.trailer_url);
+                        if (window.openTrailerModal) window.openTrailerModal(film.trailer_url);
                     });
                 }
             }
 
             if (typeof isAuthenticated !== 'undefined' && isAuthenticated) {
                 fetch('/api/auth/me/')
-                    .then(r => { if(!r.ok) throw new Error(); return r.json(); })
+                    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
                     .then(user => {
-                            if (user.is_staff || user.is_superuser) {
-                                const container = document.getElementById('admin-status-container');
-                                const badge = document.getElementById('detail-status-badge');
-                                const rejAlert = document.getElementById('detail-rejection-alert');
-                                const rejText = document.getElementById('detail-rejection-text');
-                                const editBtn = document.getElementById('admin-edit-direct-btn');
+                        if (user.is_staff || user.is_superuser) {
+                            const container = document.getElementById('admin-status-container');
+                            const badge = document.getElementById('detail-status-badge');
+                            const rejAlert = document.getElementById('detail-rejection-alert');
+                            const rejText = document.getElementById('detail-rejection-text');
+                            const editBtn = document.getElementById('admin-edit-direct-btn');
 
-                                if (container && badge) {
-                                    const statusEl = document.createElement('span');
-                                    const statusMap = {
-                                        published: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25",
-                                        pending_approval: "bg-amber-500/10 text-amber-400 border border-amber-500/25",
-                                        rejected: "bg-rose-500/10 text-rose-400 border border-rose-500/25",
-                                    };
-                                    statusEl.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase " + (statusMap[film.status] || "bg-stone-500/10 text-stone-400 border border-white/10");
-                                    statusEl.textContent = film.status === 'pending_approval' ? 'Pending Approval' : (film.status || 'Draft');
-                                    badge.replaceChildren(statusEl);
-                                    container.classList.remove('hidden');
+                            if (container && badge) {
+                                const statusEl = document.createElement('span');
+                                const statusMap = {
+                                    published: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25",
+                                    pending_approval: "bg-amber-500/10 text-amber-400 border border-amber-500/25",
+                                    rejected: "bg-rose-500/10 text-rose-400 border border-rose-500/25",
+                                };
+                                statusEl.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase " + (statusMap[film.status] || "bg-stone-500/10 text-stone-400 border border-white/10");
+                                statusEl.textContent = film.status === 'pending_approval' ? 'Pending Approval' : (film.status || 'Draft');
+                                badge.replaceChildren(statusEl);
+                                container.classList.remove('hidden');
 
-                                    if (film.status === 'rejected' && film.rejection_reason && rejText && rejAlert) {
-                                        rejText.textContent = film.rejection_reason;
-                                        rejAlert.classList.remove('hidden');
-                                    }
-                                    if (editBtn) editBtn.addEventListener('click', () => { window.location.href = `/admin-films/?edit=${film.id}`; });
+                                if (film.status === 'rejected' && film.rejection_reason && rejText && rejAlert) {
+                                    rejText.textContent = film.rejection_reason;
+                                    rejAlert.classList.remove('hidden');
                                 }
+                                if (editBtn) editBtn.addEventListener('click', () => { window.location.href = `/admin-films/?edit=${film.id}`; });
                             }
-                        }).catch(()=> {});
+                        }
+                    }).catch(() => { });
             }
 
             _renderGallery(film);
 
-            if(window.fetchCast) window.fetchCast(film.id);
-            if(window.fetchReviews) window.fetchReviews(film.id);
+            if (window.fetchCast) window.fetchCast(film.id);
+            if (window.fetchReviews) window.fetchReviews(film.id);
             fetchSimilar(film.id);
         })
-        .catch(err => { if (loading) loading.classList.add("hidden"); if(errorContainer) errorContainer.classList.remove("hidden"); console.error(err); });
+        .catch(err => { if (loading) loading.classList.add("hidden"); if (errorContainer) errorContainer.classList.remove("hidden"); console.error(err); });
 
     function _renderGallery(film) {
         const gallerySection = document.getElementById("gallery-section");
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 imgEl.src = img.file_path.startsWith('/media/') ? img.file_path : `https://image.tmdb.org/t/p/w780${img.file_path}`;
                 imgEl.alt = `Galeri`;
                 imgEl.addEventListener("click", () => {
-                    if(window.openGalleryLightbox) window.openGalleryLightbox(index);
+                    if (window.openGalleryLightbox) window.openGalleryLightbox(index);
                 });
                 galleryGrid.appendChild(imgEl);
             });

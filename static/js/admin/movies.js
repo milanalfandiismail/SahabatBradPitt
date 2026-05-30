@@ -108,10 +108,10 @@ function renderFilmsTable(films) {
         const tdPoster = document.createElement('td');
         tdPoster.className = "p-2 sm:p-4 text-center align-middle shrink-0 w-[60px] sm:w-[80px] hidden sm:table-cell";
         let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=100";
-        if (film.poster) {
-            posterUrl = film.poster;
-        } else if (film.poster_path) {
-            posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w92${film.poster_path}`;
+        if (film.local_poster) {
+            posterUrl = film.local_poster;
+        } else if (film.tmdb_poster) {
+            posterUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w92${film.tmdb_poster}`;
         }
         const img = document.createElement('img');
         img.src = posterUrl;

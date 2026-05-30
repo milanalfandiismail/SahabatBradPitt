@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Get active search value (any input)
     function getActiveSearchValue() {
         return searchInput?.value?.trim() ||
-               searchInputMobile?.value?.trim() ||
-               searchInputMobileBottom?.value?.trim() || "";
+            searchInputMobile?.value?.trim() ||
+            searchInputMobileBottom?.value?.trim() || "";
     }
 
     window.fetchFilms = function (page = 1) {
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     mainInfoDiv.appendChild(metaRow);
 
                     const synopsis = document.createElement("p");
-                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 leading-relaxed hidden lg:block";
+                    synopsis.className = "font-['DM_Sans'] text-xs text-[#c9c5cb] line-clamp-2 leading-relaxed mt-2 lg:mt-3 hidden lg:block";
                     synopsis.textContent = film.synopsis || "Tidak ada sinopsis tersedia.";
                     mainInfoDiv.appendChild(synopsis);
                     contentDiv.appendChild(mainInfoDiv);

@@ -124,9 +124,9 @@ Proyek ini mendukung dua pilihan konfigurasi database berdasarkan branch git yan
   DATABASES = {
       'default': {
           'ENGINE': 'django.db.backends.postgresql',
-          'NAME': 'sahabat_brad_pitt',
-          'USER': 'postgres',
-          'PASSWORD': 'milan123qaz!@#',
+          'NAME': 'your_db_name',
+          'USER': 'your_db_user',
+          'PASSWORD': 'your_db_password',
           'HOST': 'localhost',
           'PORT': '5432',
       }

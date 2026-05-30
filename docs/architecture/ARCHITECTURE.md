@@ -113,6 +113,7 @@ Actor
 ├── bio
 ├── birth_year
 ├── tmdb_photo
+├── local_photo (local upload)
 └── filmographies (reverse M2M via Filmography)
 
 Filmography (junction table)
@@ -131,6 +132,29 @@ Rating
 Watchlist
 ├── user (FK)
 └── film (FK)
+
+Festival
+├── id (PK)
+├── name
+├── native_name
+├── country
+├── city
+├── founded_year
+├── description
+├── tmdb_logo
+├── local_logo
+├── website
+├── tmdb_id (unique, null)
+└── is_active
+
+FestivalAward
+├── id (PK)
+├── festival (FK)
+├── film (FK, null)
+├── actor (FK, null)
+├── category
+├── year
+└── award_type (winner/nominee)
 ```
 
 ### Model Relationships

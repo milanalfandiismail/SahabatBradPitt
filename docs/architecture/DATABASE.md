@@ -44,8 +44,8 @@ User (1) ──── (M) Rating
 | `synopsis` | TEXT | | Film description |
 | `release_year` | INTEGER | NULL | Release year |
 | `trailer_url` | VARCHAR(500) | | YouTube trailer URL |
-| `poster_path` | VARCHAR(255) | | TMDB poster path |
-| `poster` | IMAGE | NULL | Local uploaded poster |
+| `tmdb_poster` | VARCHAR(255) | | TMDB poster path |
+| `local_poster` | IMAGE | NULL | Local uploaded poster |
 | `duration` | INTEGER | NULL | Duration in minutes |
 | `popularity` | FLOAT | DEFAULT 0.0 | TMDB popularity score |
 | `avg_rating` | FLOAT | DEFAULT 0.0 | Average user rating |
@@ -112,8 +112,8 @@ User (1) ──── (M) Rating
 | `place_of_birth` | VARCHAR(255) | | Birth place |
 | `gender` | INTEGER | NULL | 0=Not specified, 1=Female, 2=Male, 3=Non-binary |
 | `known_for_department` | VARCHAR(255) | | Department (Acting, Directing, etc.) |
-| `photo_path` | VARCHAR(255) | | TMDB profile image path |
-| `photo` | IMAGE | NULL | Local uploaded photo |
+| `tmdb_photo` | VARCHAR(255) | | TMDB profile image path |
+| `local_photo` | IMAGE | NULL | Local uploaded photo |
 | `instagram_id` | VARCHAR(255) | NULL | Instagram username |
 | `twitter_id` | VARCHAR(255) | NULL | Twitter/X username |
 | `facebook_id` | VARCHAR(255) | NULL | Facebook username |
@@ -238,8 +238,8 @@ User (1) ──── (M) Rating
 | `city` | VARCHAR(100) | DEFAULT '' | City |
 | `founded_year` | INTEGER | NULL | Year founded |
 | `description` | TEXT | DEFAULT '' | Festival description |
-| `logo_path` | VARCHAR(255) | DEFAULT '' | TMDB logo path |
-| `logo` | IMAGE | NULL | Local uploaded logo |
+| `tmdb_logo` | VARCHAR(255) | DEFAULT '' | TMDB logo path |
+| `local_logo` | IMAGE | NULL | Local uploaded logo |
 | `website` | VARCHAR(255) | DEFAULT '' | Official website |
 | `tmdb_id` | INTEGER | UNIQUE, NULL | TMDB festival ID |
 | `is_active` | BOOLEAN | DEFAULT TRUE | Is festival still active |

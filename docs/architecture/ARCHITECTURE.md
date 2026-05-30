@@ -94,8 +94,8 @@ Film
 ├── title
 ├── synopsis
 ├── release_year
-├── poster_path (TMDB)
-├── poster (local upload)
+├── tmdb_poster (TMDB)
+├── local_poster (local upload)
 ├── duration
 ├── popularity (TMDB)
 ├── avg_rating (calculated)
@@ -112,7 +112,7 @@ Actor
 ├── native_name (Korean/Chinese/Japanese)
 ├── bio
 ├── birth_year
-├── photo_path
+├── tmdb_photo
 └── filmographies (reverse M2M via Filmography)
 
 Filmography (junction table)

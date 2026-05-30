@@ -8,23 +8,23 @@
 
 | Document | Purpose |
 |----------|---------|
-| **[DEVELOPMENT.md](./DEVELOPMENT.md)** | Local development quick start |
-| **[CODEBASE_DOCUMENTATION.md](./CODEBASE_DOCUMENTATION.md)** | Comprehensive codebase docs |
-| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | System architecture & patterns |
-| **[API.md](./API.md)** | Complete REST API reference |
-| **[DATABASE.md](./DATABASE.md)** | Database schema & models |
-| **[GUIDES.md](./GUIDES.md)** | Implementation guides |
-| **[DEPLOYMENT.md](./DEPLOYMENT.md)** | Deployment guide (all platforms) |
-| **[RBAC_ROLE_SYSTEM.md](./RBAC_ROLE_SYSTEM.md)** | Role-based access control |
+| **[DEVELOPMENT.md](./guides/DEVELOPMENT.md)** | Local development quick start |
+| **[CODEBASE_DOCUMENTATION.md](./architecture/CODEBASE_DOCUMENTATION.md)** | Comprehensive codebase docs |
+| **[ARCHITECTURE.md](./architecture/ARCHITECTURE.md)** | System architecture & patterns |
+| **[API.md](./api/API.md)** | Complete REST API reference |
+| **[DATABASE.md](./architecture/DATABASE.md)** | Database schema & models |
+| **[GUIDES.md](./guides/GUIDES.md)** | Implementation guides |
+| **[DEPLOYMENT.md](./deployment/DEPLOYMENT.md)** | Deployment guide (all platforms) |
+| **[RBAC_ROLE_SYSTEM.md](./guides/RBAC_ROLE_SYSTEM.md)** | Role-based access control |
 
 ## 🌐 Platform-Specific Deployment
 
 | Platform | Guide |
 |----------|-------|
-| Windows (Waitress) | [WINDOWS_WAITRESS_DEPLOYMENT.md](./WINDOWS_WAITRESS_DEPLOYMENT.md) |
-| Docker | [DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md) |
-| VPS + Nginx | [VPS_NGINX_DEPLOYMENT.md](./VPS_NGINX_DEPLOYMENT.md) |
-| PythonAnywhere | [PYTHONANYWHERE_DEPLOYMENT.md](./PYTHONANYWHERE_DEPLOYMENT.md) |
+| Windows (Waitress) | [WINDOWS_WAITRESS_DEPLOYMENT.md](./deployment/WINDOWS_WAITRESS_DEPLOYMENT.md) |
+| Docker | [DOCKER_DEPLOYMENT.md](./deployment/DOCKER_DEPLOYMENT.md) |
+| VPS + Nginx | [VPS_NGINX_DEPLOYMENT.md](./deployment/VPS_NGINX_DEPLOYMENT.md) |
+| PythonAnywhere | [PYTHONANYWHERE_DEPLOYMENT.md](./deployment/PYTHONANYWHERE_DEPLOYMENT.md) |
 
 ---
 
@@ -135,7 +135,7 @@ curl -H "Authorization: Token YOUR_TOKEN" http://localhost:8000/api/films/
 | `/api/actors/` | GET | List actors |
 | `/api/ratings/` | POST | Submit rating |
 
-See [API.md](./API.md) for complete reference.
+See [API.md](./api/API.md) for complete reference.
 
 ---
 
@@ -157,7 +157,7 @@ SahabatBradPitt/
 └── manage.py           # Django CLI
 ```
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture.
+See [ARCHITECTURE.md](./architecture/ARCHITECTURE.md) for detailed architecture.
 
 ---
 
@@ -170,7 +170,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture.
 4. Submit for approval
 5. Super admin approves
 
-See [GUIDES.md](./GUIDES.md) for step-by-step guide.
+See [GUIDES.md](./guides/GUIDES.md) for step-by-step guide.
 
 ### Integrating YouTube Trailers
 - Automatic from TMDB API
@@ -193,7 +193,7 @@ See [GUIDES.md](./GUIDES.md) for step-by-step guide.
 - ✅ Rate limiting
 - ✅ Input validation
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for security best practices.
+See [DEPLOYMENT.md](./deployment/DEPLOYMENT.md) for security best practices.
 
 ---
 

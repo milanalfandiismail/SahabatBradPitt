@@ -67,8 +67,8 @@ GET /api/films/?search=brad&genre=1&min_rating=7.0
       "synopsis": "A ticking-time-bomb insomniac and a slippery soap salesman channel...",
       "release_year": 1999,
       "trailer_url": "https://www.youtube.com/watch?v=qtRKdVHc-cE",
-      "poster_path": "/pB8BM7pdSp6B6Ih7QZ429c2O5Pn.jpg",
-      "poster": null,
+      "tmdb_poster": "/pB8BM7pdSp6B6Ih7QZ429c2O5Pn.jpg",
+      "local_poster": null,
       "duration": 139,
       "avg_rating": 8.8,
       "popularity": 92.5,
@@ -85,6 +85,7 @@ GET /api/films/?search=brad&genre=1&min_rating=7.0
           "actor_id": 287,
           "actor_name": "Brad Pitt",
           "actor_photo": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg",
+          "actor_local_photo": null,
           "role_name": "Tyler Durden",
           "role_type": "lead",
           "order": 1
@@ -123,7 +124,7 @@ Content-Type: application/json
   "release_year": 2024,
   "duration": 120,
   "trailer_url": "https://www.youtube.com/watch?v=...",
-  "poster_path": "/path/to/poster.jpg",
+  "tmdb_poster": "/path/to/poster.jpg",
   "genre": [1, 2, 3],
   "actors_data": [
     {"actor_id": 287, "role_name": "Lead Actor", "role_type": "lead", "order": 1}
@@ -195,7 +196,7 @@ GET /api/films/{id}/similar/
   {
     "id": 2,
     "title": "Se7en",
-    "poster_path": "/6yogjS3nN3v8R7tT5cG6Q3tQ4T.jpg",
+    "tmdb_poster": "/6yogjS3nN3v8R7tT5cG6Q3tQ4T.jpg",
     "avg_rating": 8.6,
     "release_year": 1995,
     "duration": 127,
@@ -360,7 +361,8 @@ GET /api/actors/
       "native_name": "브래드 피트",
       "bio": "William Bradley Pitt is an American actor and film producer...",
       "birth_year": 1963,
-      "photo_path": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg",
+      "tmdb_photo": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg",
+      "local_photo": null,
       "status": "published",
       "filmography_count": 45
     }
@@ -390,11 +392,12 @@ GET /api/actors/{id}/
   "known_for_department": "Acting",
   "instagram_id": "bradpitt",
   "twitter_id": null,
-  "photo_path": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg",
+  "tmdb_photo": "/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg",
+  "local_photo": null,
   "filmographies": [
     {
       "id": 1,
-      "film": {"id": 1, "title": "Fight Club", "poster_path": "..."},
+      "film": {"id": 1, "title": "Fight Club", "tmdb_poster": "...", "local_poster": null},
       "role": "Tyler Durden",
       "role_type": "lead",
       "order": 1
@@ -724,7 +727,7 @@ Content-Type: application/json
     {
       "id": 1,
       "title": "Inception",
-      "poster_path": "/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
+      "tmdb_poster": "/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
       "avg_rating": 8.8,
       "release_year": 2010,
       "duration": 148,

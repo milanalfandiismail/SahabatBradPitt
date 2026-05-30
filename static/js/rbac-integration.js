@@ -328,12 +328,12 @@ function showFilmApprovalDetail(film) {
     if (film.images && film.images.length > 0) {
         const localPoster = film.images.find(img => img.image_type === 'poster');
         if (localPoster) posterUrl = localPoster.file_path;
-        else if (film.poster) posterUrl = film.poster;
-        else if (film.poster_path) posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
-    } else if (film.poster) {
-        posterUrl = film.poster;
-    } else if (film.poster_path) {
-        posterUrl = film.poster_path.startsWith('http') ? film.poster_path : `https://image.tmdb.org/t/p/w500${film.poster_path}`;
+        else if (film.local_poster) posterUrl = film.local_poster;
+        else if (film.tmdb_poster) posterUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
+    } else if (film.local_poster) {
+        posterUrl = film.local_poster;
+    } else if (film.tmdb_poster) {
+        posterUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w500${film.tmdb_poster}`;
     }
     posterImg.src = posterUrl;
     
@@ -397,10 +397,10 @@ function showActorApprovalDetail(actor) {
     
     const photoImg = document.getElementById('detail-actor-photo');
     let photoUrl = "/static/images/placeholder-poster.jpg";
-    if (actor.photo) {
-        photoUrl = actor.photo;
-    } else if (actor.photo_path) {
-        photoUrl = actor.photo_path.startsWith('http') ? actor.photo_path : `https://image.tmdb.org/t/p/w500${actor.photo_path}`;
+    if (actor.local_photo) {
+        photoUrl = actor.local_photo;
+    } else if (actor.tmdb_photo) {
+        photoUrl = actor.tmdb_photo.startsWith('http') ? actor.tmdb_photo : `https://image.tmdb.org/t/p/w500${actor.tmdb_photo}`;
     }
     photoImg.src = photoUrl;
     

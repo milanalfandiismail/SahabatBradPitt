@@ -170,7 +170,7 @@ function openActorEditor(actor) {
         }
         
         document.getElementById('actor-form-photo').value = "";
-        document.getElementById('actor-form-photo-path-hidden').value = actor.photo_path || "";
+        document.getElementById('actor-form-photo-path-hidden').value = actor.tmdb_photo || "";
         document.getElementById('actor-form-instagram').value = actor.instagram_id || "";
         document.getElementById('actor-form-twitter').value = actor.twitter_id || "";
         document.getElementById('actor-form-facebook').value = actor.facebook_id || "";

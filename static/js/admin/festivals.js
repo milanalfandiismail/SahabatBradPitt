@@ -241,7 +241,7 @@ function _populateFestivalEditor(fest) {
     document.getElementById('festival-website-input').value = fest.website || '';
     document.getElementById('festival-active-input').checked = fest.is_active;
     document.getElementById('festival-logo-input').value = '';
-    document.getElementById('festival-logo-path-input').value = fest.logo_path || '';
+    document.getElementById('festival-logo-path-input').value = fest.tmdb_logo || '';
 
     // Logo preview
     const preview = document.getElementById('festival-logo-preview');

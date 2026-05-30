@@ -424,7 +424,7 @@ function _saveFilm() {
 
     const posterFile = document.getElementById('form-poster-input').files[0];
     if (posterFile) {
-        formData.append('poster', posterFile);
+        formData.append('local_poster', posterFile);
     } else if (!selectedFilmId) {
         showToast('Harap unggah poster film untuk film baru.', 'warning'); return;
     }

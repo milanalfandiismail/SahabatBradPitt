@@ -390,6 +390,27 @@ psql dbname < backup.sql
 
 ---
 
+## SQLite to PostgreSQL Migration (Multi-DB ORM Sync)
+
+Untuk memindahkan data dari SQLite (`db.sqlite3`) langsung ke PostgreSQL target pada branch `main-postgresql`, proyek ini menggunakan script **`auto_migrate.py`** berbasis Django Multi-DB ORM Sync.
+
+### Fitur Utama Script
+- **ORM Direct Sync**: Memindahkan data antar database tanpa menulis/membaca file perantara JSON (`dumpdata` / `loaddata`) sehingga sangat cepat (~7 detik untuk 90.000 data).
+- **Proses Batching**: Memecah pemindahan data besar (seperti `Filmography` dengan 47.000 data dan `Actor` dengan 30.000 data) ke dalam batch kecil (2.000 data) guna membatasi penggunaan RAM.
+- **Proteksi Branch Defensif**: Memvalidasi apakah engine database default di Django settings memang PostgreSQL sebelum memproses data, guna mencegah terhapusnya database SQLite lokal di branch `main`.
+- **Pembersihan Database Target (Idempotent)**: Menghapus data lama secara otomatis di PostgreSQL sebelum migrasi baru dimulai agar proses aman dijalankan berulang kali.
+- **Penonaktifan Signals**: Memutuskan seluruh sinyal `pre_save`/`post_save`/`delete` untuk menjaga keutuhan file media fisik (poster/foto/logo) dan menghindari penambahan record ganda secara otomatis.
+- **Pemotongan String Otomatis**: Memotong string yang melebihi kapasitas `max_length` model secara dinamis guna menghindari crash `StringDataRightTruncation` pada PostgreSQL.
+- **Penyelarasan Sequence**: Menjalankan SQL `sqlsequencereset` otomatis untuk menyelaraskan nilai serial sequence agar pembuatan data baru setelah migrasi tidak bentrok.
+
+### Cara Menjalankan
+Pastikan Anda berada di branch `main-postgresql` yang memiliki konfigurasi PostgreSQL di `development.py`, lalu jalankan:
+```bash
+python auto_migrate.py
+```
+
+---
+
 ## Performance Optimization
 
 ### Indexes

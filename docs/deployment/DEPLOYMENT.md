@@ -88,6 +88,13 @@ ALTER ROLE sahabatuser SET client_encoding TO 'utf8';
 \q
 ```
 
+### 3.1 Migrasi Data dari SQLite ke PostgreSQL (Opsional)
+Jika Anda sudah memiliki data uji coba atau data asli di SQLite (`db.sqlite3`) dan ingin memindahkannya langsung secara utuh ke PostgreSQL (tanpa kehilangan relasi dan file media), jalankan script migrasi direct ORM yang telah tersedia:
+```bash
+python auto_migrate.py
+```
+Script ini sangat cepat, hemat memori (memakai pemrosesan batch), mematikan sinyal database otomatis (agar file fisik tidak ikut terhapus), dan menyelaraskan AutoField sequence di PostgreSQL.
+
 ### 4. Static Files Collection
 
 ```bash

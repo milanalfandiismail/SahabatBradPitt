@@ -96,6 +96,8 @@ function openEditor(filmId) {
         renderEditorStatusBadge('draft');
         selectedCastData = [];
         renderFilmCastRows();
+        if (genresList.length === 0) fetchGenres();
+        else renderFormGenres();
         showMoviesSubView('editor');
     }
 }

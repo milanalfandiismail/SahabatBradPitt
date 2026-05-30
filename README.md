@@ -97,6 +97,62 @@ python manage.py runserver
 
 ---
 
+## 🗄️ Pilihan Database & Branch (SQLite vs PostgreSQL)
+
+Proyek ini mendukung dua pilihan konfigurasi database berdasarkan branch git yang aktif:
+
+### 1. Branch `main` (SQLite - Default Development)
+- **Karakteristik**: Sangat mudah dijalankan tanpa perlu instalasi server database eksternal.
+- **Tipe Database**: SQLite (menyimpan berkas data lokal `db.sqlite3` di folder root).
+- **Branch Git**: `git checkout main`
+- **Konfigurasi `config/settings/development.py`**:
+  ```python
+  DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': BASE_DIR / 'db.sqlite3',
+      }
+  }
+  ```
+
+### 2. Branch `main-postgresql` (PostgreSQL - Untuk Production & Konkurensi Tinggi)
+- **Karakteristik**: Siap menangani akses pengguna dalam jumlah besar, menjaga integritas transaksi dengan MVCC (penguncian baris), dan memiliki performa pencarian yang dioptimalkan.
+- **Tipe Database**: PostgreSQL (nama database: `sahabat_brad_pitt`).
+- **Branch Git**: `git checkout main-postgresql`
+- **Konfigurasi `config/settings/development.py`**:
+  ```python
+  DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.postgresql',
+          'NAME': 'sahabat_brad_pitt',
+          'USER': 'postgres',
+          'PASSWORD': 'milan123qaz!@#',
+          'HOST': 'localhost',
+          'PORT': '5432',
+      }
+  }
+  ```
+
+---
+
+## 🔄 Pemindahan Data (Migrasi dari SQLite ke PostgreSQL)
+
+Jika Anda berpindah dari branch `main` ke branch `main-postgresql` dan ingin mentransfer seluruh data uji coba yang sudah ada di file SQLite (`db.sqlite3` sebesar ~20.6MB) langsung ke server PostgreSQL lokal, Anda dapat menggunakan script pemindahan otomatis:
+
+```bash
+# Pastikan virtual environment Anda sudah aktif
+python auto_migrate.py
+```
+
+### Fitur & Proteksi Keamanan Script:
+- **Direct ORM Streaming**: Memindahkan data secara terkompresi langsung dari SQLite ke PostgreSQL menggunakan ORM dalam batch kecil (2.000 data) tanpa perantara file JSON, memotong waktu migrasi menjadi hanya **~7 detik** untuk 90.000 data.
+- **Sistem Proteksi Branch**: Melakukan validasi otomatis terhadap engine database default di settings. Jika engine bukan PostgreSQL, script akan dihentikan secara aman guna melindungi berkas SQLite asli Anda dari penulisan ulang yang salah.
+- **Kemanan File Media Lokal**: Memutus sementara sinyal-sinyal Django (`pre_save`, `post_save`, `delete`) untuk menjamin berkas gambar fisik (poster film, foto aktor) di folder `media/` tetap utuh.
+- **Auto-Truncation**: Memotong nilai data CharField secara otomatis jika panjangnya melampaui `max_length` model di SQLite (misal field `role` sepanjang 300 karakter akan dipotong menjadi 255 karakter) agar tidak terjadi crash *right-truncation* di PostgreSQL.
+- **PostgreSQL Sequence Reset**: Menyelaraskan seluruh primary key sequence AutoField secara otomatis sehingga operasi tulis data baru setelah migrasi tidak mengalami error `UniqueConstraintError`.
+
+---
+
 ## 📁 Project Structure
 
 ```

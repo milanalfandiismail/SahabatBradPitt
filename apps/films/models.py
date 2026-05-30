@@ -24,17 +24,16 @@ class FilmQuerySet(models.QuerySet):
             return self
         q = q.strip()
         from django.db.models import Case, When, Value, IntegerField
-        # Cari film yang mengandung q di judul ATAU nama aktor pemeran
-        qs = self.filter(Q(title__icontains=q) | Q(filmographies__actor__name__icontains=q))
+        # Cari film yang mengandung q di judul
+        qs = self.filter(title__icontains=q)
         
-        # Peringkatkan: 1 (eksak judul), 2 (awalan judul), 3 (substring judul), 4 (aktor mencakup q), 5 (lainnya)
+        # Peringkatkan: 1 (eksak judul), 2 (awalan judul), 3 (substring judul), 4 (lainnya)
         return qs.annotate(
             search_rank=Case(
                 When(title__iexact=q, then=Value(1)),
                 When(title__istartswith=q, then=Value(2)),
                 When(title__icontains=q, then=Value(3)),
-                When(filmographies__actor__name__icontains=q, then=Value(4)),
-                default=Value(5),
+                default=Value(4),
                 output_field=IntegerField()
             )
         ).order_by('search_rank', '-release_year', 'title')

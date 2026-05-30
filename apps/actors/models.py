@@ -18,20 +18,38 @@ class ActorQuerySet(models.QuerySet):
         if not search_term:
             return self
         search_term = search_term.strip()
-        strict_query = (
-            Q(name__iexact=search_term) | 
-            Q(native_name__iexact=search_term) |
-            Q(name__istartswith=f"{search_term} ") | 
-            Q(name__iendswith=f" {search_term}") | 
-            Q(name__icontains=f" {search_term} ") |
-            Q(native_name__istartswith=f"{search_term} ") | 
-            Q(native_name__iendswith=f" {search_term}") | 
-            Q(native_name__icontains=f" {search_term} ")
+        from django.db.models import Case, When, Value, IntegerField
+
+        # Cocokkan nama atau nama asli
+        match_query = (
+            Q(name__icontains=search_term) |
+            Q(native_name__icontains=search_term)
         )
-        strict_qs = self.filter(strict_query)
-        if strict_qs.exists():
-            return strict_qs
-        return self.filter(Q(name__icontains=search_term) | Q(native_name__icontains=search_term))
+
+        # Ranking relevansi (makin kecil makin relevan):
+        # 1 - eksak nama penuh
+        # 2 - nama dimulai dengan kata pencarian
+        # 3 - kata pencarian adalah kata penuh di dalam nama (word boundary)
+        # 4 - substring umum (icontains)
+        return self.filter(match_query).annotate(
+            search_rank=Case(
+                When(Q(name__iexact=search_term) | Q(native_name__iexact=search_term),
+                     then=Value(1)),
+                When(Q(name__istartswith=search_term) | Q(native_name__istartswith=search_term),
+                     then=Value(2)),
+                When(
+                    Q(name__istartswith=f"{search_term} ") |
+                    Q(name__iendswith=f" {search_term}") |
+                    Q(name__icontains=f" {search_term} ") |
+                    Q(native_name__istartswith=f"{search_term} ") |
+                    Q(native_name__iendswith=f" {search_term}") |
+                    Q(native_name__icontains=f" {search_term} "),
+                    then=Value(3)
+                ),
+                default=Value(4),
+                output_field=IntegerField()
+            )
+        ).order_by('search_rank', 'name')
 
     def filter_by_genre(self, genre_id):
         if not genre_id:

@@ -23,11 +23,22 @@ class FilmQuerySet(models.QuerySet):
         if not q:
             return self
         q = q.strip()
-        from django.db.models import Case, When, Value, IntegerField
-        # Cari film yang mengandung q di judul
-        qs = self.filter(title__icontains=q)
-        
-        # Peringkatkan: 1 (eksak judul), 2 (awalan judul), 3 (substring judul), 4 (lainnya)
+        from django.db.models import Case, When, Value, IntegerField, Q
+
+        # Pencocokan judul film
+        title_match = Q(title__icontains=q)
+
+        # Pencocokan nama aktor: hanya cocok bila q adalah kata penuh (bukan substring di tengah kata)
+        # Contoh: 'test' cocok 'Test Actor' / 'John Test', tapi TIDAK cocok 'Mary Testa'
+        actor_word_match = (
+            Q(filmographies__actor__name__istartswith=q) |          # kata pertama dimulai dengan q
+            Q(filmographies__actor__name__icontains=' ' + q + ' ') | # kata di tengah nama (spasi kiri & kanan)
+            Q(filmographies__actor__name__iendswith=' ' + q)         # kata terakhir persis q
+        )
+
+        qs = self.filter(title_match | actor_word_match)
+
+        # Peringkatkan: 1 (eksak judul), 2 (awalan judul), 3 (substring judul), 4 (cocok nama aktor)
         return qs.annotate(
             search_rank=Case(
                 When(title__iexact=q, then=Value(1)),

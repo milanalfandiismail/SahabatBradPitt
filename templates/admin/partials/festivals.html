@@ -134,6 +134,89 @@
                 </div>
             </div>
 
+            <!-- Section: Participating Films (Featured Films) -->
+            <div id="festival-films-section" class="lg:col-span-3 flex flex-col gap-4 border-t border-white/5 pt-6 w-full max-w-full min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">FILM YANG BERPARTISIPASI (FEATURED FILMS)</span>
+                    <span id="festival-films-count" class="text-amber-500 text-sm font-semibold">0 Film</span>
+                </div>
+                <div class="w-full relative">
+                    <input id="festival-film-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 px-3.5 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none transition-all" placeholder="Cari dan tambahkan film yang berpartisipasi..." type="text" autocomplete="off" />
+                    <div id="festival-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto custom-scroll"></div>
+                </div>
+                <div id="festival-films-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                    <!-- Dynamic movie cards will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Section: Festival Awards -->
+            <div id="festival-awards-section" class="lg:col-span-3 flex flex-col gap-4 border-t border-white/5 pt-6 w-full max-w-full min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DAFTAR PENGHARGAAN FESTIVAL (AWARDS)</span>
+                    <span id="festival-awards-count" class="text-emerald-500 text-sm font-semibold">0 Penghargaan</span>
+                </div>
+                <!-- Dynamic Input Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end bg-[#141314]/20 border border-white/5 p-4 rounded-md">
+                    <!-- Film Autocomplete -->
+                    <div class="sm:col-span-3 relative flex flex-col gap-1.5">
+                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">FILM SASARAN *</label>
+                        <input id="award-film-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Cari film..." type="text" autocomplete="off" />
+                        <input type="hidden" id="award-film-id">
+                        <div id="award-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-48 overflow-y-auto custom-scroll"></div>
+                    </div>
+                    <!-- Actor Autocomplete -->
+                    <div class="sm:col-span-3 relative flex flex-col gap-1.5">
+                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">AKTOR PENERIMA (OPSIONAL)</label>
+                        <input id="award-actor-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Cari aktor..." type="text" autocomplete="off" />
+                        <input type="hidden" id="award-actor-id">
+                        <div id="award-actor-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-48 overflow-y-auto custom-scroll"></div>
+                    </div>
+                    <!-- Category Input -->
+                    <div class="sm:col-span-2 flex flex-col gap-1.5">
+                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">KATEGORI *</label>
+                        <input id="award-category-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="mis: Best Actor" type="text" />
+                    </div>
+                    <!-- Year Input -->
+                    <div class="sm:col-span-1 flex flex-col gap-1.5">
+                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TAHUN *</label>
+                        <input id="award-year-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" type="number" value="2026" />
+                    </div>
+                    <!-- Award Type -->
+                    <div class="sm:col-span-2 flex flex-col gap-1.5">
+                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TIPE *</label>
+                        <select id="award-type-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-2 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none">
+                            <option value="winner">Winner</option>
+                            <option value="nominee">Nominee</option>
+                        </select>
+                    </div>
+                    <!-- Add Button -->
+                    <div class="sm:col-span-1 flex items-stretch h-[34px]">
+                        <button id="add-award-btn" type="button" class="w-full h-full bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-bold text-[10px] transition-all flex items-center justify-center" disabled>Tambah</button>
+                    </div>
+                </div>
+
+                <!-- Table of Awards -->
+                <div class="bg-[#141314]/30 rounded-md border border-white/5 overflow-hidden overflow-x-auto custom-scroll w-full mt-2">
+                    <table class="w-full text-left text-xs border-collapse min-w-0 sm:min-w-[700px] block sm:table">
+                        <thead class="hidden sm:table-header-group">
+                            <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="p-3">FILM SASARAN</th>
+                                <th class="p-3">AKTOR PENERIMA</th>
+                                <th class="p-3">KATEGORI</th>
+                                <th class="p-3 w-[80px] text-center">TAHUN</th>
+                                <th class="p-3 w-[100px] text-center">TIPE</th>
+                                <th class="p-3 w-[60px] text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="awards-table-body" class="block sm:table-row-group divide-y divide-white/5 sm:divide-none">
+                            <tr id="awards-empty-row" class="block sm:table-row">
+                                <td colspan="6" class="p-6 text-center text-stone-500 italic block sm:table-cell">Belum ada penghargaan yang ditambahkan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="lg:col-span-3 flex justify-end gap-3 border-t border-white/5 pt-4 mt-2">
                 <button id="festival-editor-cancel-btn" type="button" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold transition-colors">Batal</button>
                 <button type="submit" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md transition-colors">

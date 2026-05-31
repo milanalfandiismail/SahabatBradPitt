@@ -149,15 +149,304 @@ function removeFestivalAward(index) {
     renderFestivalAwardsTable();
 }
 
-function checkAwardFormValidity() {
-    const filmId = document.getElementById('award-film-id')?.value;
-    const category = document.getElementById('award-category-input')?.value.trim();
-    const year = document.getElementById('award-year-input')?.value;
-    const addAwardBtn = document.getElementById('add-award-btn');
+// State for currently creating group
+window.groupWinnerFilms = [];
+window.groupNominees = []; // Array of { id: uniqueIndex, actor: { id, name } || null, films: [ { id, title } ] }
+let nomineeIndexCounter = 0;
 
-    if (addAwardBtn) {
-        addAwardBtn.disabled = !(filmId && category && year);
+// Reusable Autocomplete Helpers
+function initActorAutocomplete(inputEl, idEl, autocompleteEl, onSelect = null) {
+    if (!inputEl) return;
+    let timeout;
+    inputEl.addEventListener('input', function() {
+        if (idEl) idEl.value = '';
+        const query = this.value.trim();
+        if (query.length < 2) {
+            autocompleteEl.classList.add('hidden');
+            autocompleteEl.textContent = '';
+            return;
+        }
+
+        autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-stone-500 italic text-center flex items-center justify-center gap-1.5"><span class="material-symbols-outlined animate-spin text-xs">sync</span> Mencari...</div>`;
+        autocompleteEl.classList.remove('hidden');
+
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            secureFetch(`/api/actors/?search=${encodeURIComponent(query)}&page_size=5`)
+                .then(res => res.json())
+                .then(data => {
+                    autocompleteEl.textContent = "";
+                    const matches = data.results || [];
+                    if (matches.length > 0) {
+                        matches.forEach(actor => {
+                            const div = document.createElement('div');
+                            div.className = "px-3 py-1.5 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-2 border-b border-white/5 last:border-0 text-stone-200 text-xs";
+                            const photoUrl = _getActorPhotoUrl(actor);
+                            const imgHtml = photoUrl
+                                ? `<img src="${photoUrl}" class="w-6 h-6 rounded-full object-cover border border-white/10 shrink-0" />`
+                                : `<div class="w-6 h-6 rounded-full bg-[#141314] border border-white/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-[10px]">person</span></div>`;
+                            
+                            div.innerHTML = `
+                                ${imgHtml}
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[11px] font-semibold text-stone-200 truncate">${actor.name}</span>
+                                </div>
+                            `;
+                            div.addEventListener('click', () => {
+                                if (idEl) idEl.value = actor.id;
+                                inputEl.value = actor.name;
+                                autocompleteEl.classList.add('hidden');
+                                autocompleteEl.textContent = '';
+                                if (onSelect) onSelect(actor);
+                            });
+                            autocompleteEl.appendChild(div);
+                        });
+                    } else {
+                        autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-stone-500 italic text-center">Tidak ditemukan.</div>`;
+                    }
+                })
+                .catch(() => {
+                    autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-rose-500 italic text-center">Gagal memuat.</div>`;
+                });
+        }, 300);
+    });
+}
+
+function initFilmAutocomplete(inputEl, idEl, autocompleteEl, onSelect = null) {
+    if (!inputEl) return;
+    let timeout;
+    inputEl.addEventListener('input', function() {
+        if (idEl) idEl.value = '';
+        const query = this.value.trim();
+        if (query.length < 2) {
+            autocompleteEl.classList.add('hidden');
+            autocompleteEl.textContent = '';
+            return;
+        }
+
+        autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-stone-500 italic text-center flex items-center justify-center gap-1.5"><span class="material-symbols-outlined animate-spin text-xs">sync</span> Mencari...</div>`;
+        autocompleteEl.classList.remove('hidden');
+
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            secureFetch(`/api/films/?search=${encodeURIComponent(query)}&page_size=5`)
+                .then(res => res.json())
+                .then(data => {
+                    autocompleteEl.textContent = "";
+                    const matches = data.results || [];
+                    if (matches.length > 0) {
+                        matches.forEach(film => {
+                            const div = document.createElement('div');
+                            div.className = "px-3 py-1.5 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-2 border-b border-white/5 last:border-0 text-stone-200 text-xs";
+                            const posterUrl = _getFilmPosterUrl(film);
+                            const imgHtml = posterUrl
+                                ? `<img src="${posterUrl}" class="w-6 h-9 object-cover rounded border border-white/10 shrink-0" />`
+                                : `<div class="w-6 h-9 bg-[#141314] border border-white/10 rounded flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-[10px]">movie</span></div>`;
+                            
+                            div.innerHTML = `
+                                ${imgHtml}
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[11px] font-semibold text-stone-200 truncate">${film.title}</span>
+                                    <span class="text-[9px] text-stone-500">${film.release_year || 'N/A'}</span>
+                                </div>
+                            `;
+                            div.addEventListener('click', () => {
+                                if (idEl) idEl.value = film.id;
+                                inputEl.value = film.title;
+                                autocompleteEl.classList.add('hidden');
+                                autocompleteEl.textContent = '';
+                                if (onSelect) onSelect(film);
+                            });
+                            autocompleteEl.appendChild(div);
+                        });
+                    } else {
+                        autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-stone-500 italic text-center">Tidak ditemukan.</div>`;
+                    }
+                })
+                .catch(() => {
+                    autocompleteEl.innerHTML = `<div class="px-3 py-2 text-[10px] text-rose-500 italic text-center">Gagal memuat.</div>`;
+                });
+        }, 300);
+    });
+}
+
+function renderGroupFilmsBadges(containerId, filmsArray, onRemoveCallback) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.textContent = '';
+    
+    if (filmsArray.length === 0) {
+        container.innerHTML = `<span class="text-[10px] text-stone-600 italic">Belum ada film ditambahkan</span>`;
+        return;
     }
+
+    filmsArray.forEach((film, index) => {
+        const badge = document.createElement('div');
+        badge.className = "inline-flex items-center gap-1 px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-stone-300";
+        badge.innerHTML = `
+            <span class="truncate max-w-[120px]">${film.title}</span>
+            <button type="button" class="text-stone-500 hover:text-rose-400 focus:outline-none flex items-center justify-center">
+                <span class="material-symbols-outlined text-[10px]">close</span>
+            </button>
+        `;
+        badge.querySelector('button').addEventListener('click', () => {
+            onRemoveCallback(index);
+        });
+        container.appendChild(badge);
+    });
+}
+
+function renderNomineeGroups() {
+    const container = document.getElementById('nominee-groups-container');
+    if (!container) return;
+    container.textContent = '';
+
+    if (window.groupNominees.length === 0) {
+        container.innerHTML = `<div class="py-4 text-center text-stone-600 italic text-[10px]">Belum ada nominee ditambahkan</div>`;
+        return;
+    }
+
+    window.groupNominees.forEach((nom, index) => {
+        const row = document.createElement('div');
+        row.className = "nominee-row border border-white/5 p-2.5 rounded bg-[#141314]/30 relative flex flex-col gap-2 group";
+        row.setAttribute('data-index', nom.id);
+        
+        row.innerHTML = `
+            <button type="button" class="absolute top-1.5 right-1.5 text-stone-500 hover:text-rose-400 remove-nominee-btn focus:outline-none" title="Hapus Nominee">
+                <span class="material-symbols-outlined text-xs">close</span>
+            </button>
+            <span class="text-[9px] font-bold text-[#c9c5cb]/40 tracking-wider uppercase">NOMINEE #${index + 1}</span>
+            
+            <!-- Actor -->
+            <div class="relative flex flex-col gap-1">
+                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">AKTOR / AKTRIS (OPSIONAL)</label>
+                <input class="nominee-actor-search w-full bg-[#141314] border border-white/10 rounded py-1 px-2 text-xs text-stone-200 placeholder-stone-600 focus:outline-none" placeholder="Cari aktor..." type="text" autocomplete="off" value="${nom.actor ? nom.actor.name : ''}" />
+                <input type="hidden" class="nominee-actor-id" value="${nom.actor ? nom.actor.id : ''}">
+                <div class="nominee-actor-autocomplete hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded shadow-xl z-[60] max-h-32 overflow-y-auto custom-scroll"></div>
+            </div>
+
+            <!-- Films Multi-add -->
+            <div class="flex flex-col gap-1">
+                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">FILM PENDUKUNG *</label>
+                <div class="flex gap-1 relative">
+                    <input class="nominee-film-search flex-grow bg-[#141314] border border-white/10 rounded py-1 px-2 text-xs text-stone-200 placeholder-stone-600 focus:outline-none" placeholder="Cari dan tambahkan film..." type="text" autocomplete="off" />
+                    <input type="hidden" class="nominee-film-id">
+                    <button type="button" class="px-2 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 text-[#c9c5cb] border border-[#715A5A]/20 rounded font-bold text-xs flex items-center justify-center add-nominee-film-btn focus:outline-none">
+                        <span class="material-symbols-outlined text-xs">add</span>
+                    </button>
+                    <div class="nominee-film-autocomplete hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded shadow-xl z-[60] max-h-32 overflow-y-auto custom-scroll"></div>
+                </div>
+                <div class="nominee-films-badges flex flex-wrap gap-1 mt-1 min-h-[16px]"></div>
+            </div>
+        `;
+
+        // Bind Autocompletes for this specific dynamic Nominee Row
+        const actorSearch = row.querySelector('.nominee-actor-search');
+        const actorIdInput = row.querySelector('.nominee-actor-id');
+        const actorAutocomplete = row.querySelector('.nominee-actor-autocomplete');
+        initActorAutocomplete(actorSearch, actorIdInput, actorAutocomplete, (actor) => {
+            nom.actor = { id: actor.id, name: actor.name };
+        });
+
+        actorSearch.addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                nom.actor = null;
+                actorIdInput.value = '';
+            }
+        });
+
+        const filmSearch = row.querySelector('.nominee-film-search');
+        const filmIdInput = row.querySelector('.nominee-film-id');
+        const filmAutocomplete = row.querySelector('.nominee-film-autocomplete');
+        const addFilmBtn = row.querySelector('.add-nominee-film-btn');
+        const badgesContainer = row.querySelector('.nominee-films-badges');
+
+        const renderBadges = () => {
+            badgesContainer.textContent = '';
+            if (nom.films.length === 0) {
+                badgesContainer.innerHTML = `<span class="text-[9px] text-stone-600 italic">Belum ada film ditambahkan</span>`;
+                return;
+            }
+            nom.films.forEach((film, idx) => {
+                const badge = document.createElement('div');
+                badge.className = "inline-flex items-center gap-1 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-stone-300";
+                badge.innerHTML = `
+                    <span class="truncate max-w-[100px]">${film.title}</span>
+                    <button type="button" class="text-stone-500 hover:text-rose-400 focus:outline-none flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[9px]">close</span>
+                    </button>
+                `;
+                badge.querySelector('button').addEventListener('click', () => {
+                    nom.films.splice(idx, 1);
+                    renderBadges();
+                });
+                badgesContainer.appendChild(badge);
+            });
+        };
+        renderBadges();
+
+        initFilmAutocomplete(filmSearch, filmIdInput, filmAutocomplete, (film) => {
+            if (!nom.films.some(f => f.id === film.id)) {
+                nom.films.push({ id: film.id, title: film.title });
+                renderBadges();
+            } else {
+                showToast('Film sudah ditambahkan.', 'warning');
+            }
+            filmSearch.value = '';
+            filmIdInput.value = '';
+        });
+
+        addFilmBtn.addEventListener('click', () => {
+            const filmId = filmIdInput.value;
+            const filmTitle = filmSearch.value;
+            if (!filmId) return;
+            if (!nom.films.some(f => f.id == filmId)) {
+                nom.films.push({ id: parseInt(filmId), title: filmTitle });
+                renderBadges();
+            }
+            filmSearch.value = '';
+            filmIdInput.value = '';
+        });
+
+        row.querySelector('.remove-nominee-btn').addEventListener('click', () => {
+            window.groupNominees = window.groupNominees.filter(n => n.id !== nom.id);
+            renderNomineeGroups();
+        });
+
+        container.appendChild(row);
+    });
+}
+
+function resetGroupedAwardForm() {
+    const catInput = document.getElementById('award-group-category');
+    if (catInput) catInput.value = '';
+    
+    const yearInput = document.getElementById('award-group-year');
+    if (yearInput) {
+        const foundedInput = document.getElementById('festival-founded-input');
+        yearInput.value = foundedInput && foundedInput.value ? parseInt(foundedInput.value) : new Date().getFullYear();
+    }
+
+    const winnerActorSearch = document.getElementById('winner-actor-search');
+    const winnerActorId = document.getElementById('winner-actor-id');
+    if (winnerActorSearch) winnerActorSearch.value = '';
+    if (winnerActorId) winnerActorId.value = '';
+
+    const winnerFilmSearch = document.getElementById('winner-film-search');
+    const winnerFilmId = document.getElementById('winner-film-id');
+    if (winnerFilmSearch) winnerFilmSearch.value = '';
+    if (winnerFilmId) winnerFilmId.value = '';
+
+    window.groupWinnerFilms = [];
+    window.groupNominees = [];
+    renderGroupFilmsBadges('winner-films-badges', window.groupWinnerFilms, (idx) => {
+        window.groupWinnerFilms.splice(idx, 1);
+        renderGroupFilmsBadges('winner-films-badges', window.groupWinnerFilms, (i) => {
+            window.groupWinnerFilms.splice(i, 1);
+            resetGroupedAwardForm();
+        });
+    });
+    renderNomineeGroups();
 }
 
 function openFestivalEditor() {
@@ -165,11 +454,6 @@ function openFestivalEditor() {
     document.getElementById('festival-id').value = '';
     document.getElementById('festival-active-input').checked = true;
     document.getElementById('festival-logo-path-input').value = '';
-
-    const awardFilmIdInput = document.getElementById('award-film-id');
-    const awardActorIdInput = document.getElementById('award-actor-id');
-    if (awardFilmIdInput) awardFilmIdInput.value = '';
-    if (awardActorIdInput) awardActorIdInput.value = '';
 
     const preview = document.getElementById('festival-logo-preview');
     const placeholder = document.getElementById('festival-logo-placeholder');
@@ -183,6 +467,8 @@ function openFestivalEditor() {
     window.selectedFestivalAwards = [];
     renderFestivalFilmsGrid();
     renderFestivalAwardsTable();
+    
+    resetGroupedAwardForm();
 
     document.getElementById('festival-editor-title').textContent = 'Tambah Festival Baru';
     document.getElementById('festival-editor-title').classList.remove('hidden');
@@ -236,16 +522,6 @@ function _populateFestivalEditor(fest) {
         }
     }
 
-    const awardFilmIdInput = document.getElementById('award-film-id');
-    const awardActorIdInput = document.getElementById('award-actor-id');
-    if (awardFilmIdInput) awardFilmIdInput.value = '';
-    if (awardActorIdInput) awardActorIdInput.value = '';
-    
-    const awardFilmSearchInput = document.getElementById('award-film-search-input');
-    const awardActorSearchInput = document.getElementById('award-actor-search-input');
-    if (awardFilmSearchInput) awardFilmSearchInput.value = '';
-    if (awardActorSearchInput) awardActorSearchInput.value = '';
-
     window.selectedFestivalFilms = fest.films || [];
     window.selectedFestivalAwards = (fest.awards || []).map(aw => ({
         id: aw.id,
@@ -262,6 +538,8 @@ function _populateFestivalEditor(fest) {
 
     renderFestivalFilmsGrid();
     renderFestivalAwardsTable();
+    
+    resetGroupedAwardForm();
 
     document.getElementById('festival-editor-title').textContent = 'Sunting Festival';
     document.getElementById('festival-editor-title').classList.remove('hidden');
@@ -404,126 +682,153 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     });
 
-    // 2. Autocomplete: Award Target Movie
-    const awardFilmSearchInput = document.getElementById('award-film-search-input');
-    const awardFilmIdInput = document.getElementById('award-film-id');
-    const awardFilmAutocomplete = document.getElementById('award-film-autocomplete');
-    let awardFilmSearchTimeout;
+    // 2. Initialize Autocomplete for Winner Inputs
+    const winnerActorSearch = document.getElementById('winner-actor-search');
+    const winnerActorId = document.getElementById('winner-actor-id');
+    const winnerActorAutocomplete = document.getElementById('winner-actor-autocomplete');
+    initActorAutocomplete(winnerActorSearch, winnerActorId, winnerActorAutocomplete);
 
-    awardFilmSearchInput?.addEventListener('input', function() {
-        awardFilmIdInput.value = '';
-        checkAwardFormValidity();
-
-        const query = this.value.trim();
-        if (query.length < 2) {
-            awardFilmAutocomplete.classList.add('hidden');
-            awardFilmAutocomplete.textContent = '';
-            return;
-        }
-
-        awardFilmAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center flex items-center justify-center gap-2"><span class="material-symbols-outlined animate-spin text-sm">sync</span> Mencari film...</div>`;
-        awardFilmAutocomplete.classList.remove('hidden');
-
-        clearTimeout(awardFilmSearchTimeout);
-        awardFilmSearchTimeout = setTimeout(() => {
-            secureFetch(`/api/films/?search=${encodeURIComponent(query)}&page_size=5`)
-                .then(res => res.json())
-                .then(data => {
-                    awardFilmAutocomplete.textContent = "";
-                    const matches = data.results || [];
-                    if (matches.length > 0) {
-                        matches.forEach(film => {
-                            const div = document.createElement('div');
-                            div.className = "px-4 py-2 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0 text-stone-200";
-                            const posterUrl = _getFilmPosterUrl(film);
-                            const imgHtml = posterUrl
-                                ? `<img src="${posterUrl}" class="w-8 h-12 object-cover rounded border border-white/10 shrink-0" />`
-                                : `<div class="w-8 h-12 bg-[#141314] border border-white/10 rounded flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-xs">movie</span></div>`;
-                            
-                            div.innerHTML = `
-                                ${imgHtml}
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-semibold text-stone-200 line-clamp-1">${film.title}</span>
-                                    <span class="text-[10px] text-stone-500">${film.release_year || 'N/A'}</span>
-                                </div>
-                            `;
-                            div.addEventListener('click', () => {
-                                awardFilmIdInput.value = film.id;
-                                awardFilmSearchInput.value = film.title;
-                                awardFilmAutocomplete.classList.add('hidden');
-                                awardFilmAutocomplete.textContent = '';
-                                checkAwardFormValidity();
-                                document.getElementById('award-category-input')?.focus();
-                            });
-                            awardFilmAutocomplete.appendChild(div);
-                        });
-                    } else {
-                        awardFilmAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center">Tidak ditemukan.</div>`;
-                    }
-                })
-                .catch(() => {
-                    awardFilmAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-rose-500 italic text-center">Gagal memuat.</div>`;
-                });
-        }, 300);
+    winnerActorSearch?.addEventListener('input', function() {
+        if (this.value.trim() === '') winnerActorId.value = '';
     });
 
-    // 3. Autocomplete: Award Target Actor
-    const awardActorSearchInput = document.getElementById('award-actor-search-input');
-    const awardActorIdInput = document.getElementById('award-actor-id');
-    const awardActorAutocomplete = document.getElementById('award-actor-autocomplete');
-    let awardActorSearchTimeout;
+    const winnerFilmSearch = document.getElementById('winner-film-search');
+    const winnerFilmId = document.getElementById('winner-film-id');
+    const winnerFilmAutocomplete = document.getElementById('winner-film-autocomplete');
+    const addWinnerFilmBtn = document.getElementById('add-winner-film-btn');
 
-    awardActorSearchInput?.addEventListener('input', function() {
-        awardActorIdInput.value = '';
-        const query = this.value.trim();
-        if (query.length < 2) {
-            awardActorAutocomplete.classList.add('hidden');
-            awardActorAutocomplete.textContent = '';
+    const updateWinnerBadges = () => {
+        renderGroupFilmsBadges('winner-films-badges', window.groupWinnerFilms, (idx) => {
+            window.groupWinnerFilms.splice(idx, 1);
+            updateWinnerBadges();
+        });
+    };
+
+    initFilmAutocomplete(winnerFilmSearch, winnerFilmId, winnerFilmAutocomplete, (film) => {
+        if (!window.groupWinnerFilms.some(f => f.id === film.id)) {
+            window.groupWinnerFilms.push({ id: film.id, title: film.title });
+            updateWinnerBadges();
+        } else {
+            showToast('Film sudah ditambahkan ke Winner.', 'warning');
+        }
+        winnerFilmSearch.value = '';
+        winnerFilmId.value = '';
+    });
+
+    addWinnerFilmBtn?.addEventListener('click', () => {
+        const filmId = winnerFilmId.value;
+        const filmTitle = winnerFilmSearch.value.trim();
+        if (!filmId) {
+            showToast('Silakan cari dan pilih film dari daftar rekomendasi.', 'warning');
+            return;
+        }
+        if (!window.groupWinnerFilms.some(f => f.id == filmId)) {
+            window.groupWinnerFilms.push({ id: parseInt(filmId), title: filmTitle });
+            updateWinnerBadges();
+        }
+        winnerFilmSearch.value = '';
+        winnerFilmId.value = '';
+    });
+
+    // 3. Nominees Section Add Row Button
+    const addNomineeGroupBtn = document.getElementById('add-nominee-group-btn');
+    addNomineeGroupBtn?.addEventListener('click', () => {
+        nomineeIndexCounter++;
+        window.groupNominees.push({
+            id: nomineeIndexCounter,
+            actor: null,
+            films: []
+        });
+        renderNomineeGroups();
+    });
+
+    // 4. Submit/Push Grouped Award Button
+    const addGroupedAwardBtn = document.getElementById('add-grouped-award-btn');
+    addGroupedAwardBtn?.addEventListener('click', () => {
+        const category = document.getElementById('award-group-category').value.trim();
+        const year = parseInt(document.getElementById('award-group-year').value);
+
+        if (!category) {
+            showToast('Kategori penghargaan wajib diisi.', 'warning');
+            return;
+        }
+        if (!year) {
+            showToast('Tahun penghargaan wajib diisi.', 'warning');
             return;
         }
 
-        awardActorAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center flex items-center justify-center gap-2"><span class="material-symbols-outlined animate-spin text-sm">sync</span> Mencari aktor...</div>`;
-        awardActorAutocomplete.classList.remove('hidden');
+        // Winner validation: Must have at least 1 film
+        if (window.groupWinnerFilms.length === 0) {
+            showToast('Winner wajib memiliki minimal 1 film pendukung.', 'warning');
+            return;
+        }
 
-        clearTimeout(awardActorSearchTimeout);
-        awardActorSearchTimeout = setTimeout(() => {
-            secureFetch(`/api/actors/?search=${encodeURIComponent(query)}&page_size=5`)
-                .then(res => res.json())
-                .then(data => {
-                    awardActorAutocomplete.textContent = "";
-                    const matches = data.results || [];
-                    if (matches.length > 0) {
-                        matches.forEach(actor => {
-                            const div = document.createElement('div');
-                            div.className = "px-4 py-2 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0 text-stone-200";
-                            const photoUrl = _getActorPhotoUrl(actor);
-                            const imgHtml = photoUrl
-                                ? `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0" />`
-                                : `<div class="w-8 h-8 rounded-full bg-[#141314] border border-white/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-xs">person</span></div>`;
-                            
-                            div.innerHTML = `
-                                ${imgHtml}
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-semibold text-stone-200 line-clamp-1">${actor.name}</span>
-                                    <span class="text-[10px] text-stone-500">${actor.tmdb_id ? 'TMDB: ' + actor.tmdb_id : 'Lokal'}</span>
-                                </div>
-                            `;
-                            div.addEventListener('click', () => {
-                                awardActorIdInput.value = actor.id;
-                                awardActorSearchInput.value = actor.name;
-                                awardActorAutocomplete.classList.add('hidden');
-                                awardActorAutocomplete.textContent = '';
-                            });
-                            awardActorAutocomplete.appendChild(div);
-                        });
-                    } else {
-                        awardActorAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center">Tidak ditemukan.</div>`;
-                    }
-                })
-                .catch(() => {
-                    awardActorAutocomplete.innerHTML = `<div class="px-4 py-3 text-xs text-rose-500 italic text-center">Gagal memuat.</div>`;
+        const winnerActorIdVal = winnerActorId.value ? parseInt(winnerActorId.value) : null;
+        const winnerActorNameVal = winnerActorSearch.value.trim();
+
+        // 1. Push Winner records
+        let addedCount = 0;
+        window.groupWinnerFilms.forEach((film) => {
+            const duplicate = window.selectedFestivalAwards.some(aw => 
+                aw.film_id == film.id && 
+                aw.actor_id == winnerActorIdVal && 
+                aw.category.toLowerCase() === category.toLowerCase() && 
+                aw.year == year && 
+                aw.award_type === 'winner'
+            );
+
+            if (!duplicate) {
+                window.selectedFestivalAwards.push({
+                    film_id: film.id,
+                    film_title: film.title,
+                    actor_id: winnerActorIdVal,
+                    actor_name: winnerActorIdVal ? winnerActorNameVal : '',
+                    category: category,
+                    year: year,
+                    award_type: 'winner'
                 });
-        }, 300);
+                addedCount++;
+            }
+        });
+
+        // 2. Push Nominees records
+        window.groupNominees.forEach((nom) => {
+            if (nom.films.length === 0) return; // skip nominee without films
+
+            const nomActorId = nom.actor ? nom.actor.id : null;
+            const nomActorName = nom.actor ? nom.actor.name : '';
+
+            nom.films.forEach((film) => {
+                const duplicate = window.selectedFestivalAwards.some(aw => 
+                    aw.film_id == film.id && 
+                    aw.actor_id == nomActorId && 
+                    aw.category.toLowerCase() === category.toLowerCase() && 
+                    aw.year == year && 
+                    aw.award_type === 'nominee'
+                );
+
+                if (!duplicate) {
+                    window.selectedFestivalAwards.push({
+                        film_id: film.id,
+                        film_title: film.title,
+                        actor_id: nomActorId,
+                        actor_name: nomActorId ? nomActorName : '',
+                        category: category,
+                        year: year,
+                        award_type: 'nominee'
+                    });
+                    addedCount++;
+                }
+            });
+        });
+
+        if (addedCount > 0) {
+            showToast(`${addedCount} Penghargaan berhasil ditambahkan ke daftar!`, 'success');
+            renderFestivalAwardsTable();
+            resetGroupedAwardForm();
+        } else {
+            showToast('Penghargaan sudah ada di daftar sebelumnya.', 'warning');
+        }
     });
 
     // Close autocompletes on clicking outside
@@ -531,65 +836,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!filmSearchInput?.contains(e.target) && !filmAutocomplete?.contains(e.target)) {
             filmAutocomplete?.classList.add('hidden');
         }
-        if (!awardFilmSearchInput?.contains(e.target) && !awardFilmAutocomplete?.contains(e.target)) {
-            awardFilmAutocomplete?.classList.add('hidden');
+        if (!winnerActorSearch?.contains(e.target) && !winnerActorAutocomplete?.contains(e.target)) {
+            winnerActorAutocomplete?.classList.add('hidden');
         }
-        if (!awardActorSearchInput?.contains(e.target) && !awardActorAutocomplete?.contains(e.target)) {
-            awardActorAutocomplete?.classList.add('hidden');
+        if (!winnerFilmSearch?.contains(e.target) && !winnerFilmAutocomplete?.contains(e.target)) {
+            winnerFilmAutocomplete?.classList.add('hidden');
         }
-    });
-
-    // Award form validation & add action
-    const awardCategoryInput = document.getElementById('award-category-input');
-    const awardYearInput = document.getElementById('award-year-input');
-    const addAwardBtn = document.getElementById('add-award-btn');
-
-    awardCategoryInput?.addEventListener('input', checkAwardFormValidity);
-    awardYearInput?.addEventListener('input', checkAwardFormValidity);
-
-    addAwardBtn?.addEventListener('click', function() {
-        const filmId = awardFilmIdInput.value;
-        const filmTitle = awardFilmSearchInput.value;
-        const actorId = awardActorIdInput.value || null;
-        const actorName = awardActorSearchInput.value || '';
-        const category = awardCategoryInput.value.trim();
-        const year = parseInt(awardYearInput.value) || 2026;
-        const awardType = document.getElementById('award-type-input').value;
-
-        if (!filmId || !category || !year) return;
-
-        const duplicate = window.selectedFestivalAwards.some(aw => 
-            aw.film_id == filmId && 
-            aw.actor_id == actorId && 
-            aw.category.toLowerCase() === category.toLowerCase() && 
-            aw.year == year && 
-            aw.award_type === awardType
-        );
-
-        if (duplicate) {
-            showToast('Penghargaan dengan detail yang sama sudah ditambahkan.', 'warning');
-            return;
-        }
-
-        window.selectedFestivalAwards.push({
-            film_id: parseInt(filmId),
-            film_title: filmTitle,
-            actor_id: actorId ? parseInt(actorId) : null,
-            actor_name: actorName,
-            category: category,
-            year: year,
-            award_type: awardType
-        });
-
-        awardFilmIdInput.value = '';
-        awardFilmSearchInput.value = '';
-        awardActorIdInput.value = '';
-        awardActorSearchInput.value = '';
-        awardCategoryInput.value = '';
         
-        checkAwardFormValidity();
-        renderFestivalAwardsTable();
-        showToast('Penghargaan ditambahkan.', 'success');
+        // Dynamic nominees autocomplete closing
+        document.querySelectorAll('.nominee-row').forEach(row => {
+            const actorInput = row.querySelector('.nominee-actor-search');
+            const actorAuto = row.querySelector('.nominee-actor-autocomplete');
+            if (actorInput && actorAuto && !actorInput.contains(e.target) && !actorAuto.contains(e.target)) {
+                actorAuto.classList.add('hidden');
+            }
+            
+            const filmInput = row.querySelector('.nominee-film-search');
+            const filmAuto = row.querySelector('.nominee-film-autocomplete');
+            if (filmInput && filmAuto && !filmInput.contains(e.target) && !filmAuto.contains(e.target)) {
+                filmAuto.classList.add('hidden');
+            }
+        });
     });
 });
 
@@ -598,9 +865,13 @@ window.renderFestivalFilmsGrid = renderFestivalFilmsGrid;
 window.removeFestivalFilm = removeFestivalFilm;
 window.renderFestivalAwardsTable = renderFestivalAwardsTable;
 window.removeFestivalAward = removeFestivalAward;
-window.checkAwardFormValidity = checkAwardFormValidity;
 window.openFestivalEditor = openFestivalEditor;
 window.closeFestivalEditor = closeFestivalEditor;
 window.editFestival = editFestival;
 window._populateFestivalEditor = _populateFestivalEditor;
 window.saveFestival = saveFestival;
+window.resetGroupedAwardForm = resetGroupedAwardForm;
+window.renderGroupFilmsBadges = renderGroupFilmsBadges;
+window.renderNomineeGroups = renderNomineeGroups;
+window.initActorAutocomplete = initActorAutocomplete;
+window.initFilmAutocomplete = initFilmAutocomplete;

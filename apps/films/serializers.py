@@ -67,7 +67,8 @@ class FilmSerializer(serializers.ModelSerializer):
 
     def get_awards(self, obj):
         from apps.festivals.models import FestivalAward
-        awards = FestivalAward.objects.filter(film=obj).select_related('festival', 'actor')
+        # Only show awards that are for the film itself (actor is None)
+        awards = FestivalAward.objects.filter(film=obj, actor__isnull=True).select_related('festival')
         data = []
         for aw in awards:
             logo_url = ''
@@ -79,24 +80,14 @@ class FilmSerializer(serializers.ModelSerializer):
             if not logo_url:
                 logo_url = aw.festival.tmdb_logo or ''
 
-            actor_photo_url = ''
-            if aw.actor:
-                if aw.actor.local_photo:
-                    try:
-                        actor_photo_url = aw.actor.local_photo.url
-                    except Exception:
-                        pass
-                if not actor_photo_url:
-                    actor_photo_url = aw.actor.tmdb_photo or ''
-
             data.append({
                 'id': aw.id,
                 'festival_id': aw.festival.id,
                 'festival_name': aw.festival.name,
                 'festival_logo': logo_url,
-                'actor_id': aw.actor.id if aw.actor else None,
-                'actor_name': aw.actor.name if aw.actor else None,
-                'actor_photo': actor_photo_url,
+                'actor_id': None,
+                'actor_name': None,
+                'actor_photo': '',
                 'category': aw.category,
                 'year': aw.year,
                 'award_type': aw.award_type

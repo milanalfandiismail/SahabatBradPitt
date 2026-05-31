@@ -161,9 +161,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (film.awards && film.awards.length > 0) {
             section.classList.remove("hidden");
+
+            // Grouping logic by festival_name, year, category, award_type
+            const groupedMap = {};
             film.awards.forEach(aw => {
+                const key = `${aw.festival_name}-${aw.year}-${aw.category.toLowerCase().trim()}-${aw.award_type}`;
+                if (!groupedMap[key]) {
+                    groupedMap[key] = {
+                        festival_name: aw.festival_name,
+                        festival_logo: aw.festival_logo,
+                        category: aw.category,
+                        year: aw.year,
+                        award_type: aw.award_type,
+                        actors: []
+                    };
+                }
+                if (aw.actor_name && !groupedMap[key].actors.some(a => a.id === aw.actor_id)) {
+                    groupedMap[key].actors.push({
+                        id: aw.actor_id,
+                        name: aw.actor_name,
+                        photo: aw.actor_photo
+                    });
+                }
+            });
+
+            const groupedAwards = Object.values(groupedMap);
+
+            groupedAwards.forEach((aw, idx) => {
                 const card = document.createElement("div");
-                card.className = "flex items-center gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
+                card.className = "flex items-start gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
+                card.style.animationDelay = `${idx * 60}ms`;
 
                 const logoUrl = aw.festival_logo;
                 let formattedLogoUrl = "";
@@ -173,46 +200,58 @@ document.addEventListener("DOMContentLoaded", function () {
                         : `https://image.tmdb.org/t/p/w185${logoUrl}`;
                 }
                 const logoHtml = formattedLogoUrl
-                    ? `<img src="${formattedLogoUrl}" class="w-16 h-16 object-contain rounded bg-[#141314] p-2 border border-white/10 shrink-0 shadow-inner" alt="${aw.festival_name}">`
-                    : `<div class="w-16 h-16 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500 shadow-inner"><span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
+                    ? `<img src="${formattedLogoUrl}" class="w-24 h-36 object-contain rounded bg-[#141314] p-2 border border-white/10 shrink-0 shadow-inner" alt="${aw.festival_name}">`
+                    : `<div class="w-24 h-36 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500 shadow-inner"><span class="material-symbols-outlined text-5xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
 
                 const typeBadge = aw.award_type === 'winner'
                     ? `<span class="inline-flex px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">Winner</span>`
                     : `<span class="inline-flex px-2 py-0.5 bg-stone-500/10 text-stone-400 border border-white/5 rounded text-[9px] font-bold uppercase tracking-wider">Nominee</span>`;
 
-                let actorHtml = "";
-                if (aw.actor_name) {
-                    const actorPhoto = aw.actor_photo;
-                    let photoUrl = "";
-                    if (actorPhoto) {
-                        photoUrl = actorPhoto.startsWith("http") || actorPhoto.startsWith("/media/")
-                            ? actorPhoto
-                            : `https://image.tmdb.org/t/p/w185${actorPhoto}`;
-                    }
-                    const photoHtml = photoUrl
-                        ? `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-white/10" />`
-                        : `<div class="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10"><span class="material-symbols-outlined text-sm text-stone-400">person</span></div>`;
+                // Render actors visually
+                let actorsHtml = "";
+                if (aw.actors.length > 0) {
+                    let actorItemsHtml = "";
+                    aw.actors.forEach(actor => {
+                        let photoUrl = "";
+                        if (actor.photo) {
+                            photoUrl = actor.photo.startsWith("http") || actor.photo.startsWith("/media/")
+                                ? actor.photo
+                                : `https://image.tmdb.org/t/p/w185${actor.photo}`;
+                        }
+                        const photoHtml = photoUrl
+                            ? `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-white/10 shadow" />`
+                            : `<div class="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10 text-stone-400"><span class="material-symbols-outlined text-[10px]">person</span></div>`;
 
-                    actorHtml = `
-                        <a href="/actors/${aw.actor_id}/" class="flex items-center gap-2 mt-2.5 bg-[#141314]/40 border border-white/5 px-2.5 py-1.5 rounded w-fit hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
-                            ${photoHtml}
-                            <span class="text-[11px] text-stone-300 font-semibold">${aw.actor_name}</span>
-                        </a>
+                        actorItemsHtml += `
+                            <a href="/actors/${actor.id}/" class="group/actor flex items-center gap-2 bg-[#141314]/40 border border-white/5 px-2 py-1 rounded hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
+                                ${photoHtml}
+                                <span class="text-[10px] text-stone-300 font-semibold truncate max-w-[120px]">${actor.name}</span>
+                            </a>
+                        `;
+                    });
+
+                    actorsHtml = `
+                        <div class="mt-3 flex flex-col gap-1.5 border-t border-white/5 pt-3">
+                            <span class="text-[8px] font-bold text-stone-500 uppercase tracking-widest leading-none">Penerima Penghargaan</span>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${actorItemsHtml}
+                            </div>
+                        </div>
                     `;
                 }
 
                 card.innerHTML = `
                     ${logoHtml}
-                    <div class="flex flex-col flex-grow">
+                    <div class="flex flex-col flex-grow min-w-0">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-stone-100">${aw.festival_name}</span>
-                            <span class="text-[10px] font-mono text-stone-500 font-bold">${aw.year}</span>
+                            <span class="text-xs font-bold text-stone-100 truncate">${aw.festival_name}</span>
+                            <span class="text-[10px] font-mono text-stone-500 font-bold shrink-0">${aw.year}</span>
                         </div>
                         <span class="text-[11px] text-stone-300 font-medium mt-1 leading-tight">${aw.category}</span>
-                        <div class="flex items-center justify-between items-end mt-2">
+                        <div class="mt-2.5">
                             ${typeBadge}
                         </div>
-                        ${actorHtml}
+                        ${actorsHtml}
                     </div>
                 `;
                 list.appendChild(card);

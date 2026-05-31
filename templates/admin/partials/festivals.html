@@ -155,43 +155,73 @@
                     <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DAFTAR PENGHARGAAN FESTIVAL (AWARDS)</span>
                     <span id="festival-awards-count" class="text-emerald-500 text-sm font-semibold">0 Penghargaan</span>
                 </div>
-                <!-- Dynamic Input Bar -->
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end bg-[#141314]/20 border border-white/5 p-4 rounded-md">
-                    <!-- Film Autocomplete -->
-                    <div class="sm:col-span-3 relative flex flex-col gap-1.5">
-                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">FILM SASARAN *</label>
-                        <input id="award-film-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Cari film..." type="text" autocomplete="off" />
-                        <input type="hidden" id="award-film-id">
-                        <div id="award-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-48 overflow-y-auto custom-scroll"></div>
+                <!-- Grouped Input Form -->
+                <div class="flex flex-col gap-4 bg-[#141314]/20 border border-white/5 p-4 rounded-md">
+                    
+                    <!-- Row 1: Category & Year -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        <div class="sm:col-span-8 flex flex-col gap-1.5">
+                            <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">KATEGORI PENGHARGAAN *</label>
+                            <input id="award-group-category" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="mis: Best Actor, Best Film, Best Director" type="text" />
+                        </div>
+                        <div class="sm:col-span-4 flex flex-col gap-1.5">
+                            <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TAHUN *</label>
+                            <input id="award-group-year" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" type="number" value="2026" />
+                        </div>
                     </div>
-                    <!-- Actor Autocomplete -->
-                    <div class="sm:col-span-3 relative flex flex-col gap-1.5">
-                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">AKTOR PENERIMA (OPSIONAL)</label>
-                        <input id="award-actor-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="Cari aktor..." type="text" autocomplete="off" />
-                        <input type="hidden" id="award-actor-id">
-                        <div id="award-actor-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-48 overflow-y-auto custom-scroll"></div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Winner Box (Green Tint border) -->
+                        <div class="border border-emerald-500/10 bg-emerald-500/[0.02] p-3 rounded-md flex flex-col gap-3">
+                            <div class="flex items-center justify-between border-b border-emerald-500/10 pb-1.5">
+                                <span class="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">WINNER</span>
+                            </div>
+                            
+                            <!-- Actor Autocomplete for Winner -->
+                            <div class="relative flex flex-col gap-1">
+                                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">AKTOR / AKTRIS (OPSIONAL)</label>
+                                <input id="winner-actor-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-1.5 px-2.5 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none" placeholder="Cari aktor..." type="text" autocomplete="off" />
+                                <input type="hidden" id="winner-actor-id">
+                                <div id="winner-actor-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-40 overflow-y-auto custom-scroll"></div>
+                            </div>
+
+                            <!-- Film Search and Multi-Add for Winner -->
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">FILM PENDUKUNG *</label>
+                                <div class="flex gap-1.5 relative">
+                                    <input id="winner-film-search" class="flex-grow bg-[#141314] border border-white/10 rounded-md py-1.5 px-2.5 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none" placeholder="Cari dan tambahkan film..." type="text" autocomplete="off" />
+                                    <input type="hidden" id="winner-film-id">
+                                    <button id="add-winner-film-btn" type="button" class="px-3 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 text-[#c9c5cb] border border-white/10 rounded font-bold text-xs flex items-center justify-center transition-all">
+                                        <span class="material-symbols-outlined text-sm">add</span>
+                                    </button>
+                                    <div id="winner-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-40 overflow-y-auto custom-scroll"></div>
+                                </div>
+                                <!-- Badge list for Winner Films -->
+                                <div id="winner-films-badges" class="flex flex-wrap gap-1 mt-1.5 min-h-[24px]"></div>
+                            </div>
+                        </div>
+
+                        <!-- Nominees Box -->
+                        <div class="border border-white/5 bg-white/[0.01] p-3 rounded-md flex flex-col gap-3">
+                            <div class="flex items-center justify-between border-b border-white/5 pb-1.5">
+                                <span class="text-[10px] font-bold text-stone-400 tracking-widest uppercase">NOMINEES</span>
+                                <button id="add-nominee-group-btn" type="button" class="px-2 py-0.5 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 text-[#c9c5cb] border border-[#715A5A]/30 rounded text-[9px] font-bold uppercase transition-all flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[10px]">add</span> Tambah Nominee
+                                </button>
+                            </div>
+                            
+                            <!-- Container for Nominee Rows -->
+                            <div id="nominee-groups-container" class="flex flex-col gap-3 max-h-[220px] overflow-y-auto custom-scroll pr-1">
+                                <!-- Dynamic Nominee rows will be added here -->
+                            </div>
+                        </div>
                     </div>
-                    <!-- Category Input -->
-                    <div class="sm:col-span-2 flex flex-col gap-1.5">
-                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">KATEGORI *</label>
-                        <input id="award-category-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="mis: Best Actor" type="text" />
-                    </div>
-                    <!-- Year Input -->
-                    <div class="sm:col-span-1 flex flex-col gap-1.5">
-                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TAHUN *</label>
-                        <input id="award-year-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" type="number" value="2026" />
-                    </div>
-                    <!-- Award Type -->
-                    <div class="sm:col-span-2 flex flex-col gap-1.5">
-                        <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TIPE *</label>
-                        <select id="award-type-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-2 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none">
-                            <option value="winner">Winner</option>
-                            <option value="nominee">Nominee</option>
-                        </select>
-                    </div>
-                    <!-- Add Button -->
-                    <div class="sm:col-span-1 flex items-stretch h-[34px]">
-                        <button id="add-award-btn" type="button" class="w-full h-full bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-bold text-[10px] transition-all flex items-center justify-center" disabled>Tambah</button>
+
+                    <!-- Row 3: Push Button -->
+                    <div class="flex justify-end pt-2 border-t border-white/5">
+                        <button id="add-grouped-award-btn" type="button" class="px-4 py-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-bold text-xs flex items-center gap-1.5 shadow-md transition-all">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Tambahkan ke Daftar Penghargaan
+                        </button>
                     </div>
                 </div>
 

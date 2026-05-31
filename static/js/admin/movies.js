@@ -3,31 +3,7 @@
  * Handles: Film list fetch, render, search, pagination, approval actions.
  */
 
-function fetchGenres() {
-    async function fetchAllGenres(url = '/api/films/genres/', allGenres = []) {
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            if (Array.isArray(data)) {
-                allGenres = allGenres.concat(data);
-            } else if (data.results) {
-                allGenres = allGenres.concat(data.results);
-                if (data.next) return fetchAllGenres(data.next, allGenres);
-            }
-            return allGenres;
-        } catch (err) {
-            console.error("Error loading genres:", err);
-            return allGenres;
-        }
-    }
 
-    return fetchAllGenres().then(all => {
-        genresList = all;
-        renderFormGenres();
-        // Always render the genre table — section visibility is handled by core.js
-        if (typeof renderGenresTable === 'function') renderGenresTable();
-    });
-}
 
 function renderFormGenres() {
     const container = document.getElementById('form-genres-container');
@@ -70,31 +46,31 @@ function fetchFilms(page = 1) {
     if (manageStatusFilter.value) params.append('status', manageStatusFilter.value);
 
     fetch(`/api/films/?${params.toString()}`, {
-        
-    })
-    .then(res => res.json())
-    .then(data => {
-        tableLoading.classList.add('hidden');
-        const films = data.results || [];
-        const totalCount = data.count || 0;
 
-        if (films.length === 0) {
-            tableEmpty.classList.remove('hidden');
-            managePaginationInfo.textContent = "Menampilkan 0 film";
-            managePaginationControls.textContent = "";
-            return;
-        }
-        renderFilmsTable(films);
-        const startIdx = (page - 1) * 12 + 1;
-        const endIdx = Math.min(page * 12, totalCount);
-        managePaginationInfo.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
-        renderPagination(page, totalCount);
     })
-    .catch(err => {
-        console.error(err);
-        tableLoading.classList.add('hidden');
-        showToast('Gagal memuat daftar film.', 'error');
-    });
+        .then(res => res.json())
+        .then(data => {
+            tableLoading.classList.add('hidden');
+            const films = data.results || [];
+            const totalCount = data.count || 0;
+
+            if (films.length === 0) {
+                tableEmpty.classList.remove('hidden');
+                managePaginationInfo.textContent = "Menampilkan 0 film";
+                managePaginationControls.textContent = "";
+                return;
+            }
+            renderFilmsTable(films);
+            const startIdx = (page - 1) * 12 + 1;
+            const endIdx = Math.min(page * 12, totalCount);
+            managePaginationInfo.textContent = `Menampilkan ${startIdx} - ${endIdx} dari ${totalCount} film`;
+            renderPagination(page, totalCount);
+        })
+        .catch(err => {
+            console.error(err);
+            tableLoading.classList.add('hidden');
+            showToast('Gagal memuat daftar film.', 'error');
+        });
 }
 
 function renderFilmsTable(films) {
@@ -241,25 +217,25 @@ function submitForApproval(filmId) {
     secureFetch(`/api/films/${filmId}/submit-approval/`, {
         method: 'POST'
     })
-    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-    .then(() => { showToast('Film diserahkan ke Super Admin untuk persetujuan publikasi.', 'success'); fetchFilms(manageCurrentPage); })
-    .catch(() => showToast('Gagal submit approval film.', 'error'));
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(() => { showToast('Film diserahkan ke Super Admin untuk persetujuan publikasi.', 'success'); fetchFilms(manageCurrentPage); })
+        .catch(() => showToast('Gagal submit approval film.', 'error'));
 }
 
 function approveFilm(filmId) {
     secureFetch(`/api/films/${filmId}/approve/`, {
         method: 'POST'
     })
-    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-    .then(() => { showToast('Film berhasil disetujui dan terbit publik.', 'success'); fetchFilms(manageCurrentPage); })
-    .catch(() => showToast('Gagal menyetujui film.', 'error'));
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(() => { showToast('Film berhasil disetujui dan terbit publik.', 'success'); fetchFilms(manageCurrentPage); })
+        .catch(() => showToast('Gagal menyetujui film.', 'error'));
 }
 
 function openRejectModal(id, type = 'film') {
     rejectModalFilmId = id;
     rejectModalType = type;
     document.getElementById('reject-reason-input').value = "";
-    
+
     const titleEl = document.querySelector('#reject-modal .text-rose-400 span:last-child');
     const descEl = document.querySelector('#reject-modal p');
     if (type === 'actor') {
@@ -269,7 +245,7 @@ function openRejectModal(id, type = 'film') {
         if (titleEl) titleEl.textContent = "Tolak Publikasi Film";
         if (descEl) descEl.textContent = "Masukkan alasan penolakan untuk film ini. Alasan ini akan ditampilkan kepada Admin penyunting agar metadata film diperbaiki.";
     }
-    
+
     document.getElementById('reject-modal').classList.remove('hidden');
 }
 
@@ -329,28 +305,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const reason = document.getElementById('reject-reason-input').value.trim();
         if (!reason) { showToast('Alasan wajib diisi.', 'warning'); return; }
         rejectModalSubmit.disabled = true;
-        
+
         const isActor = (typeof rejectModalType !== 'undefined' && rejectModalType === 'actor');
         const url = isActor ? `/api/actors/${rejectModalFilmId}/reject/` : `/api/films/${rejectModalFilmId}/reject/`;
         const payload = isActor ? { rejection_reason: reason } : { reason: reason };
-        
+
         secureFetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(payload)
         })
-        .then(res => { rejectModalSubmit.disabled = false; if (!res.ok) throw new Error(); return res.json(); })
-        .then(() => {
-            showToast(isActor ? 'Sineas berhasil ditolak.' : 'Film berhasil ditolak.', 'success');
-            document.getElementById('reject-modal').classList.add('hidden');
-            rejectModalFilmId = null;
-            if (isActor) {
-                if (typeof loadPendingActorsForApproval === 'function') loadPendingActorsForApproval();
-            } else {
-                fetchFilms(manageCurrentPage);
-                if (typeof loadPendingFilmsForApproval === 'function') loadPendingFilmsForApproval();
-            }
-        })
-        .catch(() => showToast(isActor ? 'Gagal menolak sineas.' : 'Gagal menolak film.', 'error'));
+            .then(res => { rejectModalSubmit.disabled = false; if (!res.ok) throw new Error(); return res.json(); })
+            .then(() => {
+                showToast(isActor ? 'Sineas berhasil ditolak.' : 'Film berhasil ditolak.', 'success');
+                document.getElementById('reject-modal').classList.add('hidden');
+                rejectModalFilmId = null;
+                if (isActor) {
+                    if (typeof loadPendingActorsForApproval === 'function') loadPendingActorsForApproval();
+                } else {
+                    fetchFilms(manageCurrentPage);
+                    if (typeof loadPendingFilmsForApproval === 'function') loadPendingFilmsForApproval();
+                }
+            })
+            .catch(() => showToast(isActor ? 'Gagal menolak sineas.' : 'Gagal menolak film.', 'error'));
     });
 });

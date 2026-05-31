@@ -27,23 +27,40 @@ function fetchGenres() {
     const genresTableBody = document.getElementById('genres-table-body');
     const genresEmpty = document.getElementById('genres-empty');
     const genresLoading = document.getElementById('genres-loading');
-    if (!genresTableBody) return;
-    genresTableBody.textContent = '';
-    genresEmpty?.classList.add('hidden');
-    genresLoading?.classList.remove('hidden');
 
-    fetchAllGenres().then(all => {
-        genresLoading?.classList.add('hidden');
+    if (genresTableBody) {
+        genresTableBody.textContent = '';
+        genresEmpty?.classList.add('hidden');
+        genresLoading?.classList.remove('hidden');
+    }
+
+    return fetchAllGenres().then(all => {
         window.genresList = all;
-        if (window.genresList.length === 0) {
-            genresEmpty?.classList.remove('hidden');
-            return;
+        if (typeof genresList !== 'undefined') {
+            genresList = all;
         }
-        renderGenresTable();
-    }).catch(() => {
-        genresLoading?.classList.add('hidden');
-        genresEmpty?.classList.remove('hidden');
+
+        if (typeof renderFormGenres === 'function') {
+            renderFormGenres();
+        }
+
+        if (genresTableBody) {
+            genresLoading?.classList.add('hidden');
+            if (all.length === 0) {
+                genresEmpty?.classList.remove('hidden');
+            } else {
+                renderGenresTable();
+            }
+        }
+        return all;
+    }).catch(err => {
+        console.error("Gagal memuat daftar genre:", err);
+        if (genresTableBody) {
+            genresLoading?.classList.add('hidden');
+            genresEmpty?.classList.remove('hidden');
+        }
         showToast('Gagal memuat daftar genre.', 'error');
+        throw err;
     });
 }
 
@@ -53,12 +70,12 @@ function renderGenresTable() {
     if (!genresTableBody) return;
     genresTableBody.textContent = "";
     genresEmpty?.classList.add('hidden');
-    
-    if (window.genresList.length === 0) { 
-        genresEmpty?.classList.remove('hidden'); 
-        return; 
+
+    if (window.genresList.length === 0) {
+        genresEmpty?.classList.remove('hidden');
+        return;
     }
-    
+
     window.genresList.forEach((genre) => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-white/5 hover:bg-white/[0.03] hover:-translate-y-0.5 transition-all font-['DM_Sans']";
@@ -115,14 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const name = document.getElementById('genre-form-name').value.trim();
         if (!name) return;
-        secureFetch('/api/films/genres/', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ name }) 
+        secureFetch('/api/films/genres/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
         })
-        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-        .then(() => { showToast('Genre Kustom berhasil ditambahkan!', 'success'); closeGenreEditor(); fetchGenres(); })
-        .catch(() => showToast('Gagal menambahkan genre kustom.', 'error'));
+            .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+            .then(() => { showToast('Genre Kustom berhasil ditambahkan!', 'success'); closeGenreEditor(); fetchGenres(); })
+            .catch(() => showToast('Gagal menambahkan genre kustom.', 'error'));
     });
 });
 

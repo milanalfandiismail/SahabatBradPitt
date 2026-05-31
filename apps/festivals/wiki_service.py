@@ -291,12 +291,21 @@ class WikipediaAccoladesImporter:
 
             # 2. Cek apakah ada aktor dari film ini yang disebut di kolom recipient
             matched_actor = None
-            rec = item["recipient"].lower()
-            if rec:
-                for actor in cast_actors:
-                    if actor.name.lower() in rec:
-                        matched_actor = actor
-                        break
+            category_lower = item["category"].lower()
+            
+            # Jangan cocokkan aktor jika kategori ditujukan untuk aspek film/teknis/sutradara
+            film_only_keywords = ["film", "picture", "director", "cinematography", "editing", "screenplay", "writer", 
+                                  "sound", "effects", "music", "score", "song", "makeup", "costume", "production design"]
+            
+            is_film_only_award = any(kw in category_lower for kw in film_only_keywords)
+            
+            if not is_film_only_award:
+                rec = item["recipient"].lower()
+                if rec:
+                    for actor in cast_actors:
+                        if actor.name.lower() in rec:
+                            matched_actor = actor
+                            break
 
             # 3. Cari atau buat FestivalAward (untuk mencegah duplikasi)
             award_exists = FestivalAward.objects.filter(

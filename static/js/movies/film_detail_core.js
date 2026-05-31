@@ -173,8 +173,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         : `https://image.tmdb.org/t/p/w185${logoUrl}`;
                 }
                 const logoHtml = formattedLogoUrl
-                    ? `<img src="${formattedLogoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
-                    : `<div class="w-12 h-12 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
+                    ? `<img src="${formattedLogoUrl}" class="w-16 h-16 object-contain rounded bg-[#141314] p-2 border border-white/10 shrink-0 shadow-inner" alt="${aw.festival_name}">`
+                    : `<div class="w-16 h-16 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500 shadow-inner"><span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
 
                 const typeBadge = aw.award_type === 'winner'
                     ? `<span class="inline-flex px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">Winner</span>`
@@ -190,13 +190,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             : `https://image.tmdb.org/t/p/w185${actorPhoto}`;
                     }
                     const photoHtml = photoUrl
-                        ? `<img src="${photoUrl}" class="w-5 h-5 rounded-full object-cover shrink-0 border border-white/10" />`
-                        : `<div class="w-5 h-5 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10"><span class="material-symbols-outlined text-[10px] text-stone-400">person</span></div>`;
+                        ? `<img src="${photoUrl}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-white/10" />`
+                        : `<div class="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10"><span class="material-symbols-outlined text-sm text-stone-400">person</span></div>`;
 
                     actorHtml = `
-                        <a href="/actors/${aw.actor_id}/" class="flex items-center gap-1.5 mt-2 bg-[#141314]/40 border border-white/5 px-2 py-1 rounded w-fit hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
+                        <a href="/actors/${aw.actor_id}/" class="flex items-center gap-2 mt-2.5 bg-[#141314]/40 border border-white/5 px-2.5 py-1.5 rounded w-fit hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
                             ${photoHtml}
-                            <span class="text-[10px] text-stone-300 font-semibold">${aw.actor_name}</span>
+                            <span class="text-[11px] text-stone-300 font-semibold">${aw.actor_name}</span>
                         </a>
                     `;
                 }

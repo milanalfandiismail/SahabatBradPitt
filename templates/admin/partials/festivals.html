@@ -18,9 +18,6 @@
         </div>
         <!-- Action Buttons -->
         <div class="flex gap-2">
-            <button onclick="openWikiImportModal()" class="px-4 py-2 rounded border border-blue-500/20 text-blue-400 hover:border-blue-400 hover:bg-blue-500/10 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
-                <span class="material-symbols-outlined text-sm">cloud_download</span> Wikipedia Import
-            </button>
             <button onclick="openFestivalEditor()" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
                 <span class="material-symbols-outlined text-sm">add</span> Tambah Festival
             </button>
@@ -134,6 +131,119 @@
                 </div>
             </div>
 
+            <!-- Section: Participating Films (Featured Films) -->
+            <div id="festival-films-section" class="lg:col-span-3 flex flex-col gap-4 border-t border-white/5 pt-6 w-full max-w-full min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">FILM YANG BERPARTISIPASI (FEATURED FILMS)</span>
+                    <span id="festival-films-count" class="text-amber-500 text-sm font-semibold">0 Film</span>
+                </div>
+                <div class="w-full relative">
+                    <input id="festival-film-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2.5 px-3.5 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none transition-all" placeholder="Cari dan tambahkan film yang berpartisipasi..." type="text" autocomplete="off" />
+                    <div id="festival-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto custom-scroll"></div>
+                </div>
+                <div id="festival-films-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 bg-[#141314]/30 border border-white/5 p-4 rounded-md">
+                    <!-- Dynamic movie cards will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Section: Festival Awards -->
+            <div id="festival-awards-section" class="lg:col-span-3 flex flex-col gap-4 border-t border-white/5 pt-6 w-full max-w-full min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] font-bold text-stone-400 tracking-widest uppercase">DAFTAR PENGHARGAAN FESTIVAL (AWARDS)</span>
+                    <span id="festival-awards-count" class="text-emerald-500 text-sm font-semibold">0 Penghargaan</span>
+                </div>
+                <!-- Grouped Input Form -->
+                <div class="flex flex-col gap-4 bg-[#141314]/20 border border-white/5 p-4 rounded-md">
+                    
+                    <!-- Row 1: Category & Year -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        <div class="sm:col-span-8 flex flex-col gap-1.5">
+                            <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">KATEGORI PENGHARGAAN *</label>
+                            <input id="award-group-category" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:outline-none" placeholder="mis: Best Actor, Best Film, Best Director" type="text" />
+                        </div>
+                        <div class="sm:col-span-4 flex flex-col gap-1.5">
+                            <label class="text-[9px] font-bold text-stone-400 tracking-wider uppercase">TAHUN *</label>
+                            <input id="award-group-year" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:outline-none" type="number" value="2026" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Winner Box (Green Tint border) -->
+                        <div class="border border-emerald-500/10 bg-emerald-500/[0.02] p-3 rounded-md flex flex-col gap-3">
+                            <div class="flex items-center justify-between border-b border-emerald-500/10 pb-1.5">
+                                <span class="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">WINNER</span>
+                            </div>
+                            
+                            <!-- Actor Autocomplete for Winner -->
+                            <div class="relative flex flex-col gap-1">
+                                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">AKTOR / AKTRIS (OPSIONAL)</label>
+                                <input id="winner-actor-search" class="w-full bg-[#141314] border border-white/10 rounded-md py-1.5 px-2.5 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none" placeholder="Cari aktor..." type="text" autocomplete="off" />
+                                <input type="hidden" id="winner-actor-id">
+                                <div id="winner-actor-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-40 overflow-y-auto custom-scroll"></div>
+                            </div>
+
+                            <!-- Film Search and Multi-Add for Winner -->
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[8px] font-bold text-stone-400 tracking-wider uppercase">FILM PENDUKUNG *</label>
+                                <div class="flex gap-1.5 relative">
+                                    <input id="winner-film-search" class="flex-grow bg-[#141314] border border-white/10 rounded-md py-1.5 px-2.5 text-xs text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none" placeholder="Cari dan tambahkan film..." type="text" autocomplete="off" />
+                                    <input type="hidden" id="winner-film-id">
+                                    <button id="add-winner-film-btn" type="button" class="px-3 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 text-[#c9c5cb] border border-white/10 rounded font-bold text-xs flex items-center justify-center transition-all">
+                                        <span class="material-symbols-outlined text-sm">add</span>
+                                    </button>
+                                    <div id="winner-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-[60] max-h-40 overflow-y-auto custom-scroll"></div>
+                                </div>
+                                <!-- Badge list for Winner Films -->
+                                <div id="winner-films-badges" class="flex flex-wrap gap-1 mt-1.5 min-h-[24px]"></div>
+                            </div>
+                        </div>
+
+                        <!-- Nominees Box -->
+                        <div class="border border-white/5 bg-white/[0.01] p-3 rounded-md flex flex-col gap-3">
+                            <div class="flex items-center justify-between border-b border-white/5 pb-1.5">
+                                <span class="text-[10px] font-bold text-stone-400 tracking-widest uppercase">NOMINEES</span>
+                                <button id="add-nominee-group-btn" type="button" class="px-2 py-0.5 bg-[#715A5A]/20 hover:bg-[#715A5A]/40 text-[#c9c5cb] border border-[#715A5A]/30 rounded text-[9px] font-bold uppercase transition-all flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[10px]">add</span> Tambah Nominee
+                                </button>
+                            </div>
+                            
+                            <!-- Container for Nominee Rows -->
+                            <div id="nominee-groups-container" class="flex flex-col gap-3 max-h-[220px] overflow-y-auto custom-scroll pr-1">
+                                <!-- Dynamic Nominee rows will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Push Button -->
+                    <div class="flex justify-end pt-2 border-t border-white/5">
+                        <button id="add-grouped-award-btn" type="button" class="px-4 py-2 bg-[#715A5A] hover:bg-[#8A6E6E] text-white rounded font-bold text-xs flex items-center gap-1.5 shadow-md transition-all">
+                            <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Tambahkan ke Daftar Penghargaan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table of Awards -->
+                <div class="bg-[#141314]/30 rounded-md border border-white/5 overflow-hidden overflow-x-auto custom-scroll w-full mt-2">
+                    <table class="w-full text-left text-xs border-collapse min-w-0 sm:min-w-[700px] block sm:table">
+                        <thead class="hidden sm:table-header-group">
+                            <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="p-3">FILM SASARAN</th>
+                                <th class="p-3">AKTOR PENERIMA</th>
+                                <th class="p-3">KATEGORI</th>
+                                <th class="p-3 w-[80px] text-center">TAHUN</th>
+                                <th class="p-3 w-[100px] text-center">TIPE</th>
+                                <th class="p-3 w-[60px] text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="awards-table-body" class="block sm:table-row-group divide-y divide-white/5 sm:divide-none">
+                            <tr id="awards-empty-row" class="block sm:table-row">
+                                <td colspan="6" class="p-6 text-center text-stone-500 italic block sm:table-cell">Belum ada penghargaan yang ditambahkan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="lg:col-span-3 flex justify-end gap-3 border-t border-white/5 pt-4 mt-2">
                 <button id="festival-editor-cancel-btn" type="button" class="px-5 py-2.5 rounded border border-white/5 hover:bg-white/5 text-[#c9c5cb] text-sm font-semibold transition-colors">Batal</button>
                 <button type="submit" class="px-5 py-2.5 rounded bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-sm font-semibold flex items-center gap-1.5 shadow-md transition-colors">
@@ -141,48 +251,5 @@
                 </button>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- ==================== WIKIPEDIA IMPORT MODAL ==================== -->
-<div id="wiki-import-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#201f20] border border-white/5 rounded-xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden">
-        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#141314]">
-            <h2 class="font-['Playfair_Display'] text-xl font-bold text-stone-100 flex items-center gap-2">
-                <span class="material-symbols-outlined text-blue-400">cloud_download</span> Import Penghargaan Wikipedia
-            </h2>
-            <button onclick="closeWikiImportModal()" class="text-stone-500 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-
-        <div class="p-6 font-['DM_Sans'] text-stone-300 bg-[#201f20]">
-            <form id="wiki-import-form" onsubmit="submitWikiImport(event)">
-                <div class="mb-4">
-                    <label for="wiki-import-film-select" class="block text-xs text-[#D3DAD9]/70 mb-1.5">FILM SASARAN *</label>
-                    <select id="wiki-import-film-select" required class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 focus:border-[#715A5A] focus:outline-none transition-all">
-                        <option value="">-- Pilih Film --</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label for="wiki-import-url-input" class="block text-xs text-[#D3DAD9]/70 mb-1.5">URL WIKIPEDIA (OPSIONAL)</label>
-                    <input type="url" id="wiki-import-url-input" placeholder="https://en.wikipedia.org/wiki/..." class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:outline-none transition-all">
-                    <p class="text-[11px] text-stone-500 mt-1.5">Kosongkan jika ingin sistem mencari secara otomatis berdasarkan judul film.</p>
-                </div>
-
-                <div id="wiki-import-status" class="hidden mb-4 p-3 rounded-md text-xs bg-white/5 border border-white/10 flex flex-col gap-2">
-                    <div id="wiki-import-status-text" class="font-semibold text-stone-300">Memproses...</div>
-                    <div id="wiki-import-status-details" class="text-stone-500 font-mono text-[10px] break-all max-h-24 overflow-y-auto custom-scroll"></div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-4 border-t border-white/5">
-                    <button type="button" onclick="closeWikiImportModal()" class="px-4 py-2.5 rounded border border-white/5 hover:bg-white/5 text-stone-300 text-sm transition-colors">Batal</button>
-                    <button type="submit" id="wiki-import-submit-btn" class="px-4 py-2.5 gap-1.5 rounded bg-blue-900/60 hover:bg-blue-800/80 text-blue-100 border border-blue-500/30 text-sm font-bold transition-colors flex items-center">
-                        <span class="material-symbols-outlined text-sm">cloud_download</span> Mulai Import
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 </div>

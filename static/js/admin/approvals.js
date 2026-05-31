@@ -4,7 +4,18 @@
  * Includes: Stagger animations, hover effects, detail modal integration.
  */
 
+let approvalSearchQuery = "";
+let currentApprovalTab = "films";
+
 function showApprovalTab(tab) {
+    currentApprovalTab = tab;
+    const searchInput = document.getElementById('approval-search');
+    if (searchInput) {
+        searchInput.placeholder = tab === 'films' ? 'Cari film pending...' : 'Cari sineas pending...';
+        searchInput.value = "";
+        approvalSearchQuery = "";
+    }
+
     const filmsTab = document.getElementById('approval-films-tab');
     const actorsTab = document.getElementById('approval-actors-tab');
     const tabFilmsBtn = document.getElementById('tab-btn-films');
@@ -50,7 +61,12 @@ function loadPendingFilmsForApproval() {
     empty?.classList.add('hidden');
     loading?.classList.remove('hidden');
 
-    secureFetch('/api/films/?status=pending_approval&include_drafts=true&page_size=100')
+    let url = '/api/films/?status=pending_approval&include_drafts=true&page_size=100';
+    if (approvalSearchQuery) {
+        url += `&search=${encodeURIComponent(approvalSearchQuery)}`;
+    }
+
+    secureFetch(url)
     .then(res => res.json())
     .then(data => {
         loading?.classList.add('hidden');
@@ -58,11 +74,14 @@ function loadPendingFilmsForApproval() {
 
         const films = data.results || [];
         if (countBadge) {
-            if (films.length > 0) {
-                countBadge.textContent = films.length;
-                countBadge.classList.remove('hidden');
-            } else {
-                countBadge.classList.add('hidden');
+            // Only update badge count on initial load without active search filter
+            if (!approvalSearchQuery) {
+                if (films.length > 0) {
+                    countBadge.textContent = films.length;
+                    countBadge.classList.remove('hidden');
+                } else {
+                    countBadge.classList.add('hidden');
+                }
             }
         }
 
@@ -102,7 +121,12 @@ function loadPendingActorsForApproval() {
     empty?.classList.add('hidden');
     loading?.classList.remove('hidden');
 
-    secureFetch('/api/actors/?status=pending_approval&page_size=100')
+    let url = '/api/actors/?status=pending_approval&page_size=100';
+    if (approvalSearchQuery) {
+        url += `&search=${encodeURIComponent(approvalSearchQuery)}`;
+    }
+
+    secureFetch(url)
     .then(res => res.json())
     .then(data => {
         loading?.classList.add('hidden');
@@ -110,11 +134,14 @@ function loadPendingActorsForApproval() {
 
         const actors = data.results || [];
         if (countBadge) {
-            if (actors.length > 0) {
-                countBadge.textContent = actors.length;
-                countBadge.classList.remove('hidden');
-            } else {
-                countBadge.classList.add('hidden');
+            // Only update badge count on initial load without active search filter
+            if (!approvalSearchQuery) {
+                if (actors.length > 0) {
+                    countBadge.textContent = actors.length;
+                    countBadge.classList.remove('hidden');
+                } else {
+                    countBadge.classList.add('hidden');
+                }
             }
         }
 
@@ -183,18 +210,31 @@ function _buildFilmApprovalCard(film) {
             </p>
             <!-- Actions -->
             <div class="flex gap-2 pt-1">
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/25 hover:border-blue-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); showFilmApprovalDetail(film)">
+                <button class="btn-detail flex-1 py-2 text-xs font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/25 hover:border-blue-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">visibility</span> Detail
                 </button>
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); approveFilmFromCard(${film.id})">
+                <button class="btn-approve flex-1 py-2 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">check</span> Setuju
                 </button>
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/25 hover:border-rose-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); openRejectModal(${film.id}, 'film')">
+                <button class="btn-reject flex-1 py-2 text-xs font-semibold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/25 hover:border-rose-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">close</span> Tolak
                 </button>
             </div>
         </div>
     `;
+
+    card.querySelector('.btn-detail').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showFilmApprovalDetail(film);
+    });
+    card.querySelector('.btn-approve').addEventListener('click', (e) => {
+        e.stopPropagation();
+        approveFilmFromCard(film.id);
+    });
+    card.querySelector('.btn-reject').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openRejectModal(film.id, 'film');
+    });
 
     return card;
 }
@@ -238,18 +278,31 @@ function _buildActorApprovalCard(actor) {
                 oleh: ${actor.created_by_name || 'Unknown'}
             </p>
             <div class="flex gap-2 pt-2">
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/25 hover:border-blue-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); showActorApprovalDetail(actor)">
+                <button class="btn-detail flex-1 py-2 text-xs font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/25 hover:border-blue-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">visibility</span> Detail
                 </button>
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); approveActorFromCard(${actor.id})">
+                <button class="btn-approve flex-1 py-2 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">check</span> Setuju
                 </button>
-                <button class="flex-1 py-2 text-xs font-semibold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/25 hover:border-rose-400/50 transition-all flex items-center justify-center gap-1" onclick="event.stopPropagation(); openRejectModal(${actor.id}, 'actor')">
+                <button class="btn-reject flex-1 py-2 text-xs font-semibold rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/25 hover:border-rose-400/50 transition-all flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-sm">close</span> Tolak
                 </button>
             </div>
         </div>
     `;
+
+    card.querySelector('.btn-detail').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showActorApprovalDetail(actor);
+    });
+    card.querySelector('.btn-approve').addEventListener('click', (e) => {
+        e.stopPropagation();
+        approveActorFromCard(actor.id);
+    });
+    card.querySelector('.btn-reject').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openRejectModal(actor.id, 'actor');
+    });
 
     return card;
 }
@@ -324,6 +377,22 @@ function showFilmApprovalDetail(film) {
         galleryContainer.innerHTML = '<span class="text-xs text-stone-500 italic">Belum ada galeri backdrop.</span>';
     }
 
+    // Bind action buttons in modal
+    const approveBtn = document.getElementById('modal-film-approve-btn');
+    const rejectBtn = document.getElementById('modal-film-reject-btn');
+    if (approveBtn) {
+        approveBtn.onclick = () => {
+            approveFilmFromCard(film.id);
+            modal.classList.add('hidden');
+        };
+    }
+    if (rejectBtn) {
+        rejectBtn.onclick = () => {
+            openRejectModal(film.id, 'film');
+            modal.classList.add('hidden');
+        };
+    }
+
     modal.classList.remove('hidden');
     // modal.classList.add('animate-scale-in');
 }
@@ -347,6 +416,22 @@ function showActorApprovalDetail(actor) {
     document.getElementById('detail-actor-photo').src = photoUrl;
     document.getElementById('detail-actor-bio').textContent = actor.bio || 'Tidak ada biografi.';
 
+    // Bind action buttons in modal
+    const approveBtn = document.getElementById('modal-actor-approve-btn');
+    const rejectBtn = document.getElementById('modal-actor-reject-btn');
+    if (approveBtn) {
+        approveBtn.onclick = () => {
+            approveActorFromCard(actor.id);
+            modal.classList.add('hidden');
+        };
+    }
+    if (rejectBtn) {
+        rejectBtn.onclick = () => {
+            openRejectModal(actor.id, 'actor');
+            modal.classList.add('hidden');
+        };
+    }
+
     modal.classList.remove('hidden');
     // modal.classList.add('animate-scale-in');
 }
@@ -357,6 +442,21 @@ function showActorApprovalDetail(actor) {
 document.addEventListener('DOMContentLoaded', function () {
     // Ensure default tab
     showApprovalTab('films');
+
+    // Input search filter binding with 400ms debounce
+    const searchInput = document.getElementById('approval-search');
+    let searchTimeout = null;
+    searchInput?.addEventListener('input', (e) => {
+        approvalSearchQuery = e.target.value.trim();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (currentApprovalTab === 'films') {
+                loadPendingFilmsForApproval();
+            } else {
+                loadPendingActorsForApproval();
+            }
+        }, 400);
+    });
 
     // Modal close button handlers
     document.querySelectorAll('.modal-close-btn').forEach(btn => {

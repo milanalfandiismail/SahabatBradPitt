@@ -62,12 +62,35 @@
                 <!-- Awards will be inserted here -->
             </div>
         </section>
+
+        <!-- Section: Featured Films -->
+        <section class="mb-16">
+            <h2 class="font-['Playfair_Display'] text-2xl font-bold text-white mb-6 border-b border-white/10 pb-4">Film yang Berpartisipasi</h2>
+            <div id="featured-films-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <!-- Featured films will be inserted here -->
+            </div>
+        </section>
     </div>
 </main>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    window.toggleNominees = function(cardId) {
+        const container = document.getElementById(`nominees-${cardId}`);
+        const arrow = document.getElementById(`arrow-${cardId}`);
+        if (container && arrow) {
+            const isHidden = container.classList.contains('hidden');
+            if (isHidden) {
+                container.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                container.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+    };
+
     document.addEventListener("DOMContentLoaded", function() {
         const pathParts = window.location.pathname.split('/').filter(p => p);
         const festivalId = pathParts[pathParts.length - 1];
@@ -137,32 +160,265 @@
                 // Awards
                 const awardsContainer = document.getElementById('awards-list');
                 if (data.awards && data.awards.length > 0) {
-                    // Group awards by year descending
-                    const sortedAwards = data.awards.sort((a, b) => b.year - a.year);
-                    
-                    sortedAwards.forEach((award, idx) => {
-                        const isWinner = award.award_type === 'winner';
-                        const badgeColor = isWinner ? "bg-amber-500/20 text-amber-500 border-amber-500/30" : "bg-white/5 text-[#D3DAD9] border-white/10";
-                        const iconHtml = isWinner ? `<span class="material-symbols-outlined text-[14px]">stars</span>` : `<span class="material-symbols-outlined text-[14px]">star_border</span>`;
+                    // Group awards by category + year
+                    const grouped = {};
+                    data.awards.forEach(aw => {
+                        const key = `${aw.category}-${aw.year}`;
+                        if (!grouped[key]) {
+                            grouped[key] = {
+                                category: aw.category,
+                                year: aw.year,
+                                winner: null,
+                                nominees: []
+                            };
+                        }
+                        if (aw.award_type === 'winner') {
+                            grouped[key].winner = aw;
+                        } else {
+                            grouped[key].nominees.push(aw);
+                        }
+                    });
+
+                    // Sort grouped awards: year descending, then category alphabetical
+                    const groupedList = Object.values(grouped).sort((a, b) => {
+                        if (b.year !== a.year) {
+                            return b.year - a.year;
+                        }
+                        return a.category.localeCompare(b.category);
+                    });
+
+                    awardsContainer.textContent = '';
+                    groupedList.forEach((group, idx) => {
+                        // If no winner is registered, take the first nominee as the primary display subject, but keep the nominee badge
+                        let primaryAward = group.winner;
+                        let isWinnerOnly = true;
+                        
+                        if (!primaryAward && group.nominees.length > 0) {
+                            primaryAward = group.nominees[0]; // peek first nominee as primary subject
+                            isWinnerOnly = false;
+                        }
+                        
+                        if (!primaryAward) return; // safety check
+                        
+                        // Define dynamic IDs
+                        const cardId = `award-card-${idx}`;
+                        const isWinner = primaryAward.award_type === 'winner';
+                        
+                        const cardBorder = isWinner 
+                            ? "border-amber-500/20 shadow-amber-950/5 hover:border-amber-500/50" 
+                            : "border-white/5 hover:border-white/20";
+                            
+                        const badgeColor = isWinner 
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20" 
+                            : "bg-white/5 text-stone-400 border-white/10";
+                            
+                        const iconHtml = isWinner 
+                            ? `<span class="material-symbols-outlined text-[12px] text-amber-400 font-bold" style="font-variation-settings:'FILL'1">emoji_events</span>` 
+                            : `<span class="material-symbols-outlined text-[12px]">star</span>`;
+
                         const card = document.createElement('div');
-                        card.className = "bg-[#201f20] border border-white/5 p-5 rounded-lg hover:border-[#715A5A]/30 hover:shadow-xl transition-all flex flex-col justify-between animate-fade-up";
+                        card.className = `bg-[#201f20] border ${cardBorder} p-6 rounded-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between animate-fade-up`;
                         card.style.animationDelay = `${idx * 60}ms`;
-                        card.innerHTML = `
-                            <div>
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-['DM_Sans'] font-bold text-[#D3DAD9]">${award.category}</h4>
-                                    <span class="text-xs font-bold font-['DM_Sans'] text-white/40">${award.year}</span>
+
+                        let subjectHtml = '';
+                        if (primaryAward.actor_name) {
+                            // CASE A: Ada Aktor Penerima (misal: Best Actor/Actress)
+                            let actorPhoto = '';
+                            if (primaryAward.actor_photo) {
+                                actorPhoto = primaryAward.actor_photo.startsWith('http')
+                                    ? primaryAward.actor_photo
+                                    : `https://image.tmdb.org/t/p/w200${primaryAward.actor_photo}`;
+                            }
+                            
+                            let filmPoster = '';
+                            if (primaryAward.film_title) {
+                                filmPoster = primaryAward.film_poster.startsWith('http')
+                                    ? primaryAward.film_poster
+                                    : `https://image.tmdb.org/t/p/w200${primaryAward.film_poster}`;
+                            }
+
+                            const photoBorder = isWinner ? "border-amber-500/40 shadow-lg shadow-amber-950/20" : "border-white/10";
+                            
+                            subjectHtml = `
+                                <!-- Penerima (Aktor) Utama -->
+                                <div class="mt-4 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-black/20 p-3.5 rounded-xl border border-white/[0.03]">
+                                    ${actorPhoto 
+                                        ? `<img src="${actorPhoto}" class="w-16 h-16 rounded-full object-cover border-2 ${photoBorder} shrink-0 bg-[#141314]" />` 
+                                        : `<div class="w-16 h-16 rounded-full bg-[#141314] border-2 ${photoBorder} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-2xl">person</span></div>`
+                                    }
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="text-[9px] text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL'1">stars</span> ${isWinner ? 'Pemenang' : 'Nominasi Utama'}
+                                        </span>
+                                        <a href="/actors/${primaryAward.actor}/" class="text-sm sm:text-base font-extrabold text-stone-100 hover:text-amber-400 transition-colors truncate block" title="${primaryAward.actor_name}">${primaryAward.actor_name}</a>
+                                    </div>
                                 </div>
-                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeColor}">
-                                    ${iconHtml} ${award.award_type}
+                                
+                                <!-- Film Pendukung -->
+                                <div class="mt-3 flex items-center gap-3 bg-white/[0.01] p-2.5 rounded-lg border border-white/5">
+                                    ${filmPoster 
+                                        ? `<img src="${filmPoster}" class="w-12 h-18 object-cover rounded bg-[#141314] border border-white/10 shrink-0 shadow-md" />` 
+                                        : `<div class="w-12 h-18 bg-[#141314] rounded flex items-center justify-center border border-white/5 shrink-0"><span class="material-symbols-outlined text-stone-600 text-sm">movie</span></div>`
+                                    }
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="text-[8px] text-stone-500 uppercase tracking-widest font-bold">Film Utama</span>
+                                        <a href="/movies/${primaryAward.film}/" class="text-xs font-bold text-stone-300 hover:text-amber-400 transition-colors truncate block" title="${primaryAward.film_title}">${primaryAward.film_title}</a>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (primaryAward.film_title) {
+                            // CASE B: Tidak Ada Aktor (misal: Best Film, Best Director)
+                            let filmPoster = '';
+                            if (primaryAward.film_poster) {
+                                filmPoster = primaryAward.film_poster.startsWith('http')
+                                    ? primaryAward.film_poster
+                                    : `https://image.tmdb.org/t/p/w300${primaryAward.film_poster}`;
+                            }
+                            
+                            const posterBorder = isWinner ? "border-amber-500/30 shadow-lg shadow-amber-950/20" : "border-white/10";
+                            
+                            subjectHtml = `
+                                <!-- Film Penerima Utama -->
+                                <div class="mt-4 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-black/20 p-3.5 rounded-xl border border-white/[0.03]">
+                                    ${filmPoster 
+                                        ? `<img src="${filmPoster}" class="w-20 h-28 object-cover rounded-lg border-2 ${posterBorder} shrink-0 bg-[#141314] shadow-md transition-transform duration-300 hover:scale-105" />` 
+                                        : `<div class="w-20 h-28 bg-[#141314] rounded-lg border-2 ${posterBorder} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-3xl">movie</span></div>`
+                                    }
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="text-[9px] text-amber-500/80 uppercase tracking-widest font-bold flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL'1">stars</span> ${isWinner ? 'Karya Pemenang' : 'Nominasi Karya'}
+                                        </span>
+                                        <a href="/movies/${primaryAward.film}/" class="text-sm sm:text-base font-extrabold text-stone-100 hover:text-amber-400 transition-colors line-clamp-2 leading-snug" title="${primaryAward.film_title}">${primaryAward.film_title}</a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        // Nominees collapsible content
+                        let collapsibleHtml = '';
+                        const finalNominees = !isWinnerOnly 
+                            ? group.nominees.slice(1) 
+                            : group.nominees;
+
+                        if (finalNominees.length > 0) {
+                            let nomineeItems = '';
+                            finalNominees.forEach(nom => {
+                                let itemHtml = '';
+                                if (nom.actor_name) {
+                                    let photo = nom.actor_photo 
+                                        ? (nom.actor_photo.startsWith('http') ? nom.actor_photo : `https://image.tmdb.org/t/p/w200${nom.actor_photo}`)
+                                        : '';
+                                    itemHtml = `
+                                        <div class="flex items-center gap-2">
+                                            ${photo 
+                                                ? `<img src="${photo}" class="w-7 h-7 rounded-full object-cover border border-white/10 shrink-0 bg-[#141314]" />` 
+                                                : `<div class="w-7 h-7 rounded-full bg-[#141314] border border-white/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-[10px]">person</span></div>`
+                                            }
+                                            <div class="flex flex-col text-left min-w-0">
+                                                <a href="/actors/${nom.actor}/" class="text-xs font-bold text-stone-200 hover:text-amber-400 transition-colors truncate block text-left">${nom.actor_name}</a>
+                                                ${nom.film_title ? `<span class="text-[9px] text-stone-500 truncate block text-left">dalam <a href="/movies/${nom.film}/" class="hover:text-amber-500 transition-colors">${nom.film_title}</a></span>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else if (nom.film_title) {
+                                    let poster = nom.film_poster 
+                                        ? (nom.film_poster.startsWith('http') ? nom.film_poster : `https://image.tmdb.org/t/p/w200${nom.film_poster}`)
+                                        : '';
+                                    itemHtml = `
+                                        <div class="flex items-center gap-2">
+                                            ${poster 
+                                                ? `<img src="${poster}" class="w-7 h-10 object-cover rounded border border-white/10 shrink-0 bg-[#141314]" />` 
+                                                : `<div class="w-7 h-10 bg-[#141314] border border-white/10 rounded flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-[10px]">movie</span></div>`
+                                            }
+                                            <div class="flex flex-col text-left min-w-0">
+                                                <a href="/movies/${nom.film}/" class="text-xs font-bold text-stone-200 hover:text-amber-400 transition-colors truncate block text-left">${nom.film_title}</a>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                nomineeItems += `
+                                    <div class="bg-white/[0.02] border border-white/5 p-2 rounded-lg flex items-center justify-between gap-2 hover:border-[#715A5A]/30 transition-all duration-300">
+                                        ${itemHtml}
+                                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-stone-500/10 text-stone-400 border border-white/5 shrink-0">Nominee</span>
+                                    </div>
+                                `;
+                            });
+
+                            collapsibleHtml = `
+                                <!-- Nominees Toggle Button -->
+                                <button onclick="toggleNominees('${cardId}')" class="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 text-stone-300 hover:text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-white/5">
+                                    <span class="material-symbols-outlined text-[16px] transition-transform duration-300" id="arrow-${cardId}">keyboard_arrow_down</span>
+                                    <span>Lihat Nominasi (${finalNominees.length})</span>
+                                </button>
+                                
+                                <!-- Hidden Collapsible Box -->
+                                <div id="nominees-${cardId}" class="hidden mt-3 pt-3 border-t border-white/5 flex flex-col gap-2.5 max-h-60 overflow-y-auto custom-scroll pr-1">
+                                    ${nomineeItems}
+                                </div>
+                            `;
+                        }
+
+                        card.innerHTML = `
+                            <div class="flex flex-col">
+                                <div class="flex justify-between items-start gap-2 mb-3">
+                                    <h4 class="font-['Playfair_Display'] font-bold text-base text-stone-100 line-clamp-2">${group.category}</h4>
+                                    <span class="text-xs font-bold font-mono text-stone-500 bg-[#141314] px-2 py-0.5 rounded border border-white/5 shrink-0">${group.year}</span>
+                                </div>
+                                <div class="flex">
+                                    <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeColor}">
+                                        ${iconHtml} ${primaryAward.award_type}
+                                    </div>
                                 </div>
                             </div>
-                            ${subjectHtml}
+                            <div class="flex flex-col">
+                                ${subjectHtml}
+                                ${collapsibleHtml}
+                            </div>
                         `;
                         awardsContainer.appendChild(card);
                     });
                 } else {
-                    awardsContainer.innerHTML = `<p class="col-span-full text-[#c9c5cb] italic">Belum ada data penghargaan untuk festival ini.</p>`;
+                    awardsContainer.innerHTML = `<p class="col-span-full text-[#c9c5cb] italic text-xs">Belum ada data penghargaan untuk festival ini.</p>`;
+                }
+
+                // Featured Films
+                const filmsContainer = document.getElementById('featured-films-list');
+                if (filmsContainer) {
+                    if (data.films && data.films.length > 0) {
+                        filmsContainer.textContent = '';
+                        data.films.forEach((film, idx) => {
+                            let filmPoster = '';
+                            const posterUrl = film.film_poster || film.local_poster || '';
+                            if (posterUrl) {
+                                filmPoster = posterUrl.startsWith('http')
+                                    ? posterUrl
+                                    : `https://image.tmdb.org/t/p/w300${posterUrl}`;
+                            }
+                            
+                            const card = document.createElement('div');
+                            card.className = "group relative bg-[#141314] rounded-lg border border-white/10 overflow-hidden shadow-lg aspect-[2/3] hover:border-amber-500/50 transition-all duration-300 animate-fade-up";
+                            card.style.animationDelay = `${idx * 50}ms`;
+                            
+                            const imgHtml = filmPoster
+                                ? `<img src="${filmPoster}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${film.film_title}">`
+                                : `<div class="w-full h-full bg-[#141314] flex flex-col items-center justify-center gap-1.5 text-stone-600">
+                                     <span class="material-symbols-outlined text-3xl">movie</span>
+                                   </div>`;
+                                   
+                            card.innerHTML = `
+                                ${imgHtml}
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                                    <h4 class="font-['DM_Sans'] font-bold text-white text-xs sm:text-sm line-clamp-2">${film.film_title || film.title}</h4>
+                                    <p class="font-['DM_Sans'] text-[10px] text-stone-400 mt-1">${film.release_year || 'N/A'}</p>
+                                    <a href="/movies/${film.id}/" class="mt-3 text-center px-4 py-1.5 bg-[#715A5A] hover:bg-[#8A6E6E] text-white text-[10px] sm:text-xs font-semibold rounded transition-colors">Lihat Detail</a>
+                                </div>
+                            `;
+                            filmsContainer.appendChild(card);
+                        });
+                    } else {
+                        filmsContainer.innerHTML = `<p class="col-span-full text-[#c9c5cb]/40 italic text-xs">Belum ada film yang didaftarkan berpartisipasi.</p>`;
+                    }
                 }
             })
             .catch(err => {

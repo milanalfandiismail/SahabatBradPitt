@@ -85,6 +85,12 @@
                     <button id="bio-expand-btn" class="hidden mt-3 font-['DM_Sans'] text-xs text-[#715A5A] hover:text-[#8A6E6E] transition-colors underline">Baca Selengkapnya ↓</button>
                 </div>
             </div>
+
+            <!-- Awards box -->
+            <div id="actor-awards-section" class="hidden mt-10 max-w-4xl">
+                <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-4">Penghargaan & Nominasi</h2>
+                <div id="actor-awards-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </div>
         </div>
 
         <!-- Filmography Section -->
@@ -234,6 +240,9 @@
                     photoContainer.appendChild(icon);
                 }
 
+                // Render awards
+                _renderActorAwards(actor);
+
                 // Render filmography list
                 const filmGrid = document.getElementById("filmography-grid");
                 filmGrid.textContent = "";
@@ -251,7 +260,7 @@
                         window.location.href = `/movies/${item.film}/`;
                     });
 
-                    const imgWrap = document.createElement("div");
+                const imgWrap = document.createElement("div");
                     imgWrap.className = "relative aspect-[2/3] overflow-hidden bg-surface-dim";
                     
                     let posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500";
@@ -302,6 +311,115 @@
                     card.appendChild(details);
                     filmGrid.appendChild(card);
                 });
+
+                function _renderActorAwards(actorData) {
+                    const awardsSection = document.getElementById("actor-awards-section");
+                    const awardsList = document.getElementById("actor-awards-list");
+                    if (!awardsSection || !awardsList) return;
+
+                    awardsList.textContent = "";
+
+                    if (actorData.awards && actorData.awards.length > 0) {
+                        awardsSection.classList.remove("hidden");
+                        
+                        // Grouping logic by festival_name, year, category, award_type
+                        const groupedMap = {};
+                        actorData.awards.forEach(aw => {
+                            const key = `${aw.festival_name}-${aw.year}-${aw.category.toLowerCase().trim()}-${aw.award_type}`;
+                            if (!groupedMap[key]) {
+                                groupedMap[key] = {
+                                    festival_name: aw.festival_name,
+                                    festival_logo: aw.festival_logo,
+                                    category: aw.category,
+                                    year: aw.year,
+                                    award_type: aw.award_type,
+                                    films: []
+                                };
+                            }
+                            if (aw.film_id && !groupedMap[key].films.some(f => f.id === aw.film_id)) {
+                                groupedMap[key].films.push({
+                                    id: aw.film_id,
+                                    title: aw.film_title,
+                                    poster: aw.film_poster
+                                });
+                            }
+                        });
+
+                        const groupedAwards = Object.values(groupedMap);
+
+                        groupedAwards.forEach((aw, idx) => {
+                            const card = document.createElement("div");
+                            card.className = "flex items-start gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
+                            card.style.animationDelay = `${idx * 60}ms`;
+
+                            const logoUrl = aw.festival_logo;
+                            let formattedLogoUrl = "";
+                            if (logoUrl) {
+                                formattedLogoUrl = logoUrl.startsWith("http") || logoUrl.startsWith("/media/")
+                                    ? logoUrl
+                                    : `https://image.tmdb.org/t/p/w185${logoUrl}`;
+                            }
+                            const logoHtml = formattedLogoUrl
+                                ? `<img src="${formattedLogoUrl}" class="w-24 h-36 object-contain rounded bg-[#141314] p-2 border border-white/10 shrink-0 shadow-inner" alt="${aw.festival_name}">`
+                                : `<div class="w-24 h-36 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500 shadow-inner"><span class="material-symbols-outlined text-5xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
+
+                            const typeBadge = aw.award_type === 'winner'
+                                ? `<span class="inline-flex px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">Winner</span>`
+                                : `<span class="inline-flex px-2 py-0.5 bg-stone-500/10 text-stone-400 border border-white/5 rounded text-[9px] font-bold uppercase tracking-wider">Nominee</span>`;
+
+                            // Render supporting films visually as mini posters
+                            let filmsHtml = "";
+                            if (aw.films.length > 0) {
+                                let posterItemsHtml = "";
+                                aw.films.forEach(film => {
+                                    let posterUrl = "";
+                                    if (film.poster) {
+                                        posterUrl = film.poster.startsWith("http") || film.poster.startsWith("/media/")
+                                            ? film.poster
+                                            : `https://image.tmdb.org/t/p/w185${film.poster}`;
+                                    }
+                                    const posterImgHtml = posterUrl
+                                        ? `<img src="${posterUrl}" class="w-10 h-14 object-cover rounded border border-white/10 group-hover:border-amber-500/50 transition-all shadow" />`
+                                        : `<div class="w-10 h-14 bg-stone-800 rounded flex items-center justify-center border border-white/10 text-stone-600"><span class="material-symbols-outlined text-xs">movie</span></div>`;
+
+                                    posterItemsHtml += `
+                                        <a href="/movies/${film.id}/" class="relative group/poster flex flex-col items-center gap-1" title="${film.title}">
+                                            ${posterImgHtml}
+                                            <span class="text-[9px] text-stone-400 max-w-[64px] truncate text-center group-hover/poster:text-white transition-colors">${film.title}</span>
+                                        </a>
+                                    `;
+                                });
+
+                                filmsHtml = `
+                                    <div class="mt-3 flex flex-col gap-1.5 border-t border-white/5 pt-3">
+                                        <span class="text-[8px] font-bold text-stone-500 uppercase tracking-widest leading-none">Film Pendukung</span>
+                                        <div class="flex flex-wrap gap-2.5 mt-1">
+                                            ${posterItemsHtml}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            card.innerHTML = `
+                                ${logoHtml}
+                                <div class="flex flex-col flex-grow min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-bold text-stone-100 truncate">${aw.festival_name}</span>
+                                        <span class="text-[10px] font-mono text-stone-500 font-bold shrink-0">${aw.year}</span>
+                                    </div>
+                                    <span class="text-[11px] text-stone-300 font-medium mt-1 leading-tight">${aw.category}</span>
+                                    <div class="mt-2.5">
+                                        ${typeBadge}
+                                    </div>
+                                    ${filmsHtml}
+                                </div>
+                            `;
+                            awardsList.appendChild(card);
+                        });
+                    } else {
+                        awardsSection.classList.add("hidden");
+                    }
+                }
             })
             .catch(err => {
                 loading.classList.add("hidden");

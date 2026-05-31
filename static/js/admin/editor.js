@@ -27,7 +27,7 @@ function openEditor(filmId) {
         editorGallerySection.classList.remove('hidden');
 
         fetch(`/api/films/${selectedFilmId}/`, {
-            
+
         })
             .then(res => res.json())
             .then(async (film) => {
@@ -38,7 +38,7 @@ function openEditor(filmId) {
                 document.getElementById('form-duration').value = film.duration || "";
                 document.getElementById('form-popularity').value = Math.round(film.popularity) || 0;
                 document.getElementById('form-trailer').value = film.trailer_url || "";
-                
+
                 const isTvSeriesCb = document.getElementById('form-is-tv-series');
                 const epsContainer = document.getElementById('episodes-container');
                 isTvSeriesCb.checked = !!film.is_tv_series;
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(castSearchTimeout);
         castSearchTimeout = setTimeout(() => {
             fetch(`/api/actors/?search=${encodeURIComponent(query)}&page_size=5`, {
-                
+
             })
                 .then(res => res.json())
                 .then(data => {
@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const isTvSeriesCb = document.getElementById('form-is-tv-series');
     const epsContainer = document.getElementById('episodes-container');
     if (isTvSeriesCb && epsContainer) {
-        isTvSeriesCb.addEventListener('change', function() {
+        isTvSeriesCb.addEventListener('change', function () {
             epsContainer.style.display = this.checked ? 'flex' : 'none';
         });
     }

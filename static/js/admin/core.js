@@ -31,153 +31,153 @@ function initCore() {
     fetch('/api/auth/me/', {
         credentials: 'same-origin'
     })
-    .then(res => {
-        console.log("[Core] Auth check response status received:", res.status);
-        if (!res.ok) throw new Error("Otorisasi gagal");
-        return res.json();
-    })
-    .then(data => {
-        console.log("[Core] Auth check success. User data:", data);
-        currentUser = data;
-        if (data.is_staff || data.is_superuser) {
-            console.log("[Core] User is staff or superuser. Granting access and hiding loading shield.");
-            if (loadingShield) {
-                loadingShield.classList.add('hidden');
-            } else {
-                console.warn("[Core] admin-loading-shield element not found!");
-            }
-
-            if (data.is_superuser) {
-                console.log("[Core] User is superuser. Enabling superuser-only sidebar and drawer menu items.");
-                document.getElementById('sidebar-approvals-btn')?.classList.remove('hidden');
-                document.getElementById('sidebar-users-btn')?.classList.remove('hidden');
-                document.getElementById('drawer-approvals-btn')?.classList.remove('hidden');
-                document.getElementById('drawer-users-btn')?.classList.remove('hidden');
-            }
-            
-            const usernameEl = document.getElementById('active-username');
-            if (usernameEl) {
-                usernameEl.textContent = `Welcome, @${data.username}`;
-                usernameEl.classList.remove('hidden');
-            }
-
-            // Initialize modules with try/catch to prevent cascading failures
-            console.log("[Core] Initializing application modules...");
-            
-            let genresPromise = null;
-            try {
-                if (typeof fetchGenres === 'function') {
-                    console.log("[Core] Calling fetchGenres()...");
-                    genresPromise = fetchGenres();
+        .then(res => {
+            console.log("[Core] Auth check response status received:", res.status);
+            if (!res.ok) throw new Error("Otorisasi gagal");
+            return res.json();
+        })
+        .then(data => {
+            console.log("[Core] Auth check success. User data:", data);
+            currentUser = data;
+            if (data.is_staff || data.is_superuser) {
+                console.log("[Core] User is staff or superuser. Granting access and hiding loading shield.");
+                if (loadingShield) {
+                    loadingShield.classList.add('hidden');
                 } else {
-                    console.error("[Core] fetchGenres function is not defined!");
+                    console.warn("[Core] admin-loading-shield element not found!");
                 }
-            } catch (e) {
-                console.error("[Core] Error calling fetchGenres:", e);
-            }
 
-            try {
-                if (typeof fetchStats === 'function') {
-                    console.log("[Core] Calling fetchStats()...");
-                    fetchStats();
-                } else {
-                    console.error("[Core] fetchStats function is not defined!");
-                }
-            } catch (e) {
-                console.error("[Core] Error calling fetchStats:", e);
-            }
-
-            try {
-                if (typeof fetchFilms === 'function') {
-                    console.log("[Core] Calling fetchFilms(1)...");
-                    fetchFilms(1);
-                } else {
-                    console.error("[Core] fetchFilms function is not defined!");
-                }
-            } catch (e) {
-                console.error("[Core] Error calling fetchFilms:", e);
-            }
-
-            try {
-                if (typeof fetchActors === 'function') {
-                    console.log("[Core] Calling fetchActors(1)...");
-                    fetchActors(1);
-                } else {
-                    console.error("[Core] fetchActors function is not defined!");
-                }
-            } catch (e) {
-                console.error("[Core] Error calling fetchActors:", e);
-            }
-
-            try {
-                if (typeof initFestivals === 'function') {
-                    console.log("[Core] Calling initFestivals()...");
-                    initFestivals();
-                } else {
-                    console.log("[Core] initFestivals is not defined (optional).");
-                }
-            } catch (e) {
-                console.error("[Core] Error calling initFestivals:", e);
-            }
-
-            try {
-                if (typeof fetchAllActorsForCast === 'function') {
-                    console.log("[Core] Calling fetchAllActorsForCast()...");
-                    fetchAllActorsForCast();
-                } else {
-                    console.error("[Core] fetchAllActorsForCast function is not defined!");
-                }
-            } catch (e) {
-                console.error("[Core] Error calling fetchAllActorsForCast:", e);
-            }
-
-            try {
                 if (data.is_superuser) {
-                    if (typeof fetchUsers === 'function') {
-                        console.log("[Core] Calling fetchUsers()...");
-                        fetchUsers();
-                    } else {
-                        console.error("[Core] fetchUsers function is not defined!");
-                    }
+                    console.log("[Core] User is superuser. Enabling superuser-only sidebar and drawer menu items.");
+                    document.getElementById('sidebar-approvals-btn')?.classList.remove('hidden');
+                    document.getElementById('sidebar-users-btn')?.classList.remove('hidden');
+                    document.getElementById('drawer-approvals-btn')?.classList.remove('hidden');
+                    document.getElementById('drawer-users-btn')?.classList.remove('hidden');
                 }
-            } catch (e) {
-                console.error("[Core] Error calling fetchUsers:", e);
-            }
 
-            // Check for ?edit= URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('edit')) {
-                const editFilmId = parseInt(urlParams.get('edit'));
-                if (editFilmId) {
-                    console.log("[Core] Detected ?edit parameter for film ID:", editFilmId);
-                    showPrimarySection('movies');
-                    if (genresPromise) {
-                        genresPromise.then(() => {
-                            if (typeof openEditor === 'function') {
-                                openEditor(editFilmId);
-                            }
-                        });
+                const usernameEl = document.getElementById('active-username');
+                if (usernameEl) {
+                    usernameEl.textContent = `Welcome, @${data.username}`;
+                    usernameEl.classList.remove('hidden');
+                }
+
+                // Initialize modules with try/catch to prevent cascading failures
+                console.log("[Core] Initializing application modules...");
+
+                let genresPromise = null;
+                try {
+                    if (typeof fetchGenres === 'function') {
+                        console.log("[Core] Calling fetchGenres()...");
+                        genresPromise = fetchGenres();
+                    } else {
+                        console.error("[Core] fetchGenres function is not defined!");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchGenres:", e);
+                }
+
+                try {
+                    if (typeof fetchStats === 'function') {
+                        console.log("[Core] Calling fetchStats()...");
+                        fetchStats();
+                    } else {
+                        console.error("[Core] fetchStats function is not defined!");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchStats:", e);
+                }
+
+                try {
+                    if (typeof fetchFilms === 'function') {
+                        console.log("[Core] Calling fetchFilms(1)...");
+                        fetchFilms(1);
+                    } else {
+                        console.error("[Core] fetchFilms function is not defined!");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchFilms:", e);
+                }
+
+                try {
+                    if (typeof fetchActors === 'function') {
+                        console.log("[Core] Calling fetchActors(1)...");
+                        fetchActors(1);
+                    } else {
+                        console.error("[Core] fetchActors function is not defined!");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchActors:", e);
+                }
+
+                try {
+                    if (typeof initFestivals === 'function') {
+                        console.log("[Core] Calling initFestivals()...");
+                        initFestivals();
+                    } else {
+                        console.log("[Core] initFestivals is not defined (optional).");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling initFestivals:", e);
+                }
+
+                try {
+                    if (typeof fetchAllActorsForCast === 'function') {
+                        console.log("[Core] Calling fetchAllActorsForCast()...");
+                        fetchAllActorsForCast();
+                    } else {
+                        console.error("[Core] fetchAllActorsForCast function is not defined!");
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchAllActorsForCast:", e);
+                }
+
+                try {
+                    if (data.is_superuser) {
+                        if (typeof fetchUsers === 'function') {
+                            console.log("[Core] Calling fetchUsers()...");
+                            fetchUsers();
+                        } else {
+                            console.error("[Core] fetchUsers function is not defined!");
+                        }
+                    }
+                } catch (e) {
+                    console.error("[Core] Error calling fetchUsers:", e);
+                }
+
+                // Check for ?edit= URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('edit')) {
+                    const editFilmId = parseInt(urlParams.get('edit'));
+                    if (editFilmId) {
+                        console.log("[Core] Detected ?edit parameter for film ID:", editFilmId);
+                        showPrimarySection('movies');
+                        if (genresPromise) {
+                            genresPromise.then(() => {
+                                if (typeof openEditor === 'function') {
+                                    openEditor(editFilmId);
+                                }
+                            });
+                        }
                     }
                 }
+            } else {
+                console.warn("[Core] User is authenticated but lacks staff/superuser privileges!");
+                if (loadingShield) loadingShield.classList.add('hidden');
+                const deniedEl = document.getElementById('admin-access-denied');
+                if (deniedEl) deniedEl.classList.remove('hidden');
             }
-        } else {
-            console.warn("[Core] User is authenticated but lacks staff/superuser privileges!");
+        })
+        .catch(err => {
+            console.error('[Core] Auth check / init flow failed:', err);
             if (loadingShield) loadingShield.classList.add('hidden');
+            // Session might be expired — show access denied message
             const deniedEl = document.getElementById('admin-access-denied');
-            if (deniedEl) deniedEl.classList.remove('hidden');
-        }
-    })
-    .catch(err => {
-        console.error('[Core] Auth check / init flow failed:', err);
-        if (loadingShield) loadingShield.classList.add('hidden');
-        // Session might be expired — show access denied message
-        const deniedEl = document.getElementById('admin-access-denied');
-        if (deniedEl) {
-            deniedEl.classList.remove('hidden');
-            const msg = deniedEl.querySelector('p');
-            if (msg) msg.textContent = 'Autentikasi gagal. Sesi mungkin expired. Silakan login ulang.';
-        }
-    });
+            if (deniedEl) {
+                deniedEl.classList.remove('hidden');
+                const msg = deniedEl.querySelector('p');
+                if (msg) msg.textContent = 'Autentikasi gagal. Sesi mungkin expired. Silakan login ulang.';
+            }
+        });
 
     console.log("[Core] Registering sidebar event listeners...");
     // Sidebar event listeners
@@ -250,7 +250,7 @@ function initCore() {
             drawerContent.classList.add("-translate-x-full");
             drawerContent.classList.remove("translate-x-0");
             console.log("[Core] Transition classes applied for closing drawer.");
-            
+
             // Wait for 300ms transition to finish before setting display to none
             setTimeout(() => {
                 drawer.classList.add("hidden");
@@ -292,47 +292,47 @@ function initCore() {
     }
 
     console.log("[Core] Registering drawer menu buttons click listeners...");
-    document.getElementById('drawer-dashboard-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-dashboard-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer dashboard button clicked");
-        showPrimarySection('dashboard'); 
-        closeDrawer(); 
+        showPrimarySection('dashboard');
+        closeDrawer();
     });
-    document.getElementById('drawer-movies-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-movies-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer movies button clicked");
-        showPrimarySection('movies'); 
-        closeDrawer(); 
+        showPrimarySection('movies');
+        closeDrawer();
     });
-    document.getElementById('drawer-festivals-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-festivals-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer festivals button clicked");
-        showPrimarySection('festivals'); 
-        closeDrawer(); 
+        showPrimarySection('festivals');
+        closeDrawer();
     });
-    document.getElementById('drawer-actors-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-actors-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer actors button clicked");
-        showPrimarySection('actors'); 
-        closeDrawer(); 
+        showPrimarySection('actors');
+        closeDrawer();
     });
-    document.getElementById('drawer-genres-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-genres-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer genres button clicked");
-        showPrimarySection('genres'); 
-        closeDrawer(); 
+        showPrimarySection('genres');
+        closeDrawer();
     });
-    document.getElementById('drawer-approvals-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-approvals-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer approvals button clicked");
-        showPrimarySection('approvals'); 
-        closeDrawer(); 
+        showPrimarySection('approvals');
+        closeDrawer();
     });
-    document.getElementById('drawer-users-btn')?.addEventListener('click', () => { 
+    document.getElementById('drawer-users-btn')?.addEventListener('click', () => {
         console.log("[Core] Drawer users button clicked");
-        showPrimarySection('users'); 
-        closeDrawer(); 
+        showPrimarySection('users');
+        closeDrawer();
     });
 
     // Close modals on overlay click
     document.querySelectorAll('.modal-close-btn').forEach(btn => {
         btn.addEventListener('click', () => btn.closest('[id$="-modal"]').classList.add('hidden'));
     });
-    
+
     console.log("[Core] initCore execution completed.");
 }
 
@@ -370,13 +370,13 @@ function showPrimarySection(sectionId) {
     // Failsafe: Pastikan semua editor disembunyikan saat pindah tab agar kembali ke mode 'manage'
     document.getElementById('view-editor')?.classList.add('hidden');
     document.getElementById('view-manage')?.classList.remove('hidden');
-    
+
     document.getElementById('view-actor-editor')?.classList.add('hidden');
     document.getElementById('view-actors-manage')?.classList.remove('hidden');
-    
+
     document.getElementById('view-festival-editor')?.classList.add('hidden');
     document.getElementById('view-festivals-manage')?.classList.remove('hidden');
-    
+
     document.getElementById('view-genre-editor')?.classList.add('hidden');
     document.getElementById('view-genres-manage')?.classList.remove('hidden');
 

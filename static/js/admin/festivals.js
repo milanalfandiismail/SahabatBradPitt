@@ -1,10 +1,10 @@
 /**
  * admin/festivals.js
- * Handles: Festival CRUD, List, Editor, Search, Pagination, Wikipedia Import.
- * Consistent pattern with other admin sections.
+ * Handles: Core Festival CRUD List, Search, Pagination, Deletion.
+ * Targets < 200 lines.
  */
 
-let festivalCurrentPage = 1;
+window.festivalCurrentPage = 1;
 
 function initFestivals() {
     fetchFestivals(1);
@@ -14,13 +14,14 @@ function initFestivals() {
 // FETCH FESTIVALS
 // =============================================
 function fetchFestivals(page = 1) {
-    festivalCurrentPage = page;
+    window.festivalCurrentPage = page;
     const search = document.getElementById('festival-search')?.value.trim() || '';
     const tbody = document.getElementById('festivals-tbody');
     const loading = document.getElementById('festivals-loading');
     const empty = document.getElementById('festivals-empty');
     const countInfo = document.getElementById('festivals-count-info');
 
+    if (!tbody) return;
     tbody.textContent = '';
     empty?.classList.add('hidden');
     loading?.classList.remove('hidden');
@@ -66,7 +67,6 @@ function fetchFestivals(page = 1) {
 // =============================================
 // SEARCH HANDLER (debounced)
 // =============================================
-// Debounce utility
 function _debounceFestival(fn, delay) {
     let timer;
     return function(...args) {
@@ -85,7 +85,7 @@ function renderFestivalsTable(festivals) {
     if (!tbody) return;
     tbody.textContent = '';
 
-    festivals.forEach((fest, idx) => {
+    festivals.forEach((fest) => {
         let logoUrl = '';
         if (fest.local_logo) {
             logoUrl = fest.local_logo;
@@ -187,125 +187,6 @@ function renderFestivalsPagination(currentPage, totalPages) {
 }
 
 // =============================================
-// OPEN EDITOR (create)
-// =============================================
-function openFestivalEditor() {
-    document.getElementById('festival-form').reset();
-    document.getElementById('festival-id').value = '';
-    document.getElementById('festival-active-input').checked = true;
-    document.getElementById('festival-logo-path-input').value = '';
-
-    // Logo preview reset
-    const preview = document.getElementById('festival-logo-preview');
-    const placeholder = document.getElementById('festival-logo-placeholder');
-    if (preview && placeholder) {
-        preview.src = '';
-        preview.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-    }
-
-    document.getElementById('festival-editor-title').textContent = 'Tambah Festival Baru';
-    document.getElementById('festival-editor-title').classList.remove('hidden');
-    document.getElementById('view-festivals-manage').classList.add('hidden');
-    document.getElementById('view-festival-editor').classList.remove('hidden');
-}
-
-function closeFestivalEditor() {
-    document.getElementById('view-festival-editor').classList.add('hidden');
-    document.getElementById('view-festivals-manage').classList.remove('hidden');
-}
-
-// =============================================
-// EDIT FESTIVAL (pre-fill form)
-// =============================================
-function editFestival(fest) {
-    // If fest is just an ID, fetch full data
-    if (typeof fest === 'number') {
-        secureFetch(`/api/festivals/festivals/${fest}/`)
-            .then(res => res.json())
-            .then(data => _populateFestivalEditor(data))
-            .catch(() => showToast('Gagal memuat data festival.', 'error'));
-        return;
-    }
-    _populateFestivalEditor(fest);
-}
-
-function _populateFestivalEditor(fest) {
-    document.getElementById('festival-id').value = fest.id;
-    document.getElementById('festival-name-input').value = fest.name || '';
-    document.getElementById('festival-native-name-input').value = fest.native_name || '';
-    document.getElementById('festival-country-input').value = fest.country || '';
-    document.getElementById('festival-city-input').value = fest.city || '';
-    document.getElementById('festival-founded-input').value = fest.founded_year || '';
-    document.getElementById('festival-description-input').value = fest.description || '';
-    document.getElementById('festival-website-input').value = fest.website || '';
-    document.getElementById('festival-active-input').checked = fest.is_active;
-    document.getElementById('festival-logo-input').value = '';
-    document.getElementById('festival-logo-path-input').value = fest.tmdb_logo || '';
-
-    // Logo preview
-    const preview = document.getElementById('festival-logo-preview');
-    const placeholder = document.getElementById('festival-logo-placeholder');
-    if (preview && placeholder) {
-        let logoUrl = '';
-        if (fest.local_logo) logoUrl = fest.local_logo;
-        else if (fest.tmdb_logo) logoUrl = fest.tmdb_logo.startsWith('http') ? fest.tmdb_logo : `https://image.tmdb.org/t/p/w200${fest.tmdb_logo}`;
-        if (logoUrl) {
-            preview.src = logoUrl;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        } else {
-            preview.src = '';
-            preview.classList.add('hidden');
-            placeholder.classList.remove('hidden');
-        }
-    }
-
-    document.getElementById('festival-editor-title').textContent = 'Sunting Festival';
-    document.getElementById('festival-editor-title').classList.remove('hidden');
-    document.getElementById('view-festivals-manage').classList.add('hidden');
-    document.getElementById('view-festival-editor').classList.remove('hidden');
-}
-
-// =============================================
-// SAVE FESTIVAL
-// =============================================
-function saveFestival(e) {
-    e.preventDefault();
-    const id = document.getElementById('festival-id').value;
-    const formData = new FormData();
-    formData.append('name', document.getElementById('festival-name-input').value);
-    formData.append('native_name', document.getElementById('festival-native-name-input').value);
-    formData.append('country', document.getElementById('festival-country-input').value);
-    formData.append('city', document.getElementById('festival-city-input').value);
-    const founded = document.getElementById('festival-founded-input').value;
-    if (founded) formData.append('founded_year', founded);
-    formData.append('description', document.getElementById('festival-description-input').value);
-    formData.append('website', document.getElementById('festival-website-input').value);
-    formData.append('is_active', document.getElementById('festival-active-input').checked);
-
-    const logoFile = document.getElementById('festival-logo-input').files?.[0];
-    if (logoFile) formData.append('local_logo', logoFile);
-    const logoPath = document.getElementById('festival-logo-path-input').value;
-    if (logoPath) formData.append('tmdb_logo', logoPath);
-
-    const url = id ? `/api/festivals/festivals/${id}/` : '/api/festivals/festivals/';
-    const method = id ? 'PUT' : 'POST';
-
-    secureFetch(url, { method, body: formData })
-        .then(res => {
-            if (!res.ok) throw new Error('Gagal menyimpan festival');
-            return res.json();
-        })
-        .then(() => {
-            showToast('Festival berhasil disimpan!', 'success');
-            closeFestivalEditor();
-            fetchFestivals(festivalCurrentPage);
-        })
-        .catch(() => showToast('Gagal menyimpan festival', 'error'));
-}
-
-// =============================================
 // DELETE FESTIVAL
 // =============================================
 function deleteFestival(id, name) {
@@ -314,89 +195,11 @@ function deleteFestival(id, name) {
             .then(res => {
                 if (!res.ok) throw new Error();
                 showToast('Festival berhasil dihapus.', 'success');
-                fetchFestivals(festivalCurrentPage);
+                fetchFestivals(window.festivalCurrentPage);
             })
             .catch(() => showToast('Gagal menghapus festival', 'error'));
     });
     document.body.appendChild(toast);
-}
-
-// =============================================
-// WIKIPEDIA IMPORT
-// =============================================
-function openWikiImportModal() {
-    const filmSelect = document.getElementById('wiki-import-film-select');
-    if (!filmSelect) return;
-
-    filmSelect.innerHTML = '<option value="">Memuat daftar film...</option>';
-    document.getElementById('wiki-import-form').reset();
-    const statusDiv = document.getElementById('wiki-import-status');
-    if (statusDiv) statusDiv.classList.add('hidden');
-    document.getElementById('wiki-import-modal').classList.remove('hidden');
-
-    secureFetch('/api/films/?limit=100')
-        .then(res => res.json())
-        .then(data => {
-            const films = data.results || data;
-            filmSelect.innerHTML = '<option value="">-- Pilih Film --</option>';
-            films.forEach(film => {
-                const opt = document.createElement('option');
-                opt.value = film.id;
-                opt.textContent = `${film.title} (${film.release_year || 'N/A'})`;
-                filmSelect.appendChild(opt);
-            });
-        })
-        .catch(() => {
-            filmSelect.innerHTML = '<option value="">Gagal memuat film</option>';
-            showToast('Gagal memuat daftar film', 'error');
-        });
-}
-
-function closeWikiImportModal() {
-    document.getElementById('wiki-import-modal').classList.add('hidden');
-}
-
-function submitWikiImport(e) {
-    e.preventDefault();
-    const filmId = document.getElementById('wiki-import-film-select').value;
-    const wikiUrl = document.getElementById('wiki-import-url-input').value;
-    if (!filmId) { showToast('Pilih film terlebih dahulu', 'warning'); return; }
-
-    const statusDiv = document.getElementById('wiki-import-status');
-    const statusText = document.getElementById('wiki-import-status-text');
-    const statusDetails = document.getElementById('wiki-import-status-details');
-    const submitBtn = document.getElementById('wiki-import-submit-btn');
-
-    statusDiv.classList.remove('hidden');
-    statusText.textContent = 'Menghubungi Wikipedia & memproses...';
-    statusText.className = 'text-blue-400 font-semibold text-xs';
-    statusDetails.textContent = 'Mencari halaman Wikipedia...';
-    submitBtn.disabled = true;
-
-    secureFetch('/api/festivals/wikipedia-import/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ film_id: filmId, wikipedia_url: wikiUrl })
-    })
-    .then(res => {
-        if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Import gagal'); });
-        return res.json();
-    })
-    .then(data => {
-        statusText.textContent = `Berhasil! Ditemukan ${data.total_extracted} data.`;
-        statusText.className = 'text-emerald-400 font-semibold text-xs';
-        statusDetails.textContent = `Baru: ${data.imported} | Sudah ada: ${data.skipped}`;
-        showToast(`Berhasil mengimpor ${data.imported} penghargaan!`, 'success');
-        closeWikiImportModal();
-        if (document.getElementById('section-festivals')) fetchFestivals(1);
-    })
-    .catch(err => {
-        statusText.textContent = 'Import Gagal!';
-        statusText.className = 'text-rose-400 font-semibold text-xs';
-        statusDetails.textContent = err.message || 'Terjadi kesalahan.';
-        showToast('Gagal mengimpor penghargaan', 'error');
-    })
-    .finally(() => { submitBtn.disabled = false; });
 }
 
 // =============================================
@@ -425,56 +228,15 @@ function _buildConfirmToast(message, onConfirm) {
     return toast;
 }
 
-// =============================================
-// INIT
-// =============================================
+// Search listeners on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-    // Search
     const searchInput = document.getElementById('festival-search');
     searchInput?.addEventListener('input', debouncedFetchFestivals);
     document.getElementById('festival-search-icon-btn')?.addEventListener('click', () => fetchFestivals(1));
-
-    // Close editor
-    document.getElementById('festival-editor-cancel-btn')?.addEventListener('click', closeFestivalEditor);
-    document.getElementById('festival-editor-close-btn')?.addEventListener('click', closeFestivalEditor);
-
-    // Logo upload preview
-    const logoInput = document.getElementById('festival-logo-input');
-    const logoPreview = document.getElementById('festival-logo-preview');
-    const logoPlaceholder = document.getElementById('festival-logo-placeholder');
-    logoInput?.addEventListener('change', function () {
-        if (this.files?.[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                if (logoPreview && logoPlaceholder) {
-                    logoPreview.src = e.target.result;
-                    logoPreview.classList.remove('hidden');
-                    logoPlaceholder.classList.add('hidden');
-                }
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-    document.getElementById('festival-logo-trigger-btn')?.addEventListener('click', () => {
-        document.getElementById('festival-logo-input')?.click();
-    });
-
-    // Wikipedia import modal close on backdrop
-    const wikiModal = document.getElementById('wiki-import-modal');
-    wikiModal?.addEventListener('click', (e) => {
-        if (e.target === wikiModal) closeWikiImportModal();
-    });
 });
 
-// Expose globally
+// Expose core functions to window scope
 window.fetchFestivals = fetchFestivals;
-window.openFestivalEditor = openFestivalEditor;
-window.closeFestivalEditor = closeFestivalEditor;
-window.editFestival = editFestival;
 window.deleteFestival = deleteFestival;
-window.saveFestival = saveFestival;
-window.openWikiImportModal = openWikiImportModal;
-window.closeWikiImportModal = closeWikiImportModal;
-window.submitWikiImport = submitWikiImport;
-window.initFestivals = initFestivals;
 window._buildConfirmToast = _buildConfirmToast;
+window.initFestivals = initFestivals;

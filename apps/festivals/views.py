@@ -20,27 +20,10 @@ class FestivalViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         # RBAC: Read-only untuk tamu/regular, Admin untuk write
-        if self.action in ['list', 'retrieve', 'wikipedia_import']:
-            return [permissions.AllowAny()] # Boleh diakses (tetapi kita bisa batasi di get_permissions atau biarkan IsAdminUser)
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
 
-    @action(detail=False, methods=['post'], url_path='wikipedia-import')
-    def wikipedia_import(self, request):
-        if not request.user.is_staff:
-            return Response({'error': 'Hanya admin yang dapat mengimpor data.'}, status=403)
-            
-        film_id = request.data.get('film_id')
-        wikipedia_url = request.data.get('wikipedia_url')
-        if not film_id:
-            return Response({'error': 'Film ID wajib diisi.'}, status=400)
-            
-        from apps.festivals.wiki_service import WikipediaAccoladesImporter
-        importer = WikipediaAccoladesImporter()
-        result = importer.import_to_database(film_id, wikipedia_url)
-        if not result.get('success'):
-            return Response({'error': result.get('error')}, status=400)
-            
-        return Response(result)
 
 class FestivalAwardViewSet(viewsets.ModelViewSet):
     queryset = FestivalAward.objects.all().order_by('-year', 'category')

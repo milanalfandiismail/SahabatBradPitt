@@ -167,28 +167,8 @@
                         card.style.animationDelay = `${idx * 60}ms`;
                         
                         let subjectHtml = '';
-                        if (award.film_title) {
-                            let filmPoster = '';
-                            if (award.film_poster) {
-                                filmPoster = award.film_poster.startsWith('http')
-                                    ? award.film_poster
-                                    : `https://image.tmdb.org/t/p/w200${award.film_poster}`;
-                            }
-                            subjectHtml += `
-                                <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-3">
-                                    ${filmPoster 
-                                        ? `<img src="${filmPoster}" class="w-9 h-13 object-cover rounded bg-[#141314] border border-white/10 shrink-0" />` 
-                                        : `<div class="w-9 h-13 bg-[#141314] rounded flex items-center justify-center border border-white/5 shrink-0"><span class="material-symbols-outlined text-stone-600 text-xs">movie</span></div>`
-                                    }
-                                    <div class="flex flex-col text-left min-w-0">
-                                        <span class="text-[9px] text-stone-500 uppercase tracking-widest font-bold">Film Pendukung</span>
-                                        <a href="/movies/${award.film}/" class="text-xs font-bold text-stone-200 hover:text-amber-400 transition-colors truncate block" title="${award.film_title}">${award.film_title}</a>
-                                    </div>
-                                </div>
-                            `;
-                        }
-
                         if (award.actor_name) {
+                            // CASE A: Ada Aktor Penerima (misal: Best Actor/Actress)
                             let actorPhoto = '';
                             if (award.actor_photo) {
                                 actorPhoto = award.actor_photo.startsWith('http')
@@ -196,18 +176,65 @@
                                     : `https://image.tmdb.org/t/p/w200${award.actor_photo}`;
                             }
                             
-                            const photoBorder = isWinner ? "border-amber-500/30" : "border-white/10";
-                            subjectHtml += `
-                                <div class="mt-3 flex items-center gap-3 bg-black/20 p-2.5 rounded-lg border border-white/[0.03]">
+                            let filmPoster = '';
+                            if (award.film_title) {
+                                filmPoster = award.film_poster.startsWith('http')
+                                    ? award.film_poster
+                                    : `https://image.tmdb.org/t/p/w200${award.film_poster}`;
+                            }
+
+                            const photoBorder = isWinner ? "border-amber-500/40 shadow-lg shadow-amber-950/20" : "border-white/10";
+                            
+                            subjectHtml = `
+                                <!-- Penerima (Aktor) Utama -->
+                                <div class="mt-4 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-black/20 p-3.5 rounded-xl border border-white/[0.03]">
                                     ${actorPhoto 
-                                        ? `<img src="${actorPhoto}" class="w-10 h-10 rounded-full object-cover border ${photoBorder} shrink-0 bg-[#141314]" />` 
-                                        : `<div class="w-10 h-10 rounded-full bg-[#141314] border ${photoBorder} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-sm">person</span></div>`
+                                        ? `<img src="${actorPhoto}" class="w-16 h-16 rounded-full object-cover border-2 ${photoBorder} shrink-0 bg-[#141314]" />` 
+                                        : `<div class="w-16 h-16 rounded-full bg-[#141314] border-2 ${photoBorder} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-2xl">person</span></div>`
+                                    }
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="text-[9px] text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL'1">stars</span> Penerima
+                                        </span>
+                                        <a href="/actors/${award.actor}/" class="text-sm sm:text-base font-extrabold text-stone-100 hover:text-amber-400 transition-colors truncate block" title="${award.actor_name}">${award.actor_name}</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Film Pendukung -->
+                                <div class="mt-3 flex items-center gap-3 bg-white/[0.01] p-2.5 rounded-lg border border-white/5">
+                                    ${filmPoster 
+                                        ? `<img src="${filmPoster}" class="w-12 h-18 object-cover rounded bg-[#141314] border border-white/10 shrink-0 shadow-md" />` 
+                                        : `<div class="w-12 h-18 bg-[#141314] rounded flex items-center justify-center border border-white/5 shrink-0"><span class="material-symbols-outlined text-stone-600 text-sm">movie</span></div>`
+                                    }
+                                    <div class="flex flex-col text-left min-w-0">
+                                        <span class="text-[8px] text-stone-500 uppercase tracking-widest font-bold">Film Utama</span>
+                                        <a href="/movies/${award.film}/" class="text-xs font-bold text-stone-300 hover:text-amber-400 transition-colors truncate block" title="${award.film_title}">${award.film_title}</a>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (award.film_title) {
+                            // CASE B: Tidak Ada Aktor (misal: Best Film, Best Director)
+                            let filmPoster = '';
+                            if (award.film_poster) {
+                                filmPoster = award.film_poster.startsWith('http')
+                                    ? award.film_poster
+                                    : `https://image.tmdb.org/t/p/w300${award.film_poster}`;
+                            }
+                            
+                            const posterBorder = isWinner ? "border-amber-500/30 shadow-lg shadow-amber-950/20" : "border-white/10";
+                            
+                            subjectHtml = `
+                                <!-- Film Penerima Utama -->
+                                <div class="mt-4 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-black/20 p-3.5 rounded-xl border border-white/[0.03]">
+                                    ${filmPoster 
+                                        ? `<img src="${filmPoster}" class="w-20 h-28 object-cover rounded-lg border-2 ${posterBorder} shrink-0 bg-[#141314] shadow-md transition-transform duration-300 hover:scale-105" />` 
+                                        : `<div class="w-20 h-28 bg-[#141314] rounded-lg border-2 ${posterBorder} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-stone-600 text-3xl">movie</span></div>`
                                     }
                                     <div class="flex flex-col text-left min-w-0">
                                         <span class="text-[9px] text-amber-500/80 uppercase tracking-widest font-bold flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[10px]" style="font-variation-settings:'FILL'1">stars</span> Penerima
+                                            <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL'1">stars</span> Karya Pemenang
                                         </span>
-                                        <a href="/actors/${award.actor}/" class="text-xs sm:text-sm font-bold text-stone-100 hover:text-amber-400 transition-colors truncate block" title="${award.actor_name}">${award.actor_name}</a>
+                                        <a href="/movies/${award.film}/" class="text-sm sm:text-base font-extrabold text-stone-100 hover:text-amber-400 transition-colors line-clamp-2 leading-snug" title="${award.film_title}">${award.film_title}</a>
                                     </div>
                                 </div>
                             `;

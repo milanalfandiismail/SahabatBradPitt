@@ -154,6 +154,11 @@
                     
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
+                    
+                    // Reset Google widget state to prevent origin_mismatch on next click
+                    if (window.google) {
+                        google.accounts.id.cancel();
+                    }
                 }
             })
             .catch(err => {
@@ -163,6 +168,10 @@
                 
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
+                
+                if (window.google) {
+                    google.accounts.id.cancel();
+                }
             });
         }
     }

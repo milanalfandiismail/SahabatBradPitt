@@ -166,8 +166,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 card.className = "flex items-center gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
 
                 const logoUrl = aw.festival_logo;
-                const logoHtml = logoUrl
-                    ? `<img src="${logoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
+                let formattedLogoUrl = "";
+                if (logoUrl) {
+                    formattedLogoUrl = logoUrl.startsWith("http") || logoUrl.startsWith("/media/")
+                        ? logoUrl
+                        : `https://image.tmdb.org/t/p/w185${logoUrl}`;
+                }
+                const logoHtml = formattedLogoUrl
+                    ? `<img src="${formattedLogoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
                     : `<div class="w-12 h-12 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
 
                 const typeBadge = aw.award_type === 'winner'
@@ -177,8 +183,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 let actorHtml = "";
                 if (aw.actor_name) {
                     const actorPhoto = aw.actor_photo;
-                    const photoHtml = actorPhoto
-                        ? `<img src="${actorPhoto}" class="w-5 h-5 rounded-full object-cover shrink-0 border border-white/10" />`
+                    let photoUrl = "";
+                    if (actorPhoto) {
+                        photoUrl = actorPhoto.startsWith("http") || actorPhoto.startsWith("/media/")
+                            ? actorPhoto
+                            : `https://image.tmdb.org/t/p/w185${actorPhoto}`;
+                    }
+                    const photoHtml = photoUrl
+                        ? `<img src="${photoUrl}" class="w-5 h-5 rounded-full object-cover shrink-0 border border-white/10" />`
                         : `<div class="w-5 h-5 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10"><span class="material-symbols-outlined text-[10px] text-stone-400">person</span></div>`;
 
                     actorHtml = `

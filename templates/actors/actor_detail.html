@@ -326,8 +326,14 @@
                             card.className = "flex items-center gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
 
                             const logoUrl = aw.festival_logo;
-                            const logoHtml = logoUrl
-                                ? `<img src="${logoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
+                            let formattedLogoUrl = "";
+                            if (logoUrl) {
+                                formattedLogoUrl = logoUrl.startsWith("http") || logoUrl.startsWith("/media/")
+                                    ? logoUrl
+                                    : `https://image.tmdb.org/t/p/w185${logoUrl}`;
+                            }
+                            const logoHtml = formattedLogoUrl
+                                ? `<img src="${formattedLogoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
                                 : `<div class="w-12 h-12 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
 
                             const typeBadge = aw.award_type === 'winner'
@@ -335,8 +341,14 @@
                                 : `<span class="inline-flex px-2 py-0.5 bg-stone-500/10 text-stone-400 border border-white/5 rounded text-[9px] font-bold uppercase tracking-wider">Nominee</span>`;
 
                             const filmPoster = aw.film_poster;
-                            const posterHtml = filmPoster
-                                ? `<img src="${filmPoster}" class="w-7 h-10 object-cover rounded border border-white/10 shrink-0" />`
+                            let posterUrl = "";
+                            if (filmPoster) {
+                                posterUrl = filmPoster.startsWith("http") || filmPoster.startsWith("/media/")
+                                    ? filmPoster
+                                    : `https://image.tmdb.org/t/p/w185${filmPoster}`;
+                            }
+                            const posterHtml = posterUrl
+                                ? `<img src="${posterUrl}" class="w-7 h-10 object-cover rounded border border-white/10 shrink-0" />`
                                 : `<div class="w-7 h-10 bg-stone-700 rounded flex items-center justify-center border border-white/10 shrink-0 text-stone-400"><span class="material-symbols-outlined text-[10px]">movie</span></div>`;
 
                             card.innerHTML = `

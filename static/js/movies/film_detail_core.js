@@ -144,12 +144,71 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             _renderGallery(film);
+            _renderAwards(film);
 
             if (window.fetchCast) window.fetchCast(film.id);
             if (window.fetchReviews) window.fetchReviews(film.id);
             fetchSimilar(film.id);
         })
         .catch(err => { if (loading) loading.classList.add("hidden"); if (errorContainer) errorContainer.classList.remove("hidden"); console.error(err); });
+
+    function _renderAwards(film) {
+        const section = document.getElementById("film-awards-section");
+        const list = document.getElementById("film-awards-list");
+        if (!section || !list) return;
+
+        list.textContent = "";
+
+        if (film.awards && film.awards.length > 0) {
+            section.classList.remove("hidden");
+            film.awards.forEach(aw => {
+                const card = document.createElement("div");
+                card.className = "flex items-center gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
+
+                const logoUrl = aw.festival_logo;
+                const logoHtml = logoUrl
+                    ? `<img src="${logoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
+                    : `<div class="w-12 h-12 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
+
+                const typeBadge = aw.award_type === 'winner'
+                    ? `<span class="inline-flex px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">Winner</span>`
+                    : `<span class="inline-flex px-2 py-0.5 bg-stone-500/10 text-stone-400 border border-white/5 rounded text-[9px] font-bold uppercase tracking-wider">Nominee</span>`;
+
+                let actorHtml = "";
+                if (aw.actor_name) {
+                    const actorPhoto = aw.actor_photo;
+                    const photoHtml = actorPhoto
+                        ? `<img src="${actorPhoto}" class="w-5 h-5 rounded-full object-cover shrink-0 border border-white/10" />`
+                        : `<div class="w-5 h-5 rounded-full bg-stone-700 flex items-center justify-center shrink-0 border border-white/10"><span class="material-symbols-outlined text-[10px] text-stone-400">person</span></div>`;
+
+                    actorHtml = `
+                        <a href="/actors/${aw.actor_id}/" class="flex items-center gap-1.5 mt-2 bg-[#141314]/40 border border-white/5 px-2 py-1 rounded w-fit hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
+                            ${photoHtml}
+                            <span class="text-[10px] text-stone-300 font-semibold">${aw.actor_name}</span>
+                        </a>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${logoHtml}
+                    <div class="flex flex-col flex-grow">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-stone-100">${aw.festival_name}</span>
+                            <span class="text-[10px] font-mono text-stone-500 font-bold">${aw.year}</span>
+                        </div>
+                        <span class="text-[11px] text-stone-300 font-medium mt-1 leading-tight">${aw.category}</span>
+                        <div class="flex items-center justify-between items-end mt-2">
+                            ${typeBadge}
+                        </div>
+                        ${actorHtml}
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        } else {
+            section.classList.add("hidden");
+        }
+    }
 
     function _renderGallery(film) {
         const gallerySection = document.getElementById("gallery-section");

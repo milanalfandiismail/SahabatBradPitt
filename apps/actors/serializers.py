@@ -23,6 +23,7 @@ class ActorSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
     updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    awards = serializers.SerializerMethodField()
 
     class Meta:
         model = Actor
@@ -34,9 +35,46 @@ class ActorSerializer(serializers.ModelSerializer):
             'genre_spec', 'filmographies', 'film_role', 'film_order', 'film_role_type',
             'status', 'status_display', 'rejection_reason',
             'is_local_edit', 'created_by', 'created_by_name',
-            'updated_by', 'updated_by_name', 'created_at', 'updated_at'
+            'updated_by', 'updated_by_name', 'created_at', 'updated_at', 'awards'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_awards(self, obj):
+        from apps.festivals.models import FestivalAward
+        awards = FestivalAward.objects.filter(actor=obj).select_related('festival', 'film')
+        data = []
+        for aw in awards:
+            logo_url = ''
+            if aw.festival.local_logo:
+                try:
+                    logo_url = aw.festival.local_logo.url
+                except Exception:
+                    pass
+            if not logo_url:
+                logo_url = aw.festival.tmdb_logo or ''
+
+            film_poster_url = ''
+            if aw.film.local_poster:
+                try:
+                    film_poster_url = aw.film.local_poster.url
+                except Exception:
+                    pass
+            if not film_poster_url:
+                film_poster_url = aw.film.tmdb_poster or ''
+
+            data.append({
+                'id': aw.id,
+                'festival_id': aw.festival.id,
+                'festival_name': aw.festival.name,
+                'festival_logo': logo_url,
+                'film_id': aw.film.id,
+                'film_title': aw.film.title,
+                'film_poster': film_poster_url,
+                'category': aw.category,
+                'year': aw.year,
+                'award_type': aw.award_type
+            })
+        return data
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

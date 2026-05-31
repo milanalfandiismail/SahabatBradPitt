@@ -241,11 +241,11 @@
 
         <div class="p-6 font-['DM_Sans'] text-stone-300 bg-[#201f20]">
             <form id="wiki-import-form" onsubmit="submitWikiImport(event)">
-                <div class="mb-4">
-                    <label for="wiki-import-film-select" class="block text-xs text-[#D3DAD9]/70 mb-1.5">FILM SASARAN *</label>
-                    <select id="wiki-import-film-select" required class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 focus:border-[#715A5A] focus:outline-none transition-all">
-                        <option value="">-- Pilih Film --</option>
-                    </select>
+                <div class="mb-4 relative">
+                    <label for="wiki-import-film-search" class="block text-xs text-[#D3DAD9]/70 mb-1.5">FILM SASARAN *</label>
+                    <input id="wiki-import-film-search" required class="w-full bg-[#141314] border border-white/10 rounded-md px-3 py-2.5 text-sm text-stone-200 focus:border-[#715A5A] focus:outline-none transition-all" placeholder="Cari film..." type="text" autocomplete="off" />
+                    <input type="hidden" id="wiki-import-film-id" />
+                    <div id="wiki-import-film-autocomplete" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#201f20] border border-white/10 rounded-md shadow-xl z-50 max-h-48 overflow-y-auto custom-scroll"></div>
                 </div>
 
                 <div class="mb-4">

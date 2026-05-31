@@ -85,6 +85,12 @@
                     <button id="bio-expand-btn" class="hidden mt-3 font-['DM_Sans'] text-xs text-[#715A5A] hover:text-[#8A6E6E] transition-colors underline">Baca Selengkapnya ↓</button>
                 </div>
             </div>
+
+            <!-- Awards box -->
+            <div id="actor-awards-section" class="hidden mt-10 max-w-4xl">
+                <h2 class="font-['Playfair_Display'] text-2xl text-[#D3DAD9] mb-4">Penghargaan & Nominasi</h2>
+                <div id="actor-awards-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </div>
         </div>
 
         <!-- Filmography Section -->
@@ -234,6 +240,9 @@
                     photoContainer.appendChild(icon);
                 }
 
+                // Render awards
+                _renderActorAwards(actor);
+
                 // Render filmography list
                 const filmGrid = document.getElementById("filmography-grid");
                 filmGrid.textContent = "";
@@ -302,6 +311,57 @@
                     card.appendChild(details);
                     filmGrid.appendChild(card);
                 });
+
+                function _renderActorAwards(actorData) {
+                    const awardsSection = document.getElementById("actor-awards-section");
+                    const awardsList = document.getElementById("actor-awards-list");
+                    if (!awardsSection || !awardsList) return;
+
+                    awardsList.textContent = "";
+
+                    if (actorData.awards && actorData.awards.length > 0) {
+                        awardsSection.classList.remove("hidden");
+                        actorData.awards.forEach(aw => {
+                            const card = document.createElement("div");
+                            card.className = "flex items-center gap-4 bg-[#201f20]/50 border border-white/5 p-4 rounded-xl shadow-lg animate-fade-up";
+
+                            const logoUrl = aw.festival_logo;
+                            const logoHtml = logoUrl
+                                ? `<img src="${logoUrl}" class="w-12 h-12 object-contain rounded bg-[#141314] p-1.5 border border-white/10 shrink-0" alt="${aw.festival_name}">`
+                                : `<div class="w-12 h-12 bg-[#141314] rounded flex items-center justify-center border border-white/10 shrink-0 text-amber-500"><span class="material-symbols-outlined text-2xl" style="font-variation-settings:'FILL'1">emoji_events</span></div>`;
+
+                            const typeBadge = aw.award_type === 'winner'
+                                ? `<span class="inline-flex px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[9px] font-bold uppercase tracking-wider">Winner</span>`
+                                : `<span class="inline-flex px-2 py-0.5 bg-stone-500/10 text-stone-400 border border-white/5 rounded text-[9px] font-bold uppercase tracking-wider">Nominee</span>`;
+
+                            const filmPoster = aw.film_poster;
+                            const posterHtml = filmPoster
+                                ? `<img src="${filmPoster}" class="w-7 h-10 object-cover rounded border border-white/10 shrink-0" />`
+                                : `<div class="w-7 h-10 bg-stone-700 rounded flex items-center justify-center border border-white/10 shrink-0 text-stone-400"><span class="material-symbols-outlined text-[10px]">movie</span></div>`;
+
+                            card.innerHTML = `
+                                ${logoHtml}
+                                <div class="flex flex-col flex-grow">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-bold text-stone-100">${aw.festival_name}</span>
+                                        <span class="text-[10px] font-mono text-stone-500 font-bold">${aw.year}</span>
+                                    </div>
+                                    <span class="text-[11px] text-stone-300 font-medium mt-1 leading-tight">${aw.category}</span>
+                                    <div class="flex items-center justify-between items-end mt-2">
+                                        ${typeBadge}
+                                    </div>
+                                    <a href="/movies/${aw.film_id}/" class="flex items-center gap-2 mt-2 bg-[#141314]/40 border border-white/5 px-2 py-1 rounded hover:border-amber-500/50 hover:bg-[#715A5A]/25 transition-all">
+                                        ${posterHtml}
+                                        <span class="text-[10px] text-stone-300 font-semibold truncate max-w-[150px]">${aw.film_title}</span>
+                                    </a>
+                                </div>
+                            `;
+                            awardsList.appendChild(card);
+                        });
+                    } else {
+                        awardsSection.classList.add("hidden");
+                    }
+                }
             })
             .catch(err => {
                 loading.classList.add("hidden");

@@ -50,6 +50,7 @@ class FilmSerializer(serializers.ModelSerializer):
     actors_data = serializers.JSONField(write_only=True, required=False)
     cast = FilmographySerializer(source='filmographies', many=True, read_only=True)
     popularity = serializers.FloatField(read_only=True)
+    awards = serializers.SerializerMethodField()
 
     class Meta:
         model = Film
@@ -60,9 +61,47 @@ class FilmSerializer(serializers.ModelSerializer):
             'images', 'status', 'status_display', 'rejection_reason', 
             'is_local_edit', 'created_by', 'created_by_name', 
             'updated_by', 'updated_by_name', 'updated_at', 'actors_data', 'cast',
-            'is_tv_series', 'episodes_count'
+            'is_tv_series', 'episodes_count', 'awards'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'avg_rating', 'popularity', 'status', 'rejection_reason', 'is_local_edit', 'created_by', 'updated_by']
+
+    def get_awards(self, obj):
+        from apps.festivals.models import FestivalAward
+        awards = FestivalAward.objects.filter(film=obj).select_related('festival', 'actor')
+        data = []
+        for aw in awards:
+            logo_url = ''
+            if aw.festival.local_logo:
+                try:
+                    logo_url = aw.festival.local_logo.url
+                except Exception:
+                    pass
+            if not logo_url:
+                logo_url = aw.festival.tmdb_logo or ''
+
+            actor_photo_url = ''
+            if aw.actor:
+                if aw.actor.local_photo:
+                    try:
+                        actor_photo_url = aw.actor.local_photo.url
+                    except Exception:
+                        pass
+                if not actor_photo_url:
+                    actor_photo_url = aw.actor.tmdb_photo or ''
+
+            data.append({
+                'id': aw.id,
+                'festival_id': aw.festival.id,
+                'festival_name': aw.festival.name,
+                'festival_logo': logo_url,
+                'actor_id': aw.actor.id if aw.actor else None,
+                'actor_name': aw.actor.name if aw.actor else None,
+                'actor_photo': actor_photo_url,
+                'category': aw.category,
+                'year': aw.year,
+                'award_type': aw.award_type
+            })
+        return data
 
     def create(self, validated_data):
         genres = validated_data.pop('genre', [])

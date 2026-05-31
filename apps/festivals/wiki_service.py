@@ -279,18 +279,15 @@ class WikipediaAccoladesImporter:
         skipped_count = 0
 
         for item in extracted_awards:
-            # 1. Cari atau buat Festival
-            fest_name = item["festival_name"]
-            # Gunakan slug untuk pencarian yang toleran huruf besar-kecil dan spasi
-            festival, created = Festival.objects.get_or_create(
-                name__iexact=fest_name,
-                defaults={
-                    "name": fest_name,
-                    "native_name": "",
-                    "country": "",
-                    "is_active": True
-                }
-            )
+            # 1. Cari atau buat Festival secara aman untuk menghindari iexact query lookup crash
+            festival = Festival.objects.filter(name__iexact=fest_name).first()
+            if not festival:
+                festival = Festival.objects.create(
+                    name=fest_name,
+                    native_name="",
+                    country="",
+                    is_active=True
+                )
 
             # 2. Cek apakah ada aktor dari film ini yang disebut di kolom recipient
             matched_actor = None

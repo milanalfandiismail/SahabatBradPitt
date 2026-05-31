@@ -325,31 +325,21 @@ function deleteFestival(id, name) {
 // WIKIPEDIA IMPORT
 // =============================================
 function openWikiImportModal() {
-    const filmSelect = document.getElementById('wiki-import-film-select');
-    if (!filmSelect) return;
+    const filmSearch = document.getElementById('wiki-import-film-search');
+    const filmIdInput = document.getElementById('wiki-import-film-id');
+    const autocompleteResults = document.getElementById('wiki-import-film-autocomplete');
 
-    filmSelect.innerHTML = '<option value="">Memuat daftar film...</option>';
+    if (filmSearch) filmSearch.value = '';
+    if (filmIdInput) filmIdInput.value = '';
+    if (autocompleteResults) {
+        autocompleteResults.textContent = '';
+        autocompleteResults.classList.add('hidden');
+    }
+
     document.getElementById('wiki-import-form').reset();
     const statusDiv = document.getElementById('wiki-import-status');
     if (statusDiv) statusDiv.classList.add('hidden');
     document.getElementById('wiki-import-modal').classList.remove('hidden');
-
-    secureFetch('/api/films/?limit=100')
-        .then(res => res.json())
-        .then(data => {
-            const films = data.results || data;
-            filmSelect.innerHTML = '<option value="">-- Pilih Film --</option>';
-            films.forEach(film => {
-                const opt = document.createElement('option');
-                opt.value = film.id;
-                opt.textContent = `${film.title} (${film.release_year || 'N/A'})`;
-                filmSelect.appendChild(opt);
-            });
-        })
-        .catch(() => {
-            filmSelect.innerHTML = '<option value="">Gagal memuat film</option>';
-            showToast('Gagal memuat daftar film', 'error');
-        });
 }
 
 function closeWikiImportModal() {
@@ -358,7 +348,7 @@ function closeWikiImportModal() {
 
 function submitWikiImport(e) {
     e.preventDefault();
-    const filmId = document.getElementById('wiki-import-film-select').value;
+    const filmId = document.getElementById('wiki-import-film-id').value;
     const wikiUrl = document.getElementById('wiki-import-url-input').value;
     if (!filmId) { showToast('Pilih film terlebih dahulu', 'warning'); return; }
 
@@ -463,6 +453,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const wikiModal = document.getElementById('wiki-import-modal');
     wikiModal?.addEventListener('click', (e) => {
         if (e.target === wikiModal) closeWikiImportModal();
+    });
+
+    // Wikipedia film search autocomplete
+    const filmSearchInput = document.getElementById('wiki-import-film-search');
+    const filmAutocompleteResults = document.getElementById('wiki-import-film-autocomplete');
+    const filmIdInput = document.getElementById('wiki-import-film-id');
+
+    let filmSearchTimeout = null;
+    filmSearchInput?.addEventListener('input', e => {
+        const query = e.target.value.trim();
+        filmAutocompleteResults.textContent = "";
+        filmIdInput.value = "";
+
+        if (query.length < 2) {
+            filmAutocompleteResults.classList.add('hidden');
+            return;
+        }
+
+        filmAutocompleteResults.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center flex items-center justify-center gap-2"><span class="material-symbols-outlined animate-spin text-sm">sync</span> Mencari...</div>`;
+        filmAutocompleteResults.classList.remove('hidden');
+
+        clearTimeout(filmSearchTimeout);
+        filmSearchTimeout = setTimeout(() => {
+            secureFetch(`/api/films/?search=${encodeURIComponent(query)}&page_size=5`)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(data => {
+                    filmAutocompleteResults.textContent = "";
+                    const matches = data.results || data || [];
+                    if (matches.length > 0) {
+                        matches.forEach(film => {
+                            const div = document.createElement('div');
+                            div.className = "px-4 py-2 hover:bg-[#715A5A]/20 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0 text-left";
+                            let photoUrl = "/static/images/placeholder-poster.jpg";
+                            if (film.local_poster) {
+                                photoUrl = film.local_poster;
+                            } else if (film.tmdb_poster) {
+                                photoUrl = film.tmdb_poster.startsWith('http') ? film.tmdb_poster : `https://image.tmdb.org/t/p/w200${film.tmdb_poster}`;
+                            }
+                            div.innerHTML = `<img src="${photoUrl}" class="w-6 h-9 object-cover rounded border border-white/10 shrink-0" /><div class="flex flex-col"><span class="text-xs font-semibold text-stone-200 line-clamp-1">${film.title}</span><span class="text-[10px] text-stone-500">${film.release_year || 'N/A'}</span></div>`;
+                            div.addEventListener('click', () => {
+                                filmIdInput.value = film.id;
+                                filmSearchInput.value = `${film.title} (${film.release_year || 'N/A'})`;
+                                filmAutocompleteResults.classList.add('hidden');
+                            });
+                            filmAutocompleteResults.appendChild(div);
+                        });
+                    } else {
+                        filmAutocompleteResults.innerHTML = `<div class="px-4 py-3 text-xs text-stone-500 italic text-center">Tidak ditemukan.</div>`;
+                    }
+                })
+                .catch(err => {
+                    filmAutocompleteResults.innerHTML = `<div class="px-4 py-3 text-xs text-rose-500 italic text-center">Gagal memuat hasil pencarian.</div>`;
+                });
+        }, 400); // 400ms debounce
+    });
+
+    document.addEventListener('click', e => {
+        if (!filmSearchInput?.contains(e.target) && !filmAutocompleteResults?.contains(e.target)) {
+            filmAutocompleteResults?.classList.add('hidden');
+        }
     });
 });
 

@@ -46,7 +46,6 @@ except (AttributeError, KeyError):
 
 # Import models setelah Django setup selesai
 from django.contrib.auth.models import User, Group, Permission
-from django.contrib.contenttypes.models import ContentType
 from apps.users.models import UserProfile
 from apps.recommendations.models import RecommendationLog
 from apps.ratings.models import Rating, Watchlist

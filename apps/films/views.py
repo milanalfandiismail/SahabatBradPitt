@@ -26,7 +26,13 @@ class GenreViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
 class FilmViewSetBase(viewsets.ModelViewSet):
-    queryset = Film.objects.annotate(popularity=F('tmdb_popularity') + F('local_popularity')).order_by('-popularity')
+    queryset = Film.objects.select_related(
+        'studio', 'created_by', 'updated_by'
+    ).prefetch_related(
+        'genre', 'images', 'filmographies__actor'
+    ).annotate(
+        popularity=F('tmdb_popularity') + F('local_popularity')
+    ).order_by('-popularity')
     serializer_class = FilmSerializer
 
     def get_permissions(self):

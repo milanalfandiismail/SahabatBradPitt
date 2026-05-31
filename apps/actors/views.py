@@ -11,7 +11,7 @@ class ActorPagination(PageNumberPagination):
     page_size = 10
 
 class ActorViewSet(viewsets.ModelViewSet):
-    queryset = Actor.objects.all().prefetch_related('filmographies__film').order_by('name')
+    queryset = Actor.objects.all().select_related('created_by', 'updated_by').prefetch_related('filmographies__film').order_by('name')
     serializer_class = ActorSerializer
     pagination_class = ActorPagination
 

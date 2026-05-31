@@ -40,6 +40,12 @@ class UserProfile(models.Model):
     pref_duration = models.CharField(max_length=20, blank=True, default='')
     # Pilihan: "pendek", "sedang", "panjang"
 
+    AUTH_PROVIDER_CHOICES = [
+        ('local', 'Local'),
+        ('google', 'Google'),
+    ]
+    auth_provider = models.CharField(max_length=20, choices=AUTH_PROVIDER_CHOICES, default='local')
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

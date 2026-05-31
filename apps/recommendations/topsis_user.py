@@ -1,4 +1,5 @@
 import numpy as np
+from apps.recommendations.utils import compute_topsis
 
 def calculate_user_scores(candidates, preferences, weights=None):
     """
@@ -89,21 +90,7 @@ def calculate_user_scores(candidates, preferences, weights=None):
             history_score = (match_g * 0.4) + (match_a * 0.6)
         X[i, 5] = history_score
 
-    norm = np.sqrt(np.sum(X**2, axis=0))
-    R = np.zeros_like(X)
-    for j in range(6):
-        if norm[j] > 0: R[:, j] = X[:, j] / norm[j]
-
-    V = R * weights_to_use
-    A_plus = np.max(V, axis=0)
-    A_minus = np.min(V, axis=0)
-    D_plus = np.sqrt(np.sum((V - A_plus)**2, axis=1))
-    D_minus = np.sqrt(np.sum((V - A_minus)**2, axis=1))
-
-    scores = np.zeros(m)
-    for i in range(m):
-        denominator = D_plus[i] + D_minus[i]
-        scores[i] = D_minus[i] / denominator if denominator > 0 else 1.0
+    scores = compute_topsis(X, weights_to_use)
 
     return _format_user_results(films_list, scores, X, era_pref, duration_pref)
 

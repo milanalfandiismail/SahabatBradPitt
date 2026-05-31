@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserProfileEditSerializer, UserPreferencesSerializer
+import requests
+import uuid
 
 class RegisterAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -32,6 +34,14 @@ class LoginAPIView(APIView):
         if not username or not password:
             return Response({"error": "Mohon masukkan username dan password."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Cek apakah akun ini terhubung dengan Google
+        user_check = User.objects.filter(username=username).first()
+        if not user_check:
+            user_check = User.objects.filter(email=username).first()
+            
+        if user_check and hasattr(user_check, 'profile') and user_check.profile.auth_provider == 'google':
+            return Response({"error": "Akun ini didaftarkan menggunakan Google. Silakan masuk via tombol Login Google."}, status=status.HTTP_400_BAD_REQUEST)
+
         user = authenticate(username=username, password=password)
         if user is not None:
             if not user.is_active:
@@ -45,6 +55,77 @@ class LoginAPIView(APIView):
             }, status=status.HTTP_200_OK)
             
         return Response({"error": "Username atau password salah."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class GoogleLoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        id_token_jwt = request.data.get('id_token')
+        if not id_token_jwt:
+            return Response({"error": "Token ID Google tidak ditemukan."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verifikasi token melalui endpoint publik Google
+        try:
+            google_response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token_jwt}')
+            if not google_response.ok:
+                return Response({"error": "Token ID Google tidak valid."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user_info = google_response.json()
+            email = user_info.get('email')
+            if not email:
+                return Response({"error": "Email tidak ditemukan dari akun Google."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            first_name = user_info.get('given_name', '')
+            last_name = user_info.get('family_name', '')
+            
+            # Cek apakah user dengan email tersebut sudah ada
+            user = User.objects.filter(email=email).first()
+            
+            if user:
+                # Periksa metode autentikasi asal (GitHub-style guard)
+                if hasattr(user, 'profile'):
+                    if user.profile.auth_provider == 'local':
+                        return Response({
+                            "error": "Email Anda sudah terdaftar menggunakan metode login lokal (password). Silakan masuk menggunakan form login biasa dengan memasukkan username dan password Anda."
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # Jika profil belum 'google' (misal profil baru atau belum diset)
+                    if user.profile.auth_provider != 'google':
+                        user.profile.auth_provider = 'google'
+                        user.profile.save()
+            else:
+                # Buat user baru
+                base_username = email.split('@')[0]
+                username = base_username
+                # Pastikan username unik
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}_{uuid.uuid4().hex[:4]}"
+                
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    password=uuid.uuid4().hex
+                )
+                if hasattr(user, 'profile'):
+                    user.profile.auth_provider = 'google'
+                    user.profile.display_name = f"{first_name} {last_name}".strip() or username
+                    user.profile.save()
+
+            if not user.is_active:
+                return Response({"error": "Akun ini telah dinonaktifkan."}, status=status.HTTP_403_FORBIDDEN)
+
+            # Terbitkan session cookie
+            auth_login(request, user)
+            return Response({
+                "message": "Login Google sukses.",
+                "user": UserSerializer(user).data
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({"error": f"Kesalahan saat memverifikasi token Google: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]

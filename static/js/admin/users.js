@@ -32,12 +32,24 @@ function fetchUsers() {
 
             // Apply search filter client-side
             const query = document.getElementById('users-search-input')?.value.toLowerCase() || '';
-            const filtered = query
-                ? allUsers.filter(u =>
-                    u.username.toLowerCase().includes(query) ||
-                    (u.email && u.email.toLowerCase().includes(query))
-                  )
-                : allUsers;
+            const roleFilter = document.getElementById('users-role-filter')?.value || 'all';
+            const loginFilter = document.getElementById('users-login-filter')?.value || 'all';
+            
+            const filtered = allUsers.filter(u => {
+                const matchSearch = !query || u.username.toLowerCase().includes(query) || (u.email && u.email.toLowerCase().includes(query));
+                
+                let matchRole = true;
+                if (roleFilter === 'superadmin') matchRole = u.is_superuser;
+                else if (roleFilter === 'admin') matchRole = u.is_staff && !u.is_superuser;
+                else if (roleFilter === 'regular') matchRole = !u.is_staff && !u.is_superuser;
+                
+                let matchLogin = true;
+                const authProvider = (u.profile && u.profile.auth_provider) ? u.profile.auth_provider : 'local';
+                if (loginFilter === 'google') matchLogin = authProvider === 'google';
+                else if (loginFilter === 'local') matchLogin = authProvider === 'local';
+                
+                return matchSearch && matchRole && matchLogin;
+            });
 
             if (filtered.length === 0) {
                 empty?.classList.remove('hidden');
@@ -71,6 +83,20 @@ function renderUsersTable(users) {
         tdEmail.className = 'p-2 sm:p-4 text-stone-400 align-middle text-sm hidden md:table-cell';
         tdEmail.textContent = user.email || '-';
         tr.appendChild(tdEmail);
+
+        const tdLoginVia = document.createElement('td');
+        tdLoginVia.className = 'p-2 sm:p-4 text-center align-middle w-[100px] sm:w-[120px]';
+        const loginBadge = document.createElement('span');
+        const authProvider = (user.profile && user.profile.auth_provider) ? user.profile.auth_provider : 'local';
+        loginBadge.className = 'inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-bold uppercase tracking-wider ' +
+            (authProvider === 'google'
+                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                : 'bg-blue-500/10 text-blue-400 border border-blue-500/20');
+        loginBadge.innerHTML = authProvider === 'google' 
+            ? '<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-3 h-3" alt="G"> GOOGLE' 
+            : '<span class="material-symbols-outlined text-[10px]">key</span> LOKAL';
+        tdLoginVia.appendChild(loginBadge);
+        tr.appendChild(tdLoginVia);
 
         const tdStaff = document.createElement('td');
         tdStaff.className = 'p-2 sm:p-4 text-center align-middle w-[80px] sm:w-[120px]';
@@ -207,17 +233,20 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput?.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            if (allUsers.length > 0) {
-                renderUsersTable(allUsers);
-            } else {
-                fetchUsers();
-            }
+            if (allUsers.length > 0) fetchUsers(); // or renderUsersTable based on logic, but fetchUsers handles filters properly
         }, 300);
     });
 
     document.getElementById('users-search-icon-btn')?.addEventListener('click', () => {
-        if (allUsers.length > 0) renderUsersTable(allUsers);
-        else fetchUsers();
+        fetchUsers();
+    });
+
+    document.getElementById('users-role-filter')?.addEventListener('change', () => {
+        fetchUsers();
+    });
+
+    document.getElementById('users-login-filter')?.addEventListener('change', () => {
+        fetchUsers();
     });
 
     // Add user button

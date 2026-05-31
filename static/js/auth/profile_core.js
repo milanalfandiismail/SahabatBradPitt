@@ -81,21 +81,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function switchTab(activeTab) {
         [tabReviewsBtn, tabWatchlistBtn, tabPrefsBtn].forEach(btn => {
-            if (btn) btn.className = "pb-3 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+            if (btn) btn.className = "pb-4 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
         });
         [sectionReviews, sectionWatchlist, sectionPrefs].forEach(sec => sec?.classList.add("hidden"));
 
         let activeBtn = null;
         if (activeTab === 'reviews' && tabReviewsBtn) {
-            tabReviewsBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+            tabReviewsBtn.className = "pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
             sectionReviews?.classList.remove("hidden");
             activeBtn = tabReviewsBtn;
         } else if (activeTab === 'watchlist' && tabWatchlistBtn) {
-            tabWatchlistBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+            tabWatchlistBtn.className = "pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
             sectionWatchlist?.classList.remove("hidden");
             activeBtn = tabWatchlistBtn;
         } else if (activeTab === 'prefs' && tabPrefsBtn) {
-            tabPrefsBtn.className = "pb-3 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative";
+            tabPrefsBtn.className = "pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
             sectionPrefs?.classList.remove("hidden");
             activeBtn = tabPrefsBtn;
         }

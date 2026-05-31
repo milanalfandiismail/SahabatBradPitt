@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, authenticate, login as auth_login
 from django.contrib.auth.models import User
@@ -36,17 +37,28 @@ def login_html_view(request):
         if not u or not p:
             error_msg = "Mohon masukkan username dan password."
         else:
-            user = authenticate(request, username=u, password=p)
-            if user is not None:
-                if user.is_active:
-                    auth_login(request, user)
-                    return redirect(next_url)
-                else:
-                    error_msg = "Akun ini telah dinonaktifkan."
+            # Cek apakah akun ini terhubung dengan Google
+            user_check = User.objects.filter(username=u).first()
+            if not user_check:
+                user_check = User.objects.filter(email=u).first()
+                
+            if user_check and hasattr(user_check, 'profile') and user_check.profile.auth_provider == 'google':
+                error_msg = "Akun ini didaftarkan menggunakan Google. Silakan masuk via tombol Login Google."
             else:
-                error_msg = "Username atau password salah."
+                user = authenticate(request, username=u, password=p)
+                if user is not None:
+                    if user.is_active:
+                        auth_login(request, user)
+                        return redirect(next_url)
+                    else:
+                        error_msg = "Akun ini telah dinonaktifkan."
+                else:
+                    error_msg = "Username atau password salah."
 
-    return render(request, 'auth/login.html', {'error': error_msg})
+    return render(request, 'auth/login.html', {
+        'error': error_msg,
+        'google_client_id': settings.GOOGLE_CLIENT_ID
+    })
 
 
 def signup_html_view(request):
@@ -72,6 +84,8 @@ def signup_html_view(request):
             error_msg = "Password harus minimal 8 karakter."
         elif User.objects.filter(username=u).exists():
             error_msg = "Username sudah digunakan."
+        elif User.objects.filter(email__iexact=e).exists():
+            error_msg = "Email sudah terdaftar. Silakan gunakan email lain atau login menggunakan Google jika akun tersebut terhubung dengan Google."
         else:
             user = User.objects.create_user(username=u, password=p, email=e)
             if dn:

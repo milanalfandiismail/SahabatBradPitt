@@ -10,10 +10,28 @@
 
     <!-- Controls Bar -->
     <div class="bg-[#201f20] rounded-lg p-5 border border-white/5 shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
-        <!-- Search -->
-        <div class="relative flex-grow flex items-center max-w-md">
-            <span id="users-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
-            <input id="users-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 pl-10 pr-4 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari username atau email..." type="text" />
+        <!-- Search and Filters -->
+        <div class="flex-grow flex flex-col sm:flex-row items-center gap-3 w-full max-w-3xl">
+            <!-- Search -->
+            <div class="relative flex-grow flex items-center w-full">
+                <span id="users-search-icon-btn" class="material-symbols-outlined absolute left-3 text-stone-400 hover:text-white cursor-pointer text-base transition-colors">search</span>
+                <input id="users-search-input" class="w-full bg-[#141314] border border-white/10 rounded-md py-2 pl-10 pr-4 text-xs text-stone-200 placeholder-stone-500 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all" placeholder="Cari username atau email..." type="text" />
+            </div>
+            
+            <!-- Role Filter -->
+            <select id="users-role-filter" class="w-full sm:w-auto bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all cursor-pointer">
+                <option value="all">Semua Peran</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="admin">Admin (Staff)</option>
+                <option value="regular">Pengguna Biasa</option>
+            </select>
+            
+            <!-- Login Via Filter -->
+            <select id="users-login-filter" class="w-full sm:w-auto bg-[#141314] border border-white/10 rounded-md py-2 px-3 text-xs text-stone-200 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all cursor-pointer">
+                <option value="all">Semua Login</option>
+                <option value="google">Google</option>
+                <option value="local">Lokal</option>
+            </select>
         </div>
         <!-- Action Button -->
         <button id="add-user-btn" class="px-5 py-2 rounded font-semibold text-xs text-white bg-[#715A5A] hover:bg-[#8A6E6E] transition-all flex items-center gap-1.5 shadow-md" type="button">
@@ -29,6 +47,7 @@
                     <tr class="bg-[#141314] border-b border-white/5 text-[#c9c5cb]/40 font-bold uppercase tracking-wider text-[10px]">
                         <th class="p-2 sm:p-4 min-w-[100px] sm:min-w-[150px]">USERNAME</th>
                         <th class="p-2 sm:p-4 hidden md:table-cell">EMAIL</th>
+                        <th class="p-2 sm:p-4 w-[100px] sm:w-[120px] text-center">LOGIN VIA</th>
                         <th class="p-2 sm:p-4 w-[80px] sm:w-[120px] text-center">ROLE ADMIN (STAFF)</th>
                         <th class="p-2 sm:p-4 w-[80px] sm:w-[120px] text-center">SUPER ADMIN</th>
                         <th class="p-2 sm:p-4 w-[80px] sm:w-[100px] text-center">AKSI</th>

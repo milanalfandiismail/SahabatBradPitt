@@ -66,8 +66,23 @@ class GoogleLoginAPIView(APIView):
             return Response({"error": "Token ID Google tidak ditemukan."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Verifikasi token melalui endpoint publik Google
+        import socket
+        from urllib3.util import connection
+        
+        # Paksa urllib3/requests menggunakan IPv4 untuk menghindari delay jabat tangan IPv6 di server Ubuntu
+        original_gai = connection.allowed_gai_family
+        connection.allowed_gai_family = lambda: socket.AF_INET
+        
         try:
-            google_response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token_jwt}')
+            try:
+                google_response = requests.get(
+                    f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token_jwt}',
+                    timeout=10
+                )
+            finally:
+                # Kembalikan konfigurasi DNS asli
+                connection.allowed_gai_family = original_gai
+            
             if not google_response.ok:
                 return Response({"error": "Token ID Google tidak valid."}, status=status.HTTP_400_BAD_REQUEST)
             

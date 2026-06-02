@@ -13,11 +13,15 @@ def assign_user_to_group(sender, instance, created, **kwargs):
     - is_staff=True (tapi bukan superuser) -> Admin group
     - Lainnya -> Tidak ada group (regular user)
     """
-    if created:
-        # Jangan assign group jika user baru dibuat tanpa is_staff
-        if instance.is_superuser:
-            superadmin_group, _ = Group.objects.get_or_create(name='Superadmin')
-            instance.groups.add(superadmin_group)
-        elif instance.is_staff:
-            admin_group, _ = Group.objects.get_or_create(name='Admin')
-            instance.groups.add(admin_group)
+    admin_group, _ = Group.objects.get_or_create(name='Admin')
+    superadmin_group, _ = Group.objects.get_or_create(name='Superadmin')
+    
+    # Bersihkan grup lama jika ada
+    instance.groups.remove(admin_group, superadmin_group)
+    
+    # Masukkan ke grup yang sesuai dengan status terbaru
+    if instance.is_superuser:
+        instance.groups.add(superadmin_group)
+    elif instance.is_staff:
+        instance.groups.add(admin_group)
+

@@ -110,7 +110,8 @@ class FilmViewSetBase(viewsets.ModelViewSet):
         instance.delete()
 
 def run_sync_task(actor_id, min_rating):
-    cache.set('sync_task_status', {'status': 'running', 'actor_id': actor_id}, timeout=3600)
+    # NOTE: 'running' status sudah di-set oleh main view sebelum thread ini dimulai
+    # untuk menghindari race condition. Thread ini hanya update status saat selesai/error.
     try:
         from apps.films.services.main_service import TMDBService
         service = TMDBService()
@@ -141,6 +142,11 @@ class FilmActionsMixin:
         current_status = cache.get('sync_task_status')
         if current_status and current_status.get('status') == 'running':
             return Response({"error": "Sinkronisasi lain sedang berjalan."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set 'running' di main thread SEBELUM thread dimulai untuk menghindari race condition.
+        # Jika set dilakukan di dalam thread, ada jendela waktu di mana sync_status
+        # mengembalikan 'idle' meskipun task baru saja dimulai.
+        cache.set('sync_task_status', {'status': 'running', 'actor_id': actor_id}, timeout=3600)
 
         thread = threading.Thread(target=run_sync_task, args=(actor_id, min_rating))
         thread.daemon = True

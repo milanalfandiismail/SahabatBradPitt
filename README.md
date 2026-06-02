@@ -90,6 +90,16 @@ python manage.py sync_tmdb --all
 python manage.py runserver
 ```
 
+> [!TIP]
+> **WSGI & ASGI DI LOKAL (DEVELOPMENT):**
+> Secara default, berkas `config/wsgi.py` dan `config/asgi.py` dikonfigurasi untuk `config.settings.production` demi keamanan deploy.
+> Jika Anda ingin menguji server WSGI/ASGI di lokal secara manual (misalnya menggunakan Waitress, Gunicorn, atau Uvicorn di lokal), pastikan untuk mengubah nilai target modul settings di dalam berkas `config/wsgi.py` dan `config/asgi.py` ke:
+> ```python
+> os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+> ```
+> *(Dan pastikan untuk mengembalikannya ke `'config.settings.production'` sebelum di-deploy ke live server).*
+
+
 ### Access Application
 - **Frontend**: http://localhost:8000
 - **Admin Panel**: http://localhost:8000/admin
@@ -139,10 +149,18 @@ docker-compose up --build
 
 | Platform | Guide |
 |----------|-------|
-| Windows (Waitress) | [docs/WINDOWS_WAITRESS_DEPLOYMENT.md](docs/WINDOWS_WAITRESS_DEPLOYMENT.md) |
-| Docker | [docs/DOCKER_DEPLOYMENT.md](docs/DOCKER_DEPLOYMENT.md) |
-| VPS + Nginx | [docs/VPS_NGINX_DEPLOYMENT.md](docs/VPS_NGINX_DEPLOYMENT.md) |
-| PythonAnywhere | [docs/PYTHONANYWHERE_DEPLOYMENT.md](docs/PYTHONANYWHERE_DEPLOYMENT.md) |
+| Windows (Waitress) | [docs/deployment/WINDOWS_WAITRESS_DEPLOYMENT.md](docs/deployment/WINDOWS_WAITRESS_DEPLOYMENT.md) |
+| Docker | [docs/deployment/DOCKER_DEPLOYMENT.md](docs/deployment/DOCKER_DEPLOYMENT.md) |
+| VPS + Nginx | [docs/deployment/VPS_NGINX_DEPLOYMENT.md](docs/deployment/VPS_NGINX_DEPLOYMENT.md) |
+| PythonAnywhere | [docs/deployment/PYTHONANYWHERE_DEPLOYMENT.md](docs/deployment/PYTHONANYWHERE_DEPLOYMENT.md) |
+
+> [!WARNING]
+> **PENTING UNTUK PRODUCTION DEPLOYMENT:**
+> Sebelum melakukan deployment ke server production (VPS, Docker, PythonAnywhere, Windows Waitress, dll.), pastikan pengaturan modul settings default pada berkas `config/wsgi.py` dan `config/asgi.py` diarahkan ke berkas konfigurasi *production* Anda:
+> ```python
+> os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+> ```
+> Jika tidak sengaja terubah ke `.development` saat pengerjaan lokal, server production Anda akan berjalan dengan mode *Development* (`DEBUG=True` tetap aktif) yang sangat berbahaya bagi keamanan sistem dan database Anda!
 
 ---
 
@@ -150,13 +168,13 @@ docker-compose up --build
 
 | Document | Description |
 |----------|-------------|
-| [docs/CODEBASE_DOCUMENTATION.md](docs/CODEBASE_DOCUMENTATION.md) | Comprehensive codebase documentation |
-| [docs/API.md](docs/API.md) | Complete REST API reference |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
-| [docs/DATABASE.md](docs/DATABASE.md) | Database schema |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deployment guides |
-| [docs/GUIDES.md](docs/GUIDES.md) | Implementation guides |
-| [docs/RBAC_ROLE_SYSTEM.md](docs/RBAC_ROLE_SYSTEM.md) | RBAC documentation |
+| [docs/architecture/CODEBASE_DOCUMENTATION.md](docs/architecture/CODEBASE_DOCUMENTATION.md) | Comprehensive codebase documentation |
+| [docs/api/API.md](docs/api/API.md) | Complete REST API reference |
+| [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) | System architecture |
+| [docs/architecture/DATABASE.md](docs/architecture/DATABASE.md) | Database schema |
+| [docs/deployment/DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md) | Deployment guides |
+| [docs/guides/GUIDES.md](docs/guides/GUIDES.md) | Implementation guides |
+| [docs/guides/RBAC_ROLE_SYSTEM.md](docs/guides/RBAC_ROLE_SYSTEM.md) | RBAC documentation |
 
 ---
 
@@ -223,6 +241,10 @@ YOUTUBE_API_KEY=your-youtube-api-key-here
 
 # Google Auth Client ID (wajib untuk fitur masuk via Google)
 GOOGLE_CLIENT_ID=your-google-client-id-here
+
+# Redis Cache URL (opsional, untuk clustering / performa tinggi di production)
+# Jika tidak diisi, production akan otomatis menggunakan FileBasedCache (django_cache/)
+REDIS_URL=redis://127.0.0.1:6379/1
 ```
 
 ---
@@ -232,6 +254,7 @@ GOOGLE_CLIENT_ID=your-google-client-id-here
 | Layer | Technology |
 |-------|------------|
 | Backend | Django 4.2, Django REST Framework |
+| Caching | LocMemCache (dev), FileBasedCache / Redis (prod) |
 | Database | SQLite (dev), PostgreSQL (prod) |
 | Algorithms | NumPy, TOPSIS SPK |
 | External APIs | TMDB, YouTube Data API |

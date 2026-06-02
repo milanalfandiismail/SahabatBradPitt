@@ -956,6 +956,6 @@ chmod 755 media/
 
 ## 📚 Additional Documentation
 
-- [Windows Waitress Deployment](WINDOWS_WAITRESS_DEPLOYMENT.md) - Panduan deploy di Windows
+- [Windows Waitress Deployment](../deployment/WINDOWS_WAITRESS_DEPLOYMENT.md) - Panduan deploy di Windows
 - [TMDB API Documentation](https://developer.themoviedb.org/docs) - Official TMDB docs
 - [TOPSIS Algorithm](https://en.wikipedia.org/wiki/TOPSIS) - Wikipedia explanation

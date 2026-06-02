@@ -45,6 +45,15 @@ Jalankan aplikasi Anda menggunakan Waitress melalui port 8000. Karena Anda mengg
 waitress-serve --port=8000 --url-scheme=https --threads=8 --connection-limit=200 --channel-timeout=60 config.wsgi:application
 ```
 
+> [!WARNING]
+> **PERINGATAN KONFIGURASI WSGI/ASGI:**
+> Sebelum menjalankan Waitress, pastikan berkas `config/wsgi.py` Anda sudah mengarah ke settings production:
+> ```python
+> os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+> ```
+> Jika tidak sengaja terubah ke `.local` atau konfigurasi development lainnya saat pengerjaan lokal, Waitress akan melayani situs Anda dalam mode development yang rentan secara keamanan dan performa (misalnya `DEBUG=True` tetap aktif).
+
+
 **Penjelasan Parameter Performa:**
 - `--url-scheme=https`: Wajib untuk Cloudflare Tunnel agar tidak terkena *error* CSRF 403.
 - `--threads=8`: Meningkatkan jumlah pekerja paralel (Defaultnya hanya 4). Cocok untuk menangani banyak pengunjung sekaligus. (Bisa dinaikkan menjadi 12 atau 16 jika CPU Anda kuat).

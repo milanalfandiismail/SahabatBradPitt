@@ -35,3 +35,7 @@ Kecerdasan_Buatan/
 # (Jika Anda ingin mengabaikan berkas catatan markdown atau log di git)
 
 # task.md
+
+# Django FileBasedCache directory
+django_cache/
+

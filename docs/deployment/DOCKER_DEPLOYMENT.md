@@ -41,6 +41,15 @@ ALLOWED_HOSTS=sahabatbradpitt.milannn.my.id,ip_server_anda,127.0.0.1,localhost
 TMDB_API_KEY=key_tmdb_anda
 ```
 
+> [!WARNING]
+> **PERIKSA WSGI & ASGI SETTINGS:**
+> Sebelum melanjutkan ke proses *build*, pastikan berkas `config/wsgi.py` dan `config/asgi.py` mengarah ke settings production:
+> ```python
+> os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+> ```
+> Jika tidak sengaja terubah ke `.local` atau konfigurasi development lainnya saat pengerjaan lokal, Docker container Anda akan berjalan dalam mode development (`DEBUG=True` dsb.) yang tidak aman untuk production!
+
+
 ### 3. Build & Jalankan Container
 Kita menggunakan perintah `docker-compose up` untuk membangun image dan langsung menjalankannya di *background* (`-d`).
 

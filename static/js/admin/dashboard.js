@@ -30,56 +30,127 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!syncBtn) return;
 
     let syncPollInterval = null;
+    let idleRetryCount = 0;
+    const MAX_IDLE_RETRIES = 5;          // Retry saat dapat 'idle' di tengah sesi aktif
+    const SYNC_SESSION_TTL = 90 * 1000; // 90 detik — sesi sync dianggap aktif
+
     const progressCard = document.getElementById("sync-progress-card");
     const progressText = document.getElementById("sync-progress-text");
 
+    // ---------------------------------------------------------------
+    // localStorage helpers — agar sesi sync survive halaman di-refresh
+    // ---------------------------------------------------------------
+    const LS_KEY = 'sbp_sync_started_at';
+
+    function markSyncStarted() {
+        localStorage.setItem(LS_KEY, Date.now().toString());
+    }
+
+    function clearSyncSession() {
+        localStorage.removeItem(LS_KEY);
+    }
+
+    function isSyncSessionActive() {
+        const ts = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+        return ts > 0 && (Date.now() - ts < SYNC_SESSION_TTL);
+    }
+
+    // ---------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------
+    function stopPolling() {
+        if (syncPollInterval) {
+            clearInterval(syncPollInterval);
+            syncPollInterval = null;
+        }
+        idleRetryCount = 0;
+    }
+
+    function resetSyncBtn() {
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Sinkronkan Sekarang';
+    }
+
+    function showProgress(actorId) {
+        if (progressCard) progressCard.classList.remove("hidden");
+        if (progressText) progressText.textContent = actorId ? `- Sync ID Actor ${actorId}` : '';
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">sync</span> Mensinkronisasi...';
+    }
+
+    function hideProgress() {
+        if (progressCard) progressCard.classList.add("hidden");
+    }
+
+    // ---------------------------------------------------------------
+    // Core polling function
+    // ---------------------------------------------------------------
     function checkSyncStatus() {
         fetch('/api/films/sync_status/')
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'running') {
-                    if (progressCard) progressCard.classList.remove("hidden");
-                    if (progressText) progressText.textContent = `- Sync ID Actor ${data.actor_id}`;
-                    syncBtn.disabled = true;
-                    syncBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">sync</span> Mensinkronisasi...';
-                    
+                    idleRetryCount = 0;
+                    // Selalu refresh timestamp agar TTL 90 detik terus diperbarui
+                    // selama server mengonfirmasi sync masih berjalan.
+                    // Ini menjamin retry logic tetap aktif untuk sync yang berjalan lama.
+                    markSyncStarted();
+                    showProgress(data.actor_id);
                     if (!syncPollInterval) {
                         syncPollInterval = setInterval(checkSyncStatus, 3000);
                     }
+
                 } else if (data.status === 'completed') {
-                    clearInterval(syncPollInterval);
-                    syncPollInterval = null;
-                    if (progressCard) progressCard.classList.add("hidden");
-                    syncBtn.disabled = false;
-                    syncBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Sinkronkan Sekarang';
+                    stopPolling();
+                    clearSyncSession();
+                    hideProgress();
+                    resetSyncBtn();
                     showToast(`Sinkronisasi sukses! Berhasil memproses ${data.synced_count} film baru.`, 'success');
                     fetchStats();
                     fetchFilms(1);
                     fetchActors(1);
+
                 } else if (data.status === 'error') {
-                    clearInterval(syncPollInterval);
-                    syncPollInterval = null;
-                    if (progressCard) progressCard.classList.add("hidden");
-                    syncBtn.disabled = false;
-                    syncBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Sinkronkan Sekarang';
+                    stopPolling();
+                    clearSyncSession();
+                    hideProgress();
+                    resetSyncBtn();
                     showToast(`Error: ${data.error}`, 'error');
+
                 } else {
-                    // idle
-                    if (syncPollInterval) {
-                        clearInterval(syncPollInterval);
-                        syncPollInterval = null;
+                    // status === 'idle'
+                    if (isSyncSessionActive() && idleRetryCount < MAX_IDLE_RETRIES) {
+                        // Sesi sync masih dianggap aktif (berdasarkan localStorage) tapi
+                        // server balas 'idle' — kemungkinan kena worker berbeda (LocMemCache)
+                        // atau cache belum terpasang. Retry dulu sebelum menyerah.
+                        idleRetryCount++;
+                        console.warn(`[Sync] 'idle' saat sesi aktif, retry ${idleRetryCount}/${MAX_IDLE_RETRIES}...`);
+                        if (!syncPollInterval) {
+                            syncPollInterval = setInterval(checkSyncStatus, 3000);
+                        }
+                    } else {
+                        // Benar-benar idle: bersihkan semua state
+                        stopPolling();
+                        clearSyncSession();
+                        hideProgress();
+                        resetSyncBtn();
                     }
-                    if (progressCard) progressCard.classList.add("hidden");
-                    syncBtn.disabled = false;
-                    syncBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Sinkronkan Sekarang';
                 }
             })
             .catch(err => console.error("Error polling sync status:", err));
     }
 
-    // Check status on load
+    // Cek status saat halaman pertama kali dimuat.
+    // Jika ada sesi aktif di localStorage, langsung tampilkan progress card
+    // agar user tidak melihat halaman kosong dulu sebelum polling selesai.
+    if (isSyncSessionActive()) {
+        showProgress(null);
+    }
     checkSyncStatus();
 
+    // ---------------------------------------------------------------
+    // Sync button click handler
+    // ---------------------------------------------------------------
     syncBtn.addEventListener('click', () => {
         const actorIdVal = document.getElementById('sync-actor-id').value.trim();
         const minRatingVal = document.getElementById('sync-min-rating').value.trim();
@@ -89,28 +160,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        syncBtn.disabled = true;
-        syncBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">sync</span> Memulai...';
-        if (progressCard) progressCard.classList.remove("hidden");
+        // Reset state dan tandai sesi sync baru di localStorage
+        stopPolling();
+        clearSyncSession();
+        markSyncStarted();
+        idleRetryCount = 0;
+
+        showProgress(null);
 
         secureFetch('/api/films/sync/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({ actor_id: parseInt(actorIdVal), min_rating: minRatingVal ? parseFloat(minRatingVal) : 7.0 })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                actor_id: parseInt(actorIdVal),
+                min_rating: minRatingVal ? parseFloat(minRatingVal) : 7.0
+            })
         })
         .then(res => {
             if (!res.ok) throw new Error("Gagal memulai sinkronisasi");
             return res.json();
         })
-        .then(data => {
+        .then(() => {
             showToast('Sinkronisasi dimulai di background. Anda dapat menutup halaman jika perlu.', 'info');
-            checkSyncStatus(); // Trigger polling
+            // Beri jeda 500ms sebelum polling pertama agar cache 'running' sudah terpasang
+            setTimeout(checkSyncStatus, 500);
         })
         .catch(err => {
             console.error(err);
-            syncBtn.disabled = false;
-            syncBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Sinkronkan Sekarang';
-            if (progressCard) progressCard.classList.add("hidden");
+            stopPolling();
+            clearSyncSession();
+            hideProgress();
+            resetSyncBtn();
             showToast(err.message || 'Gagal memulai sinkronisasi.', 'error');
         });
     });

@@ -46,3 +46,27 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # Tambahan penting untuk Reverse Proxy (PythonAnywhere / Nginx)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://' + host for host in ALLOWED_HOSTS]
+
+# Caching Configuration
+# Menggunakan FileBasedCache di production untuk mendukung multi-process environment
+# tanpa memerlukan service Redis tambahan (misal PythonAnywhere, Waitress, simple VPS).
+# Jika terdapat REDIS_URL di environment, gunakan RedisCache.
+REDIS_URL = config('REDIS_URL', default=None)
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': BASE_DIR / 'django_cache',
+        }
+    }
+

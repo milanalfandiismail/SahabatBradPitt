@@ -67,7 +67,22 @@ python manage.py setup_rbac
 python manage.py runserver
 ```
 
-### 5. Access
+### 5. Konfigurasi Settings untuk ASGI & WSGI (Development vs Production)
+
+Secara default, berkas `config/wsgi.py` dan `config/asgi.py` dikonfigurasi untuk menggunakan settings production demi kenyamanan deploy:
+```python
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+```
+
+Saat melakukan pengembangan lokal (development), jika Anda ingin menguji WSGI/ASGI entry point secara manual (misal menjalankan server waitress atau uvicorn lokal), ubah target modul settings tersebut ke:
+```python
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+```
+
+> [!IMPORTANT]
+> **JANGAN LUPA:** Selalu kembalikan nilai target settings tersebut kembali ke `config.settings.production` sebelum melakukan push/deployment ke server production agar aplikasi tidak berjalan dalam mode development (`DEBUG=True` dsb.) di server live.
+
+### 6. Access
 
 - **Website**: http://localhost:8000
 - **Admin**: http://localhost:8000/admin
@@ -185,9 +200,9 @@ python manage.py collectstatic --noinput
 ## Next Steps
 
 Setelah development local berjalan, lihat:
-- [docs/WINDOWS_WAITRESS_DEPLOYMENT.md](WINDOWS_WAITRESS_DEPLOYMENT.md) - Windows deployment
-- [docs/DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) - Docker deployment
-- [docs/CODEBASE_DOCUMENTATION.md](CODEBASE_DOCUMENTATION.md) - Full codebase docs
+- [docs/deployment/WINDOWS_WAITRESS_DEPLOYMENT.md](../deployment/WINDOWS_WAITRESS_DEPLOYMENT.md) - Windows deployment
+- [docs/deployment/DOCKER_DEPLOYMENT.md](../deployment/DOCKER_DEPLOYMENT.md) - Docker deployment
+- [docs/architecture/CODEBASE_DOCUMENTATION.md](../architecture/CODEBASE_DOCUMENTATION.md) - Full codebase docs
 
 ---
 

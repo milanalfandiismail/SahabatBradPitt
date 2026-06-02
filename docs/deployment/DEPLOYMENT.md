@@ -58,7 +58,22 @@ TMDB_API_KEY=your-tmdb-api-key
 YOUTUBE_API_KEY=your-youtube-api-key
 ```
 
-### 2. Generate New Secret Key
+### 2. Verifikasi/Ganti isi `wsgi.py` & `asgi.py` bagian `os.environ.setdefault`
+Pastikan pengaturan modul settings default pada berkas `config/wsgi.py` dan `config/asgi.py` diarahkan ke berkas konfigurasi *production* Anda:
+```python
+# Di dalam config/wsgi.py dan config/asgi.py
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+```
+*(Catatan: Kodingan repo ini secara default sudah dikonfigurasi ke `'config.settings.production'` untuk wsgi.py dan asgi.py demi kepraktisan).*
+
+> [!WARNING]
+> **PENTING UNTUK PRODUCTION:**
+> Selalu pastikan berkas `config/wsgi.py` dan `config/asgi.py` memiliki pengaturan modul settings yang mengarah ke `config.settings.production` sebelum melakukan deployment!
+>
+> Jika tidak sengaja diubah ke `config.settings.local` atau setelan development lainnya selama proses koding lokal, aplikasi Anda di production akan berjalan dengan mode *Development* yang berisiko keamanan tinggi (misalnya `DEBUG=True` tetap menyala, atau database SQLite lokal yang dicari di server production).
+
+
+### 3. Generate New Secret Key
 
 ```bash
 # Generate secure secret key
@@ -69,7 +84,7 @@ pip install django-extensions
 python manage.py generate_secret_key
 ```
 
-### 3. Database Preparation
+### 4. Database Preparation
 
 **SQLite (Development)**
 ```bash
@@ -88,7 +103,7 @@ ALTER ROLE sahabatuser SET client_encoding TO 'utf8';
 \q
 ```
 
-### 4. Static Files Collection
+### 5. Static Files Collection
 
 ```bash
 # Collect all static files (CSS, JS)
@@ -98,7 +113,7 @@ python manage.py collectstatic --noinput
 ls -la staticfiles/
 ```
 
-### 5. Database Migrations
+### 6. Database Migrations
 
 ```bash
 # Make migrations (if models changed)
@@ -113,6 +128,16 @@ python manage.py createsuperuser
 # Setup RBAC (optional)
 python manage.py setup_rbac
 ```
+
+### 7. Shared Cache Setup (Multi-Worker Resilience)
+
+Pada lingkungan *production* (seperti Gunicorn yang dijalankan dengan multiple workers), *cache* bawaan Django `LocMemCache` (in-memory) akan menyebabkan masalah *race condition* intermiten saat sinkronisasi latar belakang TMDB berjalan. Hal ini terjadi karena memori antar proses Gunicorn worker tidak saling terbagi, sehingga status sync terlihat hilang-muncul atau mati saat di-refresh.
+
+Untuk mengatasi ini, konfigurasi production kami (`production.py`) secara otomatis menggunakan:
+- **`RedisCache`**: Jika environment variable `REDIS_URL` didefinisikan (sangat direkomendasikan untuk clustering/scaling).
+- **`FileBasedCache`** (fallback): Menulis cache terbagi ke direktori `django_cache/` di root project.
+
+Django akan otomatis membuat direktori `django_cache/` saat pertama kali data cache ditulis (ketika tombol sync di-klik di admin). Pastikan user OS yang menjalankan service Gunicorn (misalnya `milan` atau `www-data`) memiliki akses baca-tulis (*read-write permissions*) pada direktori utama project Anda agar Django dapat membuat folder dan file cache tersebut.
 
 ---
 
@@ -558,10 +583,10 @@ curl -I https://yourdomain.com/ | grep -E "(X-Frame-Options|Content-Security-Pol
 ## 📚 Additional Resources
 
 ### Documentation
-- [CODEBASE_DOCUMENTATION.md](CODEBASE_DOCUMENTATION.md) - Full codebase docs
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
-- [API.md](API.md) - API reference
-- [DEVELOPMENT.md](DEVELOPMENT.md) - Local development
+- [CODEBASE_DOCUMENTATION.md](../architecture/CODEBASE_DOCUMENTATION.md) - Full codebase docs
+- [ARCHITECTURE.md](../architecture/ARCHITECTURE.md) - System architecture
+- [API.md](../api/API.md) - API reference
+- [DEVELOPMENT.md](../guides/DEVELOPMENT.md) - Local development
 
 ### External
 - [TMDB API](https://developer.themoviedb.org/docs) - Movie database

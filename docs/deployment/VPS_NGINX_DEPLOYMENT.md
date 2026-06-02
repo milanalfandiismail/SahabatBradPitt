@@ -98,6 +98,15 @@ ExecStart=/home/milan/SahabatBradPitt/venv/bin/gunicorn --access-logfile - --wor
 WantedBy=multi-user.target
 ```
 
+> [!WARNING]
+> **VERIFIKASI WSGI & ASGI SEBELUM MENJALANKAN GUNICORN:**
+> Selalu pastikan berkas `config/wsgi.py` dan `config/asgi.py` mengarah ke konfigurasi production:
+> ```python
+> os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+> ```
+> Jika tidak sengaja diubah ke `.local` (atau setelan development lainnya) saat coding lokal, Gunicorn/Uvicorn akan memuat konfigurasi development, yang berakibat pada bocornya detail error (`DEBUG=True`) atau error koneksi database SQLite lokal di server production.
+
+
 Nyalakan *service*-nya:
 ```bash
 sudo systemctl daemon-reload
@@ -151,6 +160,24 @@ sudo systemctl restart nginx
 
 > **Jangan lupa atur Firewall!**
 > `sudo ufw allow 'Nginx Full'`
+
+---
+
+## Tahap 6: Catatan Cache & TMDB Sync Resilience
+
+Aplikasi ini menggunakan **FileBasedCache** di production untuk mendistribusikan status sinkronisasi aktor/film dari TMDB API ke semua *worker* Gunicorn yang berjalan paralel secara *real-time*.
+
+- Django akan membuat folder `django_cache` secara otomatis di root directory project (`/home/milan/SahabatBradPitt/django_cache`) saat sinkronisasi TMDB dijalankan pertama kali.
+- Agar folder ini dapat dibuat dan ditulisi dengan lancar, pastikan *user* OS yang menjalankan Gunicorn (dalam contoh ini: `milan` dengan grup `www-data`) memiliki hak akses baca-tulis (*read-write permissions*) pada folder project utama Anda:
+  ```bash
+  sudo chown -R milan:www-data /home/milan/SahabatBradPitt
+  sudo chmod -R 775 /home/milan/SahabatBradPitt
+  ```
+- **Opsi Redis (Rekomendasi untuk VPS)**: Jika Anda ingin performa yang lebih optimal dan memiliki service Redis terpasang di VPS, Anda cukup menambahkan variabel `REDIS_URL` ke dalam file `.env` Anda:
+  ```ini
+  REDIS_URL=redis://127.0.0.1:6379/1
+  ```
+  Aplikasi akan mendeteksi baris tersebut dan secara otomatis beralih menggunakan RedisCache sebagai penyimpanan *state* sinkronisasi tanpa konfigurasi tambahan.
 
 ---
 

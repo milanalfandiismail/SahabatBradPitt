@@ -199,14 +199,14 @@ document.addEventListener("DOMContentLoaded", function () {
             posterWrap.appendChild(img);
 
             const content = document.createElement("div");
-            content.className = "flex-grow flex flex-col gap-2 justify-center min-w-0";
+            content.className = "flex-grow flex flex-col gap-2 justify-center min-w-0 w-full";
 
             const titleRow = document.createElement("div");
             titleRow.className = "flex justify-between items-start gap-4 min-w-0 w-full";
             const titleCol = document.createElement("div");
             titleCol.className = "min-w-0 flex-1";
             const title = document.createElement("h3");
-            title.className = "font-['Playfair_Display'] text-xl font-bold text-white line-clamp-1 truncate";
+            title.className = "font-['Playfair_Display'] text-xl font-bold text-white line-clamp-2 break-words whitespace-normal";
             title.textContent = item.title;
             titleCol.appendChild(title);
             titleRow.appendChild(titleCol);

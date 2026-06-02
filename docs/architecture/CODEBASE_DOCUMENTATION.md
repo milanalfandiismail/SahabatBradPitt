@@ -97,8 +97,8 @@ SahabatBradPitt/
 │   │
 │   ├── festivals/            # Festival film & Studio
 │   │   ├── models.py       # Festival, Studio, FestivalAward
-│   │   ├── views.py        # API views
-│   │   ├── wiki_service.py  # Wikipedia integration
+│   │   ├── views.py         # API views
+│   │   ├── tmdb_service.py  # TMDB API wrapper config
 │   │   └── urls.py         # Router config
 │   │
 │   ├── recommendations/      # AI Recommendation Engine
@@ -238,8 +238,8 @@ SahabatBradPitt/
 **Custom Actions (Admin):**
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/sync/` | POST | Trigger TMDB sync (background) |
-| `/sync_status/` | GET | Check sync progress |
+| `/films/<id>/sync/` | POST | Trigger TMDB sync for specific film |
+| `/sync-status/` | GET | Check background sync progress |
 | `/stats/` | GET | Film statistics (public/staff) |
 | `/<id>/similar/` | GET | Find similar films |
 | `/<id>/images/` | POST | Upload gallery image |

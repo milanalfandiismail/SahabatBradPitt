@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    container_name: sahabatbradpitt_web
+    container_name: sahabatbradpitt
     restart: always
     ports:
       - "8000:8000"

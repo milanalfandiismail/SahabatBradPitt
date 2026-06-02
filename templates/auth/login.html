@@ -42,7 +42,7 @@
             <div class="text-center lg:text-left">
                 <h1 class="font-['Playfair_Display'] text-3xl text-[#D3DAD9] font-bold">Welcome Back</h1>
                 <p class="font-['DM_Sans'] text-sm text-stone-400 mt-1">
-                    {% if 'admin' in request.GET.next %}
+                    {% if 'admin' in request.GET.next|default:"" %}
                         Sign in dengan kredensial staff atau superadmin Anda untuk mengelola portal.
                     {% else %}
                         Sign in untuk memberikan ulasan dan melihat rekomendasi AI
@@ -51,11 +51,9 @@
             </div>
 
             <!-- Error Box -->
-            {% if error %}
-            <div class="text-xs text-red-400 bg-red-500/10 p-3.5 rounded border border-red-500/20 font-['DM_Sans']">
-                {{ error }}
+            <div id="error-box" class="{% if not error %}hidden{% endif %} text-xs text-red-400 bg-red-500/10 p-3.5 rounded border border-red-500/20 font-['DM_Sans']">
+                {{ error|default:"" }}
             </div>
-            {% endif %}
 
             <!-- Form -->
             <form method="POST" class="flex flex-col gap-4">
@@ -84,11 +82,32 @@
                 </button>
             </form>
 
-            {% if 'admin' not in request.GET.next %}
+            {% if 'admin' not in request.GET.next|default:"" %}
             <div id="or-separator" class="relative flex items-center justify-center my-2 text-xs">
                 <div class="w-full border-t border-white/10 absolute"></div>
                 <span class="px-3 bg-[#44444E] relative z-10 text-stone-500 font-['DM_Sans']">atau</span>
             </div>
+
+            {% if google_client_id %}
+            <!-- Google Login -->
+            <div class="flex justify-center mb-2">
+                <div id="g_id_onload"
+                     data-client_id="{{ google_client_id }}"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleGoogleLogin"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Sign Up Redirect -->
             <p id="signup-redirect-box" class="text-center font-['DM_Sans'] text-sm text-stone-400">
@@ -103,4 +122,58 @@
         </div>
     </div>
 </main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+    function handleGoogleLogin(response) {
+        if (response.credential) {
+            const submitBtn = document.getElementById('login-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Memproses...';
+            
+            fetch('/api/auth/google/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ id_token: response.credential })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(res => {
+                if (res.status === 200) {
+                    const nextUrl = new URLSearchParams(window.location.search).get('next') || '/profile/';
+                    window.location.href = nextUrl;
+                } else {
+                    const errorBox = document.getElementById('error-box');
+                    errorBox.textContent = res.body.error || 'Login Google gagal.';
+                    errorBox.classList.remove('hidden');
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    
+                    // Reset Google widget state to prevent origin_mismatch on next click
+                    if (window.google) {
+                        google.accounts.id.cancel();
+                    }
+                }
+            })
+            .catch(err => {
+                const errorBox = document.getElementById('error-box');
+                errorBox.textContent = 'Terjadi kesalahan jaringan.';
+                errorBox.classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                if (window.google) {
+                    google.accounts.id.cancel();
+                }
+            });
+        }
+    }
+</script>
 {% endblock %}

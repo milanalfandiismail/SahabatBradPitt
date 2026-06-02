@@ -12,6 +12,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
     
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError("Email wajib diisi.")
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("Email ini sudah terdaftar. Silakan gunakan email lain atau login menggunakan Google jika akun tersebut terhubung dengan Google.")
+        return value
+    
     def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError({"password": "Password tidak cocok."})
@@ -85,7 +92,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'avatar', 'avatar_url', 'avatar_uploaded_at',
             'pref_focus', 'pref_genres', 'pref_genres_data',
             'pref_era', 'pref_duration', 'created_at', 'updated_at',
-            'reviews_count', 'ratings_count', 'avg_rating'
+            'reviews_count', 'ratings_count', 'avg_rating', 'auth_provider'
         ]
         read_only_fields = ['user_id', 'username', 'email', 'avatar_url', 'avatar_uploaded_at', 'created_at', 'updated_at', 'reviews_count', 'ratings_count', 'avg_rating']
     
@@ -155,3 +162,12 @@ class UserSerializer(serializers.ModelSerializer):
     def get_groups(self, obj):
         """Return list of group names for the user"""
         return list(obj.groups.values_list('name', flat=True))
+
+    def validate_email(self, value):
+        if value:
+            qs = User.objects.filter(email__iexact=value)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError("Email ini sudah digunakan oleh pengguna lain.")
+        return value

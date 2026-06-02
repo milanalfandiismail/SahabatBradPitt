@@ -47,7 +47,7 @@ TMDB_API_KEY=key_tmdb_anda
 > ```python
 > os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 > ```
-> Jika tidak sengaja terubah ke `.local` atau konfigurasi development lainnya saat pengerjaan lokal, Docker container Anda akan berjalan dalam mode development (`DEBUG=True` dsb.) yang tidak aman untuk production!
+> Jika tidak sengaja terubah ke `.development` atau konfigurasi development lainnya saat pengerjaan lokal, Docker container Anda akan berjalan dalam mode development (`DEBUG=True` dsb.) yang tidak aman untuk production!
 
 
 ### 3. Build & Jalankan Container

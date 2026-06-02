@@ -79,7 +79,7 @@ application = get_wsgi_application()
 
 > [!WARNING]
 > **KESALAHAN SETTINGS DI PYTHONANYWHERE:**
-> Pastikan variabel `DJANGO_SETTINGS_MODULE` diset ke `'config.settings.production'`. Jika Anda membiarkan default ke `.local` atau menghapusnya, PythonAnywhere akan mendownload setelan local development yang tidak cocok untuk production dan dapat menyebabkan kebocoran rahasia atau database SQLite kosong/error.
+> Pastikan variabel `DJANGO_SETTINGS_MODULE` diset ke `'config.settings.production'`. Jika Anda membiarkan default ke `.development` atau menghapusnya, PythonAnywhere akan mendownload setelan local development yang tidak cocok untuk production dan dapat menyebabkan kebocoran rahasia atau database SQLite kosong/error.
 
 
 ## Tahap 5: Konfigurasi Static & Media Files

@@ -70,7 +70,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 > **PENTING UNTUK PRODUCTION:**
 > Selalu pastikan berkas `config/wsgi.py` dan `config/asgi.py` memiliki pengaturan modul settings yang mengarah ke `config.settings.production` sebelum melakukan deployment!
 >
-> Jika tidak sengaja diubah ke `config.settings.local` atau setelan development lainnya selama proses koding lokal, aplikasi Anda di production akan berjalan dengan mode *Development* yang berisiko keamanan tinggi (misalnya `DEBUG=True` tetap menyala, atau database SQLite lokal yang dicari di server production).
+> Jika tidak sengaja diubah ke `config.settings.development` atau setelan development lainnya selama proses koding lokal, aplikasi Anda di production akan berjalan dengan mode *Development* yang berisiko keamanan tinggi (misalnya `DEBUG=True` tetap menyala, atau database SQLite lokal yang dicari di server production).
 
 
 ### 3. Generate New Secret Key

@@ -51,7 +51,7 @@ waitress-serve --port=8000 --url-scheme=https --threads=8 --connection-limit=200
 > ```python
 > os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 > ```
-> Jika tidak sengaja terubah ke `.local` atau konfigurasi development lainnya saat pengerjaan lokal, Waitress akan melayani situs Anda dalam mode development yang rentan secara keamanan dan performa (misalnya `DEBUG=True` tetap aktif).
+> Jika tidak sengaja terubah ke `.development` atau konfigurasi development lainnya saat pengerjaan lokal, Waitress akan melayani situs Anda dalam mode development yang rentan secara keamanan dan performa (misalnya `DEBUG=True` tetap aktif).
 
 
 **Penjelasan Parameter Performa:**

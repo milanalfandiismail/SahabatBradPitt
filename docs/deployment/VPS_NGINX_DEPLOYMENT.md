@@ -104,7 +104,7 @@ WantedBy=multi-user.target
 > ```python
 > os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 > ```
-> Jika tidak sengaja diubah ke `.local` (atau setelan development lainnya) saat coding lokal, Gunicorn/Uvicorn akan memuat konfigurasi development, yang berakibat pada bocornya detail error (`DEBUG=True`) atau error koneksi database SQLite lokal di server production.
+> Jika tidak sengaja diubah ke `.development` (atau setelan development lainnya) saat coding lokal, Gunicorn/Uvicorn akan memuat konfigurasi development, yang berakibat pada bocornya detail error (`DEBUG=True`) atau error koneksi database SQLite lokal di server production.
 
 
 Nyalakan *service*-nya:

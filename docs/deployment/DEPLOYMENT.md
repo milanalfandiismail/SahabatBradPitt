@@ -309,9 +309,11 @@ YOUTUBE_API_KEY=your-youtube-api-key
 
 ### Django Security Settings (Production)
 
+Pada proyek ini, seluruh pengaturan keamanan utama di berkas `config/settings/production.py` dikonfigurasi secara dinamis untuk memudahkan integrasi:
+
 ```python
 # config/settings/production.py
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -320,6 +322,14 @@ SECURE_HSTS_PRELOAD = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 ```
+
+> [!TIP]
+> **Penting untuk Pengguna Reverse Proxy / Cloudflare Tunnel / Nginx SSL:**
+> Jika Anda menggunakan Cloudflare Tunnel atau reverse proxy SSL lainnya yang berkomunikasi secara HTTP internal ke aplikasi Django:
+> 1. Penggunaan `SECURE_SSL_REDIRECT=True` di `.env` berpotensi menyebabkan **infinite redirect loop** karena Django mendeteksi koneksi lokal masuk sebagai HTTP biasa.
+> 2. Proyek ini sudah mendefinisikan `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')` agar Django mengenali header HTTPS dari proxy.
+> 3. Namun, opsi paling aman dan direkomendasikan adalah dengan menyetel `SECURE_SSL_REDIRECT=False` di berkas `.env` dan menyalakan opsi **"Always Use HTTPS"** langsung di Dashboard Cloudflare (atau proxy SSL terluar Anda) untuk memindahkan beban pengalihan dari aplikasi ke tingkat CDN/Proxy.
+
 
 ### Firewall Setup
 

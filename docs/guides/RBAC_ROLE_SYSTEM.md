@@ -157,18 +157,26 @@ When a user is created or modified, a signal automatically assigns them to the c
 # Signal in apps/users/signals.py
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
-    if created:
-        if instance.is_superuser:
-            superadmin_group.add(instance)
-        elif instance.is_staff:
-            admin_group.add(instance)
+    admin_group, _ = Group.objects.get_or_create(name='Admin')
+    superadmin_group, _ = Group.objects.get_or_create(name='Superadmin')
+    
+    # Bersihkan grup lama jika ada agar sinkron
+    instance.groups.remove(admin_group, superadmin_group)
+    
+    # Masukkan ke grup yang sesuai dengan status terbaru
+    if instance.is_superuser:
+        instance.groups.add(superadmin_group)
+    elif instance.is_staff:
+        instance.groups.add(admin_group)
 ```
 
 **How it works:**
-1. User is created with `is_staff=True, is_superuser=False`
-2. Signal fires automatically
-3. User is added to `Admin` group
-4. No manual group assignment needed!
+1. User is created or updated (e.g. via Django Admin or frontend editor) with `is_staff=True, is_superuser=False`
+2. Signal fires automatically on `post_save`
+3. Old groups (Admin/Superadmin) are cleared to prevent duplicates
+4. User is added to `Admin` group
+5. No manual group assignment needed!
+
 
 ## Permission Checking
 

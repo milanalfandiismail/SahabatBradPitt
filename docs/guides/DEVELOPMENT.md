@@ -45,18 +45,19 @@ copy .env.example .env
 # SECRET_KEY=apa-saja
 # ALLOWED_HOSTS=127.0.0.1,localhost
 # TMDB_API_KEY=your-api-key-here
+# GOOGLE_CLIENT_ID=your-google-client-id-here (wajib untuk Google Login)
 ```
 
 ### 3. Run Database
 
 ```bash
-# Create tables
+# Create tables (dan inisialisasi grup role RBAC secara otomatis)
 python manage.py migrate
 
 # Create admin user
 python manage.py createsuperuser
 
-# (Optional) Setup RBAC groups
+# (Opsional) Setup RBAC manual (jika ingin inisialisasi ulang grup & permissions)
 python manage.py setup_rbac
 ```
 

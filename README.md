@@ -201,9 +201,9 @@ python manage.py sync_tmdb --all --min-rating 8.0
 # Sync cast untuk existing films
 python manage.py sync_films_cast
 
-# Setup RBAC
-python manage.py setup_rbac                 # Create groups & admin
-python manage.py change_user_role username admin
+# Setup RBAC (Opsional, sudah berjalan otomatis saat migrate)
+python manage.py setup_rbac                 # Inisialisasi ulang grup & permission
+python manage.py change_user_role username admin # Mengatur role pengguna (admin/superadmin/user)
 ```
 
 ---
@@ -215,11 +215,14 @@ DEBUG=True
 SECRET_KEY=your-secret-key-here
 ALLOWED_HOSTS=127.0.0.1,localhost
 
-# TMDB API (wajib untuk sync)
-TMDB_API_KEY=your-tmdb-api-key
+# TMDB API (wajib untuk sinkronisasi data film & aktor)
+TMDB_API_KEY=your-tmdb-api-key-here
 
-# YouTube API (optional, untuk trailer search)
-YOUTUBE_API_KEY=your-youtube-api-key
+# YouTube API (opsional, untuk pencarian alternatif trailer film)
+YOUTUBE_API_KEY=your-youtube-api-key-here
+
+# Google Auth Client ID (wajib untuk fitur masuk via Google)
+GOOGLE_CLIENT_ID=your-google-client-id-here
 ```
 
 ---

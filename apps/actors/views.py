@@ -1,19 +1,14 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from django.db.models import Subquery, OuterRef, CharField, Q, IntegerField
 from apps.actors.models import Actor, Filmography
 from apps.actors.serializers import ActorSerializer
 from apps.users.permissions import IsAdminOrSuperadmin, IsSuperadmin
 
-class ActorPagination(PageNumberPagination):
-    page_size = 10
-
 class ActorViewSet(viewsets.ModelViewSet):
     queryset = Actor.objects.all().prefetch_related('filmographies__film').order_by('name')
     serializer_class = ActorSerializer
-    pagination_class = ActorPagination
 
     @property
     def paginator(self):

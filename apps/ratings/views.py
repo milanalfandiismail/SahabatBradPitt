@@ -74,6 +74,9 @@ class WatchlistViewSet(viewsets.ModelViewSet):
         user_id = self.request.query_params.get('user', None)
         if user_id:
             qs = qs.filter(user__id=user_id)
+        film_id = self.request.query_params.get('film', None)
+        if film_id:
+            qs = qs.filter(film__id=film_id)
         return qs
 
     def perform_create(self, serializer):

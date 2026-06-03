@@ -17,11 +17,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function checkWatchlistState(userId) {
-        fetch(`/api/ratings/watchlist/?user=${userId}`, {})
+        fetch(`/api/ratings/watchlist/?user=${userId}&film=${filmId}`)
             .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(data => {
                 const list = Array.isArray(data.results || data) ? (data.results || data) : [];
-                userWatchlistEntry = list.find(item => item.film === parseInt(filmId));
+                userWatchlistEntry = list.length > 0 ? list[0] : null;
                 updateWatchlistButton();
             })
             .catch(() => { userWatchlistEntry = null; updateWatchlistButton(); });

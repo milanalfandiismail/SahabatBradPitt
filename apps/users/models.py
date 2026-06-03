@@ -49,6 +49,20 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def reviews_count(self):
+        return self.user.ratings.exclude(review='').exclude(review__isnull=True).count()
+
+    @property
+    def ratings_count(self):
+        return self.user.ratings.count()
+
+    @property
+    def avg_rating(self):
+        from django.db.models import Avg
+        val = self.user.ratings.aggregate(Avg('score'))['score__avg']
+        return val if val is not None else 0.0
+
     def __str__(self):
         return self.user.username
 

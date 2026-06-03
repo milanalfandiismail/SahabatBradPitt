@@ -122,21 +122,22 @@
 
     <nav
         class="bg-[#37353E]/95 backdrop-blur-md fixed top-0 w-full h-[80px] z-50 border-b border-white/5 transition-all duration-300">
-        <div class="flex justify-between items-center px-4 md:px-12 max-w-[1440px] mx-auto h-full relative">
+        <div class="flex justify-between items-center px-4 xl:px-12 max-w-[1440px] mx-auto h-full relative">
 
             <button id="mobile-menu-btn"
-                class="block md:hidden text-[#D3DAD9] hover:text-white transition-all focus:outline-none p-1">
+                class="block xl:hidden text-[#D3DAD9] hover:text-white transition-all focus:outline-none p-1">
                 <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
             </button>
 
-            <div class="text-xl md:text-2xl font-bold tracking-tight text-white font-['Noto_Serif'] flex items-center">
+            <div class="text-xl xl:text-2xl font-bold tracking-tight text-white font-['Noto_Serif'] flex items-center">
                 <a href="/" class="flex items-center gap-2.5">
-                    <img src="/static/images/sahabatbradpitt.jpg" alt="Sahabat Bradpitt" class="h-8 w-8 rounded-md object-cover border border-white/10" />
+                    <img src="/static/images/sahabatbradpitt.jpg" alt="Sahabat Bradpitt"
+                        class="h-8 w-8 rounded-md object-cover border border-white/10" />
                     <span>Sahabat Bradpitt</span>
                 </a>
             </div>
 
-            <div class="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+            <div class="hidden xl:flex items-center gap-4 xl:gap-8 absolute left-1/2 -translate-x-1/2">
                 <a id="nav-home"
                     class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-lg hover:text-white transition-all pb-0.5"
                     href="/">Home</a>
@@ -162,27 +163,62 @@
                 {% endif %}
             </div>
 
-            <div class="flex items-center gap-4 md:gap-6">
+            <div class="flex items-center gap-4 xl:gap-6">
                 <a href="/movies/?search=1" class="text-[#D3DAD9] hover:text-white transition-all">
-                    <span class="material-symbols-outlined text-xl md:text-2xl">search</span>
+                    <span class="material-symbols-outlined text-xl xl:text-2xl">search</span>
                 </a>
-                <a href="/profile/" class="text-[#D3DAD9] hover:text-white transition-all">
-                    <div id="navbar-avatar"
-                        class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#37353E]">
-                        {% if user.is_authenticated and user.profile.avatar %}
-                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
-                            src="{{ user.profile.avatar.url }}" />
+
+                <!-- Profile Dropdown Container -->
+                <div class="relative inline-block text-left">
+                    <button id="profile-dropdown-btn"
+                        class="text-[#D3DAD9] hover:text-white transition-all focus:outline-none flex items-center pt-1"
+                        aria-haspopup="true" aria-expanded="false">
+                        <div id="navbar-avatar"
+                            class="w-7 h-7 xl:w-8 xl:h-8 rounded-full overflow-hidden border border-white/20 flex items-center justify-center bg-[#37353E] cursor-pointer">
+                            {% if user.is_authenticated and user.profile.avatar %}
+                            <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
+                                src="{{ user.profile.avatar.url }}" />
+                            {% else %}
+                            <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
+                                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" />
+                            {% endif %}
+                        </div>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="profile-dropdown-menu"
+                        class="hidden absolute right-0 mt-3 w-48 bg-[#201f20] border border-white/10 rounded-lg shadow-2xl py-2 z-50 font-['DM_Sans'] text-sm animate-fadeIn">
+                        {% if user.is_authenticated %}
+                        <a href="/profile/"
+                            class="px-4 py-2.5 hover:bg-white/5 text-[#D3DAD9] hover:text-white transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">person</span> Profil Saya
+                        </a>
+                        <a href="/profile/search/"
+                            class="px-4 py-2.5 hover:bg-white/5 text-[#D3DAD9] hover:text-white transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">search</span> Cari Cinephile
+                        </a>
+                        <hr class="border-white/5 my-1" />
+                        <button id="navbar-logout-btn"
+                            class="w-full text-left px-4 py-2.5 hover:bg-red-500/10 text-red-400 transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">logout</span> Keluar
+                        </button>
                         {% else %}
-                        <img id="navbar-avatar-img" alt="User Avatar" class="w-full h-full object-cover"
-                            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" />
+                        <a href="/login/"
+                            class="px-4 py-2.5 hover:bg-white/5 text-[#D3DAD9] hover:text-white transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">login</span> Masuk / Daftar
+                        </a>
+                        <a href="/profile/search/"
+                            class="px-4 py-2.5 hover:bg-white/5 text-[#D3DAD9] hover:text-white transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">search</span> Cari Cinephile
+                        </a>
                         {% endif %}
                     </div>
-                </a>
+                </div>
             </div>
         </div>
 
         <div id="mobile-menu"
-            class="hidden md:hidden bg-[#2D2B33] border-b border-white/5 w-full absolute top-[80px] left-0 px-6 py-4 shadow-xl transition-all duration-300 animate-fadeIn">
+            class="hidden xl:hidden bg-[#2D2B33] border-b border-white/5 w-full absolute top-[80px] left-0 px-6 py-4 shadow-xl transition-all duration-300 animate-fadeIn">
             <div class="flex flex-col gap-4">
                 <a id="mob-nav-home"
                     class="text-[#D3DAD9]/60 font-['Noto_Serif'] text-base py-1 border-b border-white/5"
@@ -219,8 +255,10 @@
     <footer class="bg-[#141314] text-[#D3DAD9]/60 py-12 px-6 md:py-16 md:px-24 border-t border-white/5 w-full">
         <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-start gap-8 md:gap-12">
             <div class="flex flex-col gap-2 md:gap-4">
-                <div class="text-xl md:text-2xl font-bold tracking-tight text-white font-['Noto_Serif'] flex items-center gap-2">
-                    <img src="/static/images/sahabatbradpitt.jpg" alt="Sahabat Bradpitt" class="h-6 w-6 rounded-md object-cover opacity-80" />
+                <div
+                    class="text-xl md:text-2xl font-bold tracking-tight text-white font-['Noto_Serif'] flex items-center gap-2">
+                    <img src="/static/images/sahabatbradpitt.jpg" alt="Sahabat Bradpitt"
+                        class="h-6 w-6 rounded-md object-cover opacity-80" />
                     <span>Sahabat Bradpitt</span>
                 </div>
                 <div class="font-['Noto_Serif'] text-xs md:text-sm opacity-40">
@@ -250,6 +288,42 @@
                         menuIcon.textContent = "menu";
                     } else {
                         menuIcon.textContent = "close";
+                    }
+                });
+            }
+
+            // Logika Dropdown Profile Navbar
+            const dropdownBtn = document.getElementById("profile-dropdown-btn");
+            const dropdownMenu = document.getElementById("profile-dropdown-menu");
+            const nvLogoutBtn = document.getElementById("navbar-logout-btn");
+
+            if (dropdownBtn && dropdownMenu) {
+                dropdownBtn.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle("hidden");
+                    const isExpanded = !dropdownMenu.classList.contains("hidden");
+                    dropdownBtn.setAttribute("aria-expanded", isExpanded);
+                });
+
+                document.addEventListener("click", function (e) {
+                    if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.add("hidden");
+                        dropdownBtn.setAttribute("aria-expanded", "false");
+                    }
+                });
+            }
+
+            if (nvLogoutBtn) {
+                nvLogoutBtn.addEventListener("click", function () {
+                    nvLogoutBtn.disabled = true;
+                    if (window.secureFetch) {
+                        window.secureFetch("/api/auth/logout/", { method: "POST" })
+                            .finally(() => { window.location.href = "/login/"; });
+                    } else {
+                        fetch("/api/auth/logout/", {
+                            method: "POST",
+                            headers: { "X-CSRFToken": CSRF_TOKEN }
+                        }).finally(() => { window.location.href = "/login/"; });
                     }
                 });
             }

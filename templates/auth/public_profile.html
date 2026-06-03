@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Sahabat Bradpitt - Profil {% if target_user.profile.display_name %}{{ target_user.profile.display_name }}{% else %}Cinephile #{{ target_user.id }}{% endif %}{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-[80px] pb-16">
+    <!-- Banner -->
+    <div class="relative h-64 md:h-80 w-full bg-[#2b2a2a] overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-40 blur-md transition-all duration-500" 
+             style="background-image: url('{% if target_user.profile.avatar %}{{ target_user.profile.avatar.url }}{% else %}data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23a8a29e\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>{% endif %}');">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#37353E] via-[#37353E]/50 to-transparent"></div>
+    </div>
+
+    <!-- Identity & Info -->
+    <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative -mt-24 z-10 mb-10">
+        <div class="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+            <!-- Avatar -->
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#37353E] overflow-hidden shadow-2xl shrink-0 bg-[#2b2a2a]">
+                {% if target_user.profile.avatar %}
+                    <img id="avatar-img" alt="User Avatar" class="w-full h-full object-cover p-1 rounded-full" src="{{ target_user.profile.avatar.url }}" />
+                {% else %}
+                    <img id="avatar-img" alt="User Avatar" class="w-full h-full object-cover p-1 rounded-full" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" />
+                {% endif %}
+            </div>
+            <!-- Details -->
+            <div class="flex-grow pb-2">
+                <h1 id="display-name" class="font-['Playfair_Display'] text-3xl md:text-5xl text-[#D3DAD9] font-bold mb-3">
+                    {% if target_user.profile.display_name %}
+                        {{ target_user.profile.display_name }}
+                    {% else %}
+                        Cinephile #{{ target_user.id }}
+                    {% endif %}
+                </h1>
+                <p id="bio-val" class="font-['DM_Sans'] text-[#D3DAD9]/80 max-w-2xl text-sm leading-relaxed">
+                    {{ target_user.profile.bio|default:"Cinephile ini belum menulis bio." }}
+                </p>
+            </div>
+            <!-- Actions (If own profile, show redirect back to private profile) -->
+            {% if is_own_profile %}
+            <div class="shrink-0 mt-4 md:mt-0">
+                <a href="/profile/" class="bg-[#715A5A] hover:bg-[#8A6E6E] text-[#D3DAD9] transition-all px-6 py-2.5 rounded font-medium text-sm inline-block shadow-md">
+                    Kelola Profil Saya
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 mt-8 bg-[#201f20]/50 border border-white/10 rounded-lg p-4 sm:p-6 shadow-xl backdrop-blur-md">
+            <div class="text-center">
+                <div id="stat-ratings" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">
+                    {{ target_user.profile.ratings_count|default:0 }}
+                </div>
+                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Diberi Rating</div>
+            </div>
+            <div class="text-center border-l border-r border-white/10">
+                <div id="stat-reviews" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">
+                    {{ target_user.profile.reviews_count|default:0 }}
+                </div>
+                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Ulasan Ditulis</div>
+            </div>
+            <div class="text-center">
+                <div id="stat-avg" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">
+                    {{ target_user.profile.avg_rating|floatformat:1|default:"0.0" }}
+                </div>
+                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Rerata Rating</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS SECTION -->
+    <section class="max-w-[1440px] mx-auto px-6 lg:px-12 py-6 border-t border-white/5">
+        <!-- Tab Nav -->
+        <style>
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+            .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+        <div class="relative flex gap-6 border-b border-white/10 font-['DM_Sans'] text-sm mb-8 overflow-x-auto whitespace-nowrap hide-scrollbar pb-1">
+            <!-- Sliding Active Indicator Bar -->
+            <div id="tab-active-bar" class="absolute bottom-[-1px] left-0 h-[3px] rounded-t-sm bg-[#715A5A] transition-all duration-150 ease-out z-10"></div>
+            
+            <button id="tab-reviews-btn" class="pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20" style="touch-action: manipulation;">
+                <span class="material-symbols-outlined text-lg">rate_review</span> Film yang Diulas
+            </button>
+            <button id="tab-watchlist-btn" class="pb-4 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20" style="touch-action: manipulation;">
+                <span class="material-symbols-outlined text-lg">bookmark</span> Watchlist
+            </button>
+        </div>
+
+        <!-- Tab Content: Reviews -->
+        <div id="section-reviews" class="block animate-fade-in">
+            <div id="rated-movies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+            <!-- Show More Reviews -->
+            <div id="reviews-more-container" class="mt-8 flex justify-center hidden">
+                <button id="btn-reviews-more" class="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white text-xs font-semibold hover:scale-105 transition-all duration-300 flex items-center gap-1.5 focus:outline-none">
+                    Lihat Selengkapnya <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content: Watchlist -->
+        <div id="section-watchlist" class="hidden animate-fade-in">
+            <div id="watchlist-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+            <!-- Show More Watchlist -->
+            <div id="watchlist-more-container" class="mt-8 flex justify-center hidden">
+                <button id="btn-watchlist-more" class="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white text-xs font-semibold hover:scale-105 transition-all duration-300 flex items-center gap-1.5 focus:outline-none">
+                    Lihat Selengkapnya <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth/profile_lists.js?v=2"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tabReviewsBtn = document.getElementById("tab-reviews-btn");
+        const tabWatchlistBtn = document.getElementById("tab-watchlist-btn");
+        const sectionReviews = document.getElementById("section-reviews");
+        const sectionWatchlist = document.getElementById("section-watchlist");
+        const tabActiveBar = document.getElementById("tab-active-bar");
+
+        function updateActiveBar(btn) {
+            if (!tabActiveBar || !btn) return;
+            const rect = btn.getBoundingClientRect();
+            const containerRect = btn.parentElement.getBoundingClientRect();
+            tabActiveBar.style.width = `${rect.width}px`;
+            tabActiveBar.style.left = `${rect.left - containerRect.left + btn.parentElement.scrollLeft}px`;
+        }
+
+        function switchTab(activeTab) {
+            if (activeTab === 'reviews') {
+                tabReviewsBtn.className = "pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
+                tabWatchlistBtn.className = "pb-4 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
+                sectionReviews.classList.remove("hidden");
+                sectionWatchlist.classList.add("hidden");
+                updateActiveBar(tabReviewsBtn);
+            } else {
+                tabWatchlistBtn.className = "pb-4 text-white font-semibold transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
+                tabReviewsBtn.className = "pb-4 text-[#D3DAD9]/60 hover:text-white transition-all flex items-center gap-1.5 focus:outline-none shrink-0 relative z-20";
+                sectionWatchlist.classList.remove("hidden");
+                sectionReviews.classList.add("hidden");
+                updateActiveBar(tabWatchlistBtn);
+            }
+        }
+
+        tabReviewsBtn.addEventListener("click", () => switchTab('reviews'));
+        tabWatchlistBtn.addEventListener("click", () => switchTab('watchlist'));
+
+        // Initial position of active tab bar
+        setTimeout(() => { if (tabReviewsBtn) updateActiveBar(tabReviewsBtn); }, 150);
+
+        window.addEventListener("resize", () => {
+            const activeBtn = sectionReviews.classList.contains("hidden") ? tabWatchlistBtn : tabReviewsBtn;
+            if (activeBtn) updateActiveBar(activeBtn);
+        });
+
+        // Load data from profile_lists.js functions (with isOwner = false)
+        const targetUserId = "{{ target_user.id }}";
+        if (window.fetchUserRatings) {
+            window.fetchUserRatings(targetUserId, false);
+        }
+        if (window.fetchUserWatchlist) {
+            window.fetchUserWatchlist(targetUserId, false);
+        }
+    });
+</script>
+{% endblock %}

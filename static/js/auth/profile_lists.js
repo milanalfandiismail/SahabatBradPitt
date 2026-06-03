@@ -1,23 +1,91 @@
 /**
  * auth/profile_lists.js
- * Penanganan daftar ulasan (ratings) dan watchlist pada profil pengguna.
+ * Penanganan daftar ulasan (ratings) dan watchlist pada profil pengguna dengan dukungan pagination dinamis.
  */
 
 document.addEventListener("DOMContentLoaded", function () {
-    window.fetchUserRatings = function (userId, isOwner = true) {
+    // Fungsi pembantu untuk me-render kontrol pagination
+    function renderListPagination(containerId, page, totalCount, pageSize, onPageChange) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.textContent = "";
+
+        const totalPages = Math.ceil(totalCount / pageSize);
+        if (totalPages <= 1) return;
+
+        // Button Previous
+        const prevBtn = document.createElement("button");
+        prevBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+            (page === 1
+                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
+                : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+        prevBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_left</span>`;
+        if (page > 1) {
+            prevBtn.addEventListener("click", () => onPageChange(page - 1));
+        }
+        container.appendChild(prevBtn);
+
+        // Page Numbers (Sliding window of max 5 pages)
+        let startPage, endPage;
+        if (totalPages <= 5) {
+            startPage = 1;
+            endPage = totalPages;
+        } else {
+            if (page <= 3) {
+                startPage = 1;
+                endPage = 5;
+            } else if (page + 2 >= totalPages) {
+                startPage = totalPages - 4;
+                endPage = totalPages;
+            } else {
+                startPage = page - 2;
+                endPage = page + 2;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.className = "w-8 h-8 rounded border text-xs font-bold transition-all " +
+                (i === page
+                    ? "bg-[#715A5A] border-[#715A5A] text-white shadow-md"
+                    : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+            pageBtn.textContent = i;
+            pageBtn.addEventListener("click", () => onPageChange(i));
+            container.appendChild(pageBtn);
+        }
+
+        // Button Next
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "flex items-center justify-center w-8 h-8 rounded border transition-all " +
+            (page === totalPages
+                ? "border-white/5 text-stone-600 cursor-not-allowed opacity-50"
+                : "border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5");
+        nextBtn.innerHTML = `<span class="material-symbols-outlined text-base">chevron_right</span>`;
+        if (page < totalPages) {
+            nextBtn.addEventListener("click", () => onPageChange(page + 1));
+        }
+        container.appendChild(nextBtn);
+    }
+
+    window.fetchUserRatings = function (userId, isOwner = true, page = 1) {
         const grid = document.getElementById("rated-movies-grid");
         const moreContainer = document.getElementById("reviews-more-container");
+        const paginationControls = document.getElementById("reviews-pagination-controls");
         if (!grid) return;
         grid.textContent = "";
         if (moreContainer) moreContainer.classList.add("hidden");
+        if (paginationControls) paginationControls.classList.add("hidden");
 
-        fetch(`/api/ratings/?user=${userId}&page_size=20`)
+        fetch(`/api/ratings/?user=${userId}&page=${page}&page_size=20`)
             .then(res => res.json())
             .then(ratings => {
-                const results = ratings.results || ratings;
+                const results = ratings.results || [];
+                const totalCount = ratings.count || results.length;
+
                 if (results.length === 0) {
                     const msg = isOwner ? "Anda belum mengulas film apa pun." : "Cinephile ini belum mengulas film apa pun.";
                     grid.innerHTML = `<p class="col-span-full text-stone-500 italic text-sm">${msg}</p>`;
+                    if (paginationControls) paginationControls.innerHTML = "";
                     return;
                 }
 
@@ -82,20 +150,32 @@ document.addEventListener("DOMContentLoaded", function () {
                         moreContainer.classList.add("hidden");
                     };
                 }
+
+                // Render Pagination Controls
+                if (paginationControls) {
+                    paginationControls.classList.remove("hidden");
+                    renderListPagination("reviews-pagination-controls", page, totalCount, 20, (newPage) => {
+                        window.fetchUserRatings(userId, isOwner, newPage);
+                    });
+                }
             });
     };
 
-    window.fetchUserWatchlist = function (userId, isOwner = true) {
+    window.fetchUserWatchlist = function (userId, isOwner = true, page = 1) {
         const grid = document.getElementById("watchlist-grid");
         const moreContainer = document.getElementById("watchlist-more-container");
+        const paginationControls = document.getElementById("watchlist-pagination-controls");
         if (!grid) return;
         grid.textContent = "";
         if (moreContainer) moreContainer.classList.add("hidden");
+        if (paginationControls) paginationControls.classList.add("hidden");
 
-        fetch(`/api/ratings/watchlist/?user=${userId}&page_size=20`)
+        fetch(`/api/ratings/watchlist/?user=${userId}&page=${page}&page_size=20`)
             .then(res => res.json())
             .then(watchlist => {
-                const results = watchlist.results || watchlist;
+                const results = watchlist.results || [];
+                const totalCount = watchlist.count || results.length;
+
                 if (results.length === 0) {
                     const msg = isOwner ? "Belum ada film di watchlist Anda." : "Belum ada film di watchlist.";
                     grid.innerHTML = `
@@ -103,6 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span class="material-symbols-outlined text-4xl mb-2">bookmark_border</span>
                         <p class="italic text-sm">${msg}</p>
                     </div>`;
+                    if (paginationControls) paginationControls.innerHTML = "";
                     return;
                 }
 
@@ -165,6 +246,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.querySelectorAll(".js-more-watchlist").forEach(c => c.classList.remove("hidden"));
                         moreContainer.classList.add("hidden");
                     };
+                }
+
+                // Render Pagination Controls
+                if (paginationControls) {
+                    paginationControls.classList.remove("hidden");
+                    renderListPagination("watchlist-pagination-controls", page, totalCount, 20, (newPage) => {
+                        window.fetchUserWatchlist(userId, isOwner, newPage);
+                    });
                 }
             });
     };

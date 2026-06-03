@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
         grid.textContent = "";
         if (moreContainer) moreContainer.classList.add("hidden");
 
-        fetch(`/api/ratings/?user=${userId}`)
+        fetch(`/api/ratings/?user=${userId}&page_size=20`)
             .then(res => res.json())
             .then(ratings => {
                 const results = ratings.results || ratings;
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         grid.textContent = "";
         if (moreContainer) moreContainer.classList.add("hidden");
 
-        fetch(`/api/ratings/watchlist/?user=${userId}`)
+        fetch(`/api/ratings/watchlist/?user=${userId}&page_size=20`)
             .then(res => res.json())
             .then(watchlist => {
                 const results = watchlist.results || watchlist;

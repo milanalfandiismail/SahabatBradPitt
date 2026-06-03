@@ -67,7 +67,7 @@
             </button>
         </div>
 
-        <form id="festival-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="saveFestival(event)">
+        <form id="festival-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8" onsubmit="event.preventDefault();">
             <input type="hidden" id="festival-id">
 
             <!-- Left: Metadata inputs -->

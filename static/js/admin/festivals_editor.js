@@ -550,6 +550,16 @@ function _populateFestivalEditor(fest) {
 function saveFestival(e) {
     e.preventDefault();
     const id = document.getElementById('festival-id').value;
+    
+    const form = document.getElementById('festival-form');
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+    let originalBtnText = '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">sync</span> Menyimpan...`;
+    }
+
     const formData = new FormData();
     formData.append('name', document.getElementById('festival-name-input').value);
     formData.append('native_name', document.getElementById('festival-native-name-input').value);
@@ -582,7 +592,13 @@ function saveFestival(e) {
             closeFestivalEditor();
             if (window.fetchFestivals) window.fetchFestivals(window.festivalCurrentPage || 1);
         })
-        .catch(() => showToast('Gagal menyimpan festival', 'error'));
+        .catch(() => showToast('Gagal menyimpan festival', 'error'))
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
 }
 
 // Binds all autocomplete events for Editor when DOM is loaded

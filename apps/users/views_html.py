@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout, authenticate, login as auth_login
@@ -107,6 +107,48 @@ def profile_html_view(request):
     Diproteksi Django @login_required — akan redirect ke /login/ jika belum auth.
     """
     return render(request, 'auth/profile.html')
+
+
+def public_profile_html_view(request, user_id):
+    """
+    Render halaman profil publik pengguna lain (read-only).
+    """
+    target_user = get_object_or_404(User, id=user_id, is_active=True)
+    is_own_profile = False
+    if request.user.is_authenticated and request.user.id == target_user.id:
+        is_own_profile = True
+        
+    return render(request, 'auth/public_profile.html', {
+        'target_user': target_user,
+        'is_own_profile': is_own_profile
+    })
+
+
+def search_profile_html_view(request):
+    """
+    Mencari pengguna berdasarkan nama lengkap (display_name) atau username.
+    Jika query kosong, menampilkan daftar Cinephile teraktif.
+    """
+    q = request.GET.get('q', '').strip()
+    if q:
+        from django.db.models import Q
+        users = User.objects.filter(is_active=True).filter(
+            Q(username__icontains=q) | Q(profile__display_name__icontains=q)
+        ).distinct()
+        is_search = True
+    else:
+        # Default: list top 12 most active users based on total ratings count
+        from django.db.models import Count
+        users = User.objects.filter(is_active=True).annotate(
+            num_ratings=Count('ratings')
+        ).order_by('-num_ratings')[:12]
+        is_search = False
+        
+    return render(request, 'auth/user_search_results.html', {
+        'query': q,
+        'users': users,
+        'is_search': is_search
+    })
 
 
 @login_required(login_url='/login/')

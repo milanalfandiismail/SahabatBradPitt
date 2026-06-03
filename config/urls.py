@@ -9,6 +9,8 @@ from apps.users.views_html import (
     profile_html_view,
     recommendations_html_view,
     admin_films_html_view,
+    public_profile_html_view,
+    search_profile_html_view,
 )
 
 urlpatterns = [
@@ -37,6 +39,8 @@ urlpatterns = [
     path('login/', login_html_view, name='login'),
     path('signup/', signup_html_view, name='signup'),
     path('profile/', profile_html_view, name='profile'),
+    path('profile/search/', search_profile_html_view, name='search_profile'),
+    path('profile/<int:user_id>/', public_profile_html_view, name='public_profile'),
     path('recommendations/', recommendations_html_view, name='recommendations'),
     path('admin-films/', admin_films_html_view, name='admin_films'),
 ]

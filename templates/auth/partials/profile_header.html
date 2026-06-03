@@ -7,7 +7,7 @@
 <div id="profile-container" class="hidden">
     <!-- Banner -->
     <div class="relative h-64 md:h-80 w-full bg-[#2b2a2a] overflow-hidden">
-        <div class="absolute inset-0 bg-cover bg-center opacity-40 blur-sm" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800');"></div>
+        <div id="hero-bg-img" class="absolute inset-0 bg-cover bg-center opacity-40 blur-md transition-all duration-500" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800');"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-[#37353E] via-[#37353E]/50 to-transparent"></div>
     </div>
 
@@ -31,22 +31,6 @@
                 <button id="logout-btn" class="bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 transition-all px-4 py-2.5 rounded flex items-center justify-center gap-1.5 text-sm">
                     <span class="material-symbols-outlined text-sm">logout</span> Logout
                 </button>
-            </div>
-        </div>
-
-        <!-- Stats Panel -->
-        <div class="grid grid-cols-3 gap-2 sm:gap-4 mt-8 bg-[#201f20]/50 border border-white/10 rounded-lg p-4 sm:p-6 shadow-xl backdrop-blur-md">
-            <div class="text-center">
-                <div id="stat-ratings" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">0</div>
-                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Diberi Rating</div>
-            </div>
-            <div class="text-center border-l border-r border-white/10">
-                <div id="stat-reviews" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">0</div>
-                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Ulasan Ditulis</div>
-            </div>
-            <div class="text-center">
-                <div id="stat-avg" class="font-['Playfair_Display'] text-xl sm:text-2xl md:text-3xl text-[#D3DAD9] font-bold">0.0</div>
-                <div class="font-['DM_Sans'] text-[10px] sm:text-xs text-[#D3DAD9]/70 mt-1">Rerata Rating</div>
             </div>
         </div>
     </div>

@@ -1,6 +1,8 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
+from apps.users.models import UserProfile
+import os
 
 
 @receiver(post_save, sender=User)
@@ -24,4 +26,25 @@ def assign_user_to_group(sender, instance, created, **kwargs):
         instance.groups.add(superadmin_group)
     elif instance.is_staff:
         instance.groups.add(admin_group)
+
+
+@receiver(post_delete, sender=UserProfile)
+def auto_delete_avatar_on_delete(sender, instance, **kwargs):
+    if instance.avatar:
+        if os.path.isfile(instance.avatar.path):
+            os.remove(instance.avatar.path)
+
+
+@receiver(pre_save, sender=UserProfile)
+def auto_delete_avatar_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_file = UserProfile.objects.get(pk=instance.pk).avatar
+    except UserProfile.DoesNotExist:
+        return False
+    new_file = instance.avatar
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 

@@ -147,7 +147,6 @@ document.addEventListener("DOMContentLoaded", function () {
             _renderAwards(film);
 
             if (window.fetchCast) window.fetchCast(film.id);
-            if (window.fetchReviews) window.fetchReviews(film.id);
             fetchSimilar(film.id);
         })
         .catch(err => { if (loading) loading.classList.add("hidden"); if (errorContainer) errorContainer.classList.remove("hidden"); console.error(err); });

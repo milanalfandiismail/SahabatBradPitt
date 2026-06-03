@@ -46,11 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
     window.fetchReviews = function(id) {
         const feed = document.getElementById("reviews-feed");
         if (!feed) return;
-        feed.textContent = "";
         fetch(`/api/ratings/?film=${id}`)
             .then(res => res.json())
             .then(reviews => {
                 const results = reviews.results || reviews;
+                feed.textContent = ""; // Clear feed here to avoid duplicate rendering race conditions
                 if (results.length === 0) {
                     const msg = document.createElement("p");
                     msg.className = "text-stone-500 italic text-sm";
@@ -107,6 +107,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     date.className = "text-[10px] text-stone-500";
                     date.textContent = new Date(review.created_at).toLocaleDateString("id-ID", { year: 'numeric', month: 'long', day: 'numeric' });
                     metaRow.appendChild(date);
+
+                    // Actions Container
+                    const actionsWrap = document.createElement("div");
+                    actionsWrap.className = "flex items-center gap-3";
+                    
+                    // Render edit button for owner
+                    if (review.user === currentUserId) {
+                        const editBtn = document.createElement("button");
+                        editBtn.className = "text-xs text-amber-500 hover:text-amber-400 font-semibold transition-colors flex items-center gap-1 focus:outline-none";
+                        editBtn.innerHTML = `<span class="material-symbols-outlined text-xs">edit</span> Ubah`;
+                        editBtn.addEventListener("click", () => {
+                            const reviewInput = document.getElementById("review-text");
+                            if (reviewInput) {
+                                reviewInput.focus();
+                                reviewInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        });
+                        actionsWrap.appendChild(editBtn);
+                    }
                     
                     // Render delete button for staff/superuser
                     if (currentUserIsAdmin) {
@@ -142,7 +161,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                 });
                             }
                         });
-                        metaRow.appendChild(deleteBtn);
+                        actionsWrap.appendChild(deleteBtn);
+                    }
+
+                    if (actionsWrap.children.length > 0) {
+                        metaRow.appendChild(actionsWrap);
                     }
                     
                     details.appendChild(header); details.appendChild(text); details.appendChild(metaRow);

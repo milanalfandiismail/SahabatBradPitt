@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const isMobile = window.innerWidth < 768;
                 results.forEach((item, index) => {
                     const card = document.createElement("div");
-                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg animate-fade-in";
+                    card.className = "bg-[#201f20] rounded-lg overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 border border-white/5 shadow-lg relative animate-fade-in";
                     if (isMobile && index >= 4) {
                         card.classList.add("hidden", "js-more-ratings");
                     }
@@ -40,6 +40,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     img.className = "w-full h-full object-cover group-hover:scale-105 transition-all duration-500";
                     img.src = posterUrl; img.alt = item.film_title;
                     imgWrap.appendChild(img);
+
+                    if (isOwner) {
+                        const editBadge = document.createElement("button");
+                        editBadge.className = "absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 hover:bg-amber-600 hover:scale-110 flex items-center justify-center text-white transition-all z-20 shadow-md";
+                        editBadge.innerHTML = `<span class="material-symbols-outlined text-base">edit</span>`;
+                        editBadge.title = "Ubah Ulasan / Rating";
+                        editBadge.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            window.location.href = `/movies/${item.film}/`;
+                        });
+                        card.appendChild(editBadge);
+                    }
 
                     const p = document.createElement("div");
                     p.className = "p-4 flex flex-col gap-1";

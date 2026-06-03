@@ -68,7 +68,9 @@
                         for="username">Username</label>
                     <input id="username"
                         class="w-full px-3 py-2.5 bg-[#37353E] border border-white/10 rounded-lg text-sm text-stone-200 placeholder-stone-600 focus:border-[#715A5A] focus:ring-1 focus:ring-[#715A5A] focus:outline-none transition-all"
-                        name="username" placeholder="Masukkan username..." required type="text" />
+                        name="username" placeholder="Masukkan username..." required type="text"
+                        pattern="^[a-zA-Z0-9.@+_\-]+$"
+                        title="Username tidak boleh mengandung spasi dan hanya boleh terdiri dari huruf, angka, serta karakter @/./+/-/_." />
                 </div>
 
                 <!-- Display Name -->

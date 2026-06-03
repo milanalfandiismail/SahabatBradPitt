@@ -12,6 +12,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
     
+    def validate_username(self, value):
+        import re
+        if not re.match(r'^[\w.@+-]+$', value):
+            raise serializers.ValidationError("Username tidak boleh mengandung spasi dan hanya boleh terdiri dari huruf, angka, serta karakter @/./+/-/_.")
+        return value
+
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError("Email wajib diisi.")

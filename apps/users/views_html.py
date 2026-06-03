@@ -76,8 +76,11 @@ def signup_html_view(request):
         e = request.POST.get('email')
         dn = request.POST.get('displayName')
 
+        import re
         if not u or not p or not cp or not e:
             error_msg = "Mohon lengkapi semua field yang diperlukan."
+        elif not re.match(r'^[\w.@+-]+$', u):
+            error_msg = "Username tidak boleh mengandung spasi dan hanya boleh terdiri dari huruf, angka, serta karakter @/./+/-/_."
         elif p != cp:
             error_msg = "Konfirmasi password tidak cocok dengan password."
         elif len(p) < 8:

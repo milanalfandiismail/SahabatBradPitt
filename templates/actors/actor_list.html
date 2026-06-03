@@ -67,6 +67,7 @@
             const params = new URLSearchParams();
             params.append("page", page);
             params.append("ordering", "name");
+            params.append("page_size", 15);
             if (searchInput && searchInput.value.trim()) {
                 params.append("search", searchInput.value.trim());
             }
@@ -182,7 +183,7 @@
             paginationControls.textContent = "";
             paginationControls.classList.remove("hidden");
 
-            const totalPages = Math.ceil(totalCount / 12);
+            const totalPages = Math.ceil(totalCount / 15);
             if (totalPages <= 1) return;
 
             // Previous Button

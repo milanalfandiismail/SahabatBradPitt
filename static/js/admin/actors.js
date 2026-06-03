@@ -29,7 +29,7 @@ function fetchActors(page = 1) {
     actorsEmpty?.classList.add('hidden');
     actorsLoading?.classList.remove('hidden');
 
-    let url = `/api/actors/?page=${page}&ordering=name`;
+    let url = `/api/actors/?page=${page}&ordering=name&page_size=15`;
     if (window.actorsSearchQuery) url += `&search=${encodeURIComponent(window.actorsSearchQuery)}`;
 
     fetch(url)
@@ -46,7 +46,7 @@ function fetchActors(page = 1) {
             }
             renderActorsTable(results);
             if (actorsPaginationInfo) {
-                actorsPaginationInfo.textContent = `Menampilkan ${(page - 1) * 10 + 1} - ${Math.min(page * 10, count)} dari ${count} sineas`;
+                actorsPaginationInfo.textContent = `Menampilkan ${(page - 1) * 15 + 1} - ${Math.min(page * 15, count)} dari ${count} sineas`;
             }
             renderActorsPagination(page, count);
         })
@@ -135,7 +135,7 @@ function renderActorsPagination(page, totalCount) {
     const container = document.getElementById('actors-pagination-controls');
     if (!container) return;
     container.textContent = "";
-    const totalPages = Math.ceil(totalCount / 10);
+    const totalPages = Math.ceil(totalCount / 15);
     if (totalPages <= 1) return;
 
     const prev = document.createElement('button');

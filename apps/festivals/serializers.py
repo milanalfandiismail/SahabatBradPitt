@@ -21,14 +21,16 @@ class FestivalFilmSerializer(serializers.ModelSerializer):
 class FestivalAwardSerializer(serializers.ModelSerializer):
     film_title = serializers.CharField(source='film.title', read_only=True)
     film_poster = serializers.CharField(source='film.tmdb_poster', read_only=True)
+    film_local_poster = serializers.ImageField(source='film.local_poster', read_only=True)
     actor_name = serializers.CharField(source='actor.name', read_only=True)
     actor_photo = serializers.CharField(source='actor.tmdb_photo', read_only=True)
+    actor_local_photo = serializers.ImageField(source='actor.local_photo', read_only=True)
 
     class Meta:
         model = FestivalAward
         fields = [
-            'id', 'festival', 'film', 'film_title', 'film_poster', 
-            'actor', 'actor_name', 'actor_photo', 'category', 'year', 'award_type'
+            'id', 'festival', 'film', 'film_title', 'film_poster', 'film_local_poster',
+            'actor', 'actor_name', 'actor_photo', 'actor_local_photo', 'category', 'year', 'award_type'
         ]
 
 class FestivalSerializer(serializers.ModelSerializer):

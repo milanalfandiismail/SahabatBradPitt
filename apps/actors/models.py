@@ -145,6 +145,11 @@ class Actor(models.Model):
 
     objects = ActorQuerySet.as_manager()
 
+    def save(self, *args, **kwargs):
+        if self.birthday:
+            self.birth_year = self.birthday.year
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

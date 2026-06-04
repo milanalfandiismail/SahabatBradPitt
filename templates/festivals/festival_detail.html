@@ -224,14 +224,18 @@
                         if (primaryAward.actor_name) {
                             // CASE A: Ada Aktor Penerima (misal: Best Actor/Actress)
                             let actorPhoto = '';
-                            if (primaryAward.actor_photo) {
+                            if (primaryAward.actor_local_photo) {
+                                actorPhoto = primaryAward.actor_local_photo;
+                            } else if (primaryAward.actor_photo) {
                                 actorPhoto = primaryAward.actor_photo.startsWith('http')
                                     ? primaryAward.actor_photo
                                     : `https://image.tmdb.org/t/p/w200${primaryAward.actor_photo}`;
                             }
                             
                             let filmPoster = '';
-                            if (primaryAward.film_title) {
+                            if (primaryAward.film_local_poster) {
+                                filmPoster = primaryAward.film_local_poster;
+                            } else if (primaryAward.film_poster) {
                                 filmPoster = primaryAward.film_poster.startsWith('http')
                                     ? primaryAward.film_poster
                                     : `https://image.tmdb.org/t/p/w200${primaryAward.film_poster}`;
@@ -269,7 +273,9 @@
                         } else if (primaryAward.film_title) {
                             // CASE B: Tidak Ada Aktor (misal: Best Film, Best Director)
                             let filmPoster = '';
-                            if (primaryAward.film_poster) {
+                            if (primaryAward.film_local_poster) {
+                                filmPoster = primaryAward.film_local_poster;
+                            } else if (primaryAward.film_poster) {
                                 filmPoster = primaryAward.film_poster.startsWith('http')
                                     ? primaryAward.film_poster
                                     : `https://image.tmdb.org/t/p/w300${primaryAward.film_poster}`;
@@ -305,9 +311,12 @@
                             finalNominees.forEach(nom => {
                                 let itemHtml = '';
                                 if (nom.actor_name) {
-                                    let photo = nom.actor_photo 
-                                        ? (nom.actor_photo.startsWith('http') ? nom.actor_photo : `https://image.tmdb.org/t/p/w200${nom.actor_photo}`)
-                                        : '';
+                                    let photo = '';
+                                    if (nom.actor_local_photo) {
+                                        photo = nom.actor_local_photo;
+                                    } else if (nom.actor_photo) {
+                                        photo = nom.actor_photo.startsWith('http') ? nom.actor_photo : `https://image.tmdb.org/t/p/w200${nom.actor_photo}`;
+                                    }
                                     itemHtml = `
                                         <div class="flex items-center gap-2">
                                             ${photo 
@@ -321,9 +330,12 @@
                                         </div>
                                     `;
                                 } else if (nom.film_title) {
-                                    let poster = nom.film_poster 
-                                        ? (nom.film_poster.startsWith('http') ? nom.film_poster : `https://image.tmdb.org/t/p/w200${nom.film_poster}`)
-                                        : '';
+                                    let poster = '';
+                                    if (nom.film_local_poster) {
+                                        poster = nom.film_local_poster;
+                                    } else if (nom.film_poster) {
+                                        poster = nom.film_poster.startsWith('http') ? nom.film_poster : `https://image.tmdb.org/t/p/w200${nom.film_poster}`;
+                                    }
                                     itemHtml = `
                                         <div class="flex items-center gap-2">
                                             ${poster 
@@ -389,11 +401,12 @@
                         filmsContainer.textContent = '';
                         data.films.forEach((film, idx) => {
                             let filmPoster = '';
-                            const posterUrl = film.film_poster || film.local_poster || '';
-                            if (posterUrl) {
-                                filmPoster = posterUrl.startsWith('http')
-                                    ? posterUrl
-                                    : `https://image.tmdb.org/t/p/w300${posterUrl}`;
+                            if (film.local_poster) {
+                                filmPoster = film.local_poster;
+                            } else if (film.film_poster) {
+                                filmPoster = film.film_poster.startsWith('http')
+                                    ? film.film_poster
+                                    : `https://image.tmdb.org/t/p/w300${film.film_poster}`;
                             }
                             
                             const card = document.createElement('div');

@@ -96,8 +96,16 @@ function renderActorsTable(actors) {
         tr.appendChild(tdTmdb);
 
         const tdBirth = document.createElement('td');
-        tdBirth.className = "p-2 sm:p-4 text-center text-stone-400 align-middle w-[80px] sm:w-[100px] hidden md:table-cell";
-        tdBirth.textContent = actor.birth_year || "N/A";
+        tdBirth.className = "p-2 sm:p-4 text-center text-stone-400 align-middle w-[120px] hidden md:table-cell whitespace-nowrap";
+        const formatIndonesianDate = (dateStr) => {
+            if (!dateStr) return "";
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateStr;
+        };
+        tdBirth.textContent = actor.birthday ? formatIndonesianDate(actor.birthday) : (actor.birth_year || "N/A");
         tr.appendChild(tdBirth);
 
         const tdBio = document.createElement('td');
@@ -175,8 +183,8 @@ function openActorEditor(actor) {
         document.getElementById('actor-form-name').value = baseName;
         document.getElementById('actor-form-native-name').value = actor.native_name || "";
         document.getElementById('actor-form-tmdb-id').value = actor.tmdb_id || "";
-        document.getElementById('actor-form-birth-year').value = actor.birth_year || "";
-        
+        document.getElementById('actor-form-birthday').value = actor.birthday || "";
+
         const tmdbContainer = document.getElementById('actor-form-tmdb-container');
         if (tmdbContainer) {
             if (actor.tmdb_id) {
@@ -185,7 +193,7 @@ function openActorEditor(actor) {
                 tmdbContainer.classList.add('hidden');
             }
         }
-        
+
         document.getElementById('actor-form-photo').value = "";
         document.getElementById('actor-form-photo-path-hidden').value = actor.tmdb_photo || "";
         document.getElementById('actor-form-instagram').value = actor.instagram_id || "";
@@ -193,7 +201,7 @@ function openActorEditor(actor) {
         document.getElementById('actor-form-facebook').value = actor.facebook_id || "";
         document.getElementById('actor-form-tiktok').value = actor.tiktok_id || "";
         document.getElementById('actor-form-bio').value = actor.bio || "";
-        
+
         const preview = document.getElementById('actor-form-photo-preview');
         const placeholder = document.getElementById('actor-form-photo-placeholder');
         if (preview && placeholder) {
@@ -216,14 +224,14 @@ function openActorEditor(actor) {
     } else {
         window.selectedActorId = null;
         document.getElementById('actor-editor-title').textContent = "Tambah Sineas Baru";
-        
+
         const tmdbContainer = document.getElementById('actor-form-tmdb-container');
         if (tmdbContainer) tmdbContainer.classList.add('hidden');
-        
+
         const preview = document.getElementById('actor-form-photo-preview');
         const placeholder = document.getElementById('actor-form-photo-placeholder');
         if (preview && placeholder) {
-            preview.src = ''; 
+            preview.src = '';
             preview.classList.add('hidden');
             placeholder.classList.remove('hidden');
         }
@@ -255,19 +263,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-actor-btn')?.addEventListener('click', () => openActorEditor(null));
     document.getElementById('actor-editor-cancel-btn')?.addEventListener('click', closeActorEditor);
     document.getElementById('actor-editor-close-btn')?.addEventListener('click', closeActorEditor);
-    
+
     document.getElementById('actor-form-photo-trigger-btn')?.addEventListener('click', () => {
         document.getElementById('actor-form-photo')?.click();
     });
-    
+
     const actorPhotoInput = document.getElementById('actor-form-photo');
     const actorPhotoPreview = document.getElementById('actor-form-photo-preview');
     const actorPhotoPlaceholder = document.getElementById('actor-form-photo-placeholder');
     if (actorPhotoInput && actorPhotoPreview && actorPhotoPlaceholder) {
-        actorPhotoInput.addEventListener('change', function() {
+        actorPhotoInput.addEventListener('change', function () {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     actorPhotoPreview.src = e.target.result;
                     actorPhotoPreview.classList.remove('hidden');
                     actorPhotoPlaceholder.classList.add('hidden');
@@ -290,22 +298,22 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('native_name', document.getElementById('actor-form-native-name').value.trim());
         const tmdbId = document.getElementById('actor-form-tmdb-id').value;
         if (tmdbId) formData.append('tmdb_id', parseInt(tmdbId));
-        const birthYear = document.getElementById('actor-form-birth-year').value;
-        if (birthYear) formData.append('birth_year', parseInt(birthYear));
-        
+        const birthday = document.getElementById('actor-form-birthday').value;
+        if (birthday) formData.append('birthday', birthday);
+
         formData.append('instagram_id', document.getElementById('actor-form-instagram').value.trim());
         formData.append('twitter_id', document.getElementById('actor-form-twitter').value.trim());
         formData.append('facebook_id', document.getElementById('actor-form-facebook').value.trim());
         formData.append('tiktok_id', document.getElementById('actor-form-tiktok').value.trim());
         formData.append('bio', document.getElementById('actor-form-bio').value.trim());
-        
+
         const photoInput = document.getElementById('actor-form-photo');
         if (photoInput.files && photoInput.files[0]) {
             formData.append('local_photo', photoInput.files[0]);
         }
         const hiddenPath = document.getElementById('actor-form-photo-path-hidden').value.trim();
         if (hiddenPath) formData.append('tmdb_photo', hiddenPath);
-        
+
         const url = window.selectedActorId ? `/api/actors/${window.selectedActorId}/` : '/api/actors/';
         const method = window.selectedActorId ? 'PUT' : 'POST';
         secureFetch(url, { method, body: formData })

@@ -67,42 +67,42 @@ function loadPendingFilmsForApproval() {
     }
 
     secureFetch(url)
-    .then(res => res.json())
-    .then(data => {
-        loading?.classList.add('hidden');
-        container.classList.remove('hidden');
+        .then(res => res.json())
+        .then(data => {
+            loading?.classList.add('hidden');
+            container.classList.remove('hidden');
 
-        const films = data.results || [];
-        if (countBadge) {
-            // Only update badge count on initial load without active search filter
-            if (!approvalSearchQuery) {
-                if (films.length > 0) {
-                    countBadge.textContent = films.length;
-                    countBadge.classList.remove('hidden');
-                } else {
-                    countBadge.classList.add('hidden');
+            const films = data.results || [];
+            if (countBadge) {
+                // Only update badge count on initial load without active search filter
+                if (!approvalSearchQuery) {
+                    if (films.length > 0) {
+                        countBadge.textContent = films.length;
+                        countBadge.classList.remove('hidden');
+                    } else {
+                        countBadge.classList.add('hidden');
+                    }
                 }
             }
-        }
 
-        if (films.length === 0) {
-            empty?.classList.remove('hidden');
-            return;
-        }
+            if (films.length === 0) {
+                empty?.classList.remove('hidden');
+                return;
+            }
 
-        container.innerHTML = '';
-        films.forEach((film, idx) => {
-            const card = _buildFilmApprovalCard(film);
-            // card.classList.add('animate-fade-up');
-            // card.style.animationDelay = `${idx * 60}ms`;
-            container.appendChild(card);
+            container.innerHTML = '';
+            films.forEach((film, idx) => {
+                const card = _buildFilmApprovalCard(film);
+                // card.classList.add('animate-fade-up');
+                // card.style.animationDelay = `${idx * 60}ms`;
+                container.appendChild(card);
+            });
+        })
+        .catch(() => {
+            loading?.classList.add('hidden');
+            container.innerHTML = `<p class="col-span-full text-center text-rose-400 py-12 font-['DM_Sans'] text-sm">Gagal memuat film pending. Periksa koneksi server.</p>`;
+            showToast('Gagal memuat film pending.', 'error');
         });
-    })
-    .catch(() => {
-        loading?.classList.add('hidden');
-        container.innerHTML = `<p class="col-span-full text-center text-rose-400 py-12 font-['DM_Sans'] text-sm">Gagal memuat film pending. Periksa koneksi server.</p>`;
-        showToast('Gagal memuat film pending.', 'error');
-    });
 }
 
 // =============================================
@@ -127,42 +127,42 @@ function loadPendingActorsForApproval() {
     }
 
     secureFetch(url)
-    .then(res => res.json())
-    .then(data => {
-        loading?.classList.add('hidden');
-        container.classList.remove('hidden');
+        .then(res => res.json())
+        .then(data => {
+            loading?.classList.add('hidden');
+            container.classList.remove('hidden');
 
-        const actors = data.results || [];
-        if (countBadge) {
-            // Only update badge count on initial load without active search filter
-            if (!approvalSearchQuery) {
-                if (actors.length > 0) {
-                    countBadge.textContent = actors.length;
-                    countBadge.classList.remove('hidden');
-                } else {
-                    countBadge.classList.add('hidden');
+            const actors = data.results || [];
+            if (countBadge) {
+                // Only update badge count on initial load without active search filter
+                if (!approvalSearchQuery) {
+                    if (actors.length > 0) {
+                        countBadge.textContent = actors.length;
+                        countBadge.classList.remove('hidden');
+                    } else {
+                        countBadge.classList.add('hidden');
+                    }
                 }
             }
-        }
 
-        if (actors.length === 0) {
-            empty?.classList.remove('hidden');
-            return;
-        }
+            if (actors.length === 0) {
+                empty?.classList.remove('hidden');
+                return;
+            }
 
-        container.innerHTML = '';
-        actors.forEach((actor, idx) => {
-            const card = _buildActorApprovalCard(actor);
-            // card.classList.add('animate-fade-up');
-            // card.style.animationDelay = `${idx * 60}ms`;
-            container.appendChild(card);
+            container.innerHTML = '';
+            actors.forEach((actor, idx) => {
+                const card = _buildActorApprovalCard(actor);
+                // card.classList.add('animate-fade-up');
+                // card.style.animationDelay = `${idx * 60}ms`;
+                container.appendChild(card);
+            });
+        })
+        .catch(() => {
+            loading?.classList.add('hidden');
+            container.innerHTML = `<p class="col-span-full text-center text-rose-400 py-12 font-['DM_Sans'] text-sm">Gagal memuat sineas pending. Periksa koneksi server.</p>`;
+            showToast('Gagal memuat sineas pending.', 'error');
         });
-    })
-    .catch(() => {
-        loading?.classList.add('hidden');
-        container.innerHTML = `<p class="col-span-full text-center text-rose-400 py-12 font-['DM_Sans'] text-sm">Gagal memuat sineas pending. Periksa koneksi server.</p>`;
-        showToast('Gagal memuat sineas pending.', 'error');
-    });
 }
 
 // =============================================
@@ -271,7 +271,7 @@ function _buildActorApprovalCard(actor) {
         <div class="p-4 flex flex-col gap-3 flex-grow justify-between">
             <div>
                 <h4 class="font-['Playfair_Display'] text-sm font-bold text-stone-100 line-clamp-1 leading-tight">${actor.name}</h4>
-                <p class="text-[10px] text-stone-500 font-['DM_Sans'] mt-1">TMDB: ${actor.tmdb_id || 'Manual'} • Lahir: ${actor.birth_year || 'N/A'}</p>
+                <p class="text-[10px] text-stone-500 font-['DM_Sans'] mt-1">TMDB: ${actor.tmdb_id || 'Manual'} • Lahir: ${actor.birthday ? (() => { const parts = actor.birthday.split('-'); return `${parts[2]}-${parts[1]}-${parts[0]}`; })() : (actor.birth_year || 'N/A')}</p>
                 <p class="text-[11px] text-stone-400 font-['DM_Sans'] line-clamp-2 mt-2 leading-relaxed">${actor.bio || 'Tidak ada biografi.'}</p>
             </div>
             <p class="text-[10px] text-stone-600 font-['DM_Sans'] border-t border-white/5 pt-2">
@@ -312,22 +312,22 @@ function _buildActorApprovalCard(actor) {
 // =============================================
 function approveFilmFromCard(filmId) {
     secureFetch(`/api/films/${filmId}/approve/`, { method: 'POST' })
-    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-    .then(() => {
-        showToast('Film berhasil disetujui dan terbit publik.', 'success');
-        loadPendingFilmsForApproval();
-    })
-    .catch(() => showToast('Gagal menyetujui film.', 'error'));
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(() => {
+            showToast('Film berhasil disetujui dan terbit publik.', 'success');
+            loadPendingFilmsForApproval();
+        })
+        .catch(() => showToast('Gagal menyetujui film.', 'error'));
 }
 
 function approveActorFromCard(actorId) {
     secureFetch(`/api/actors/${actorId}/approve/`, { method: 'POST' })
-    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-    .then(() => {
-        showToast('Aktor berhasil disetujui dan terbit publik.', 'success');
-        loadPendingActorsForApproval();
-    })
-    .catch(() => showToast('Gagal menyetujui aktor.', 'error'));
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(() => {
+            showToast('Aktor berhasil disetujui dan terbit publik.', 'success');
+            loadPendingActorsForApproval();
+        })
+        .catch(() => showToast('Gagal menyetujui aktor.', 'error'));
 }
 
 // =============================================
@@ -407,7 +407,15 @@ function showActorApprovalDetail(actor) {
 
     document.getElementById('detail-actor-name').textContent = actor.name;
     document.getElementById('detail-actor-native').textContent = actor.native_name || '';
-    document.getElementById('detail-actor-birth').textContent = actor.birth_year || 'Unknown Year';
+    const formatIndonesianDate = (dateStr) => {
+        if (!dateStr) return "";
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return dateStr;
+    };
+    document.getElementById('detail-actor-birth').textContent = actor.birthday ? formatIndonesianDate(actor.birthday) : (actor.birth_year || 'Unknown Year');
     document.getElementById('detail-actor-tmdb').textContent = `TMDB: ${actor.tmdb_id || '-'}`;
 
     let photoUrl = "/static/images/placeholder-poster.jpg";

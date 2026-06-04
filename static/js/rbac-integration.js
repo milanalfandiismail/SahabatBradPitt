@@ -392,7 +392,15 @@ function showActorApprovalDetail(actor) {
     
     document.getElementById('detail-actor-name').textContent = actor.name;
     document.getElementById('detail-actor-native').textContent = actor.native_name || '';
-    document.getElementById('detail-actor-birth').textContent = actor.birth_year || 'Unknown Year';
+    const formatIndonesianDate = (dateStr) => {
+        if (!dateStr) return "";
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return dateStr;
+    };
+    document.getElementById('detail-actor-birth').textContent = actor.birthday ? formatIndonesianDate(actor.birthday) : (actor.birth_year || 'Unknown Year');
     document.getElementById('detail-actor-tmdb').textContent = `TMDB: ${actor.tmdb_id || '-'}`;
     
     const photoImg = document.getElementById('detail-actor-photo');

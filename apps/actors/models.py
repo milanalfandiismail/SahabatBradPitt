@@ -147,7 +147,7 @@ class Actor(models.Model):
 
     def save(self, *args, **kwargs):
         if self.birthday:
-            self.birth_year = self.birthday.year
+            self.birth_year = self.birth_year
         super().save(*args, **kwargs)
 
     def __str__(self):

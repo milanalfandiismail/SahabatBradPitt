@@ -1,83 +1,35 @@
 {% extends "base.html" %}
-
 {% block title %}Sahabat Bradpitt - Hasil Pencarian User{% endblock %}
-
 {% block content %}
 <main class="flex-grow pt-[100px] pb-16 px-6 lg:px-12 max-w-[1440px] mx-auto w-full">
-    <!-- Header Section -->
     <div class="mb-8">
         {% if is_search %}
             <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl font-bold text-white mb-2">Hasil Pencarian Cinephile</h1>
-            <p class="text-[#D3DAD9]/60 text-sm">
-                Menampilkan hasil untuk kata kunci: <span class="text-amber-400 font-semibold">"{{ query }}"</span>
-            </p>
+            <p class="text-[#D3DAD9]/60 text-sm">Menampilkan hasil untuk kata kunci: <span class="text-amber-400 font-semibold">"{{ query }}"</span></p>
         {% else %}
             <h1 class="font-['Playfair_Display'] text-3xl md:text-4xl font-bold text-white mb-2">Komunitas Cinephile</h1>
-            <p class="text-[#D3DAD9]/60 text-sm">
-                Temukan penonton teraktif di Sahabat Bradpitt.
-            </p>
+            <p class="text-[#D3DAD9]/60 text-sm">Temukan penonton teraktif di Sahabat Bradpitt.</p>
         {% endif %}
     </div>
 
-    <!-- Search Input Form -->
     <div class="bg-[#201f20]/50 border border-white/10 rounded-xl p-6 backdrop-blur-md shadow-xl mb-10">
-        <form action="/profile/search/" method="GET" class="flex flex-col sm:flex-row gap-2">
+        <div class="flex flex-col sm:flex-row gap-2">
             <div class="relative flex-grow">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-lg">search</span>
-                <input type="text" name="q" value="{{ query }}" placeholder="Cari penonton lain..." 
-                       class="w-full pl-10 pr-4 py-2.5 bg-[#141314]/80 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 placeholder:text-stone-500 transition-all" required />
+                <input id="search-input" type="text" value="{{ query }}" placeholder="Cari penonton lain..." class="w-full pl-10 pr-4 py-2.5 bg-[#141314]/80 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 placeholder:text-stone-500 transition-all" />
             </div>
-            <button type="submit" class="bg-amber-600/80 hover:bg-amber-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-amber-900/20">
-                Cari
-            </button>
-        </form>
-    </div>
-
-    <!-- Results Grid -->
-    {% if users %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for u in users %}
-        <div class="bg-[#201f20] rounded-xl border border-white/5 p-6 hover:scale-[1.02] hover:border-white/10 transition-all duration-300 flex flex-col items-center text-center shadow-lg relative overflow-hidden group">
-            <!-- Subtle gradient overlay on hover -->
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#715A5A]/5 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-
-            <!-- Avatar -->
-            <div class="w-20 h-20 rounded-full border border-white/10 overflow-hidden mb-4 bg-[#37353E] relative z-10 shrink-0">
-                {% if u.profile.avatar %}
-                    <img src="{{ u.profile.avatar.url }}" alt="Avatar" class="w-full h-full object-cover" />
-                {% else %}
-                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Avatar" class="w-full h-full object-cover" />
-                {% endif %}
-            </div>
-
-            <!-- Display Name (Private User Details Hidden) -->
-            <h3 class="font-['DM_Sans'] text-base font-semibold text-white mb-1 line-clamp-1 relative z-10">
-                {% if u.profile.display_name %}
-                    {{ u.profile.display_name }}
-                {% else %}
-                    Cinephile #{{ u.id }}
-                {% endif %}
-            </h3>
-
-            <!-- Stats -->
-            <div class="flex items-center gap-4 text-stone-500 text-xs mb-6 relative z-10">
-                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">rate_review</span> {{ u.profile.reviews_count|default:0 }} Ulasan</span>
-                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">star</span> {{ u.profile.avg_rating|floatformat:1|default:"0.0" }}</span>
-            </div>
-
-            <!-- Action Button -->
-            <a href="/profile/{{ u.id }}/" class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-xs font-semibold tracking-wide transition-all relative z-10 flex items-center justify-center gap-1">
-                Lihat Profil <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </a>
+            <button id="search-btn" class="bg-amber-600/80 hover:bg-amber-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-amber-900/20">Cari</button>
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-20 bg-[#201f20]/30 border border-white/5 rounded-xl">
-        <span class="material-symbols-outlined text-5xl text-stone-600 mb-3">person_search</span>
-        <p class="font-['DM_Sans'] text-stone-400 italic">Tidak ada Cinephile yang ditemukan dengan nama tersebut.</p>
+
+    <div id="users-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+    <div id="pagination-controls" class="mt-12 flex flex-wrap justify-center items-center gap-2 font-['DM_Sans'] text-sm">
+        <!-- Dynamic page buttons -->
     </div>
-    {% endif %}
 </main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth/cinephile_search.js?v=110"></script>
 {% endblock %}

@@ -126,28 +126,64 @@ def public_profile_html_view(request, user_id):
 
 def search_profile_html_view(request):
     """
-    Mencari pengguna berdasarkan nama lengkap (display_name) atau username.
-    Jika query kosong, menampilkan daftar Cinephile teraktif.
+    Render halaman pencarian Cinephile dengan client-side pagination.
+    Jika ada parameter page → return JSON (server-side pagination).
+    Jika tanpa parameter → render HTML.
     """
+    from django.core.paginator import Paginator
+    from django.db.models import Count, Q
+    from django.http import JsonResponse
+
     q = request.GET.get('q', '').strip()
-    if q:
-        from django.db.models import Q
-        users = User.objects.filter(is_active=True).filter(
-            Q(username__icontains=q) | Q(profile__display_name__icontains=q)
-        ).distinct()
-        is_search = True
-    else:
-        # Default: list top 12 most active users based on total ratings count
-        from django.db.models import Count
-        users = User.objects.filter(is_active=True).annotate(
-            num_ratings=Count('ratings')
-        ).order_by('-num_ratings')[:12]
-        is_search = False
-        
+    page = request.GET.get('page')
+    is_search = bool(q)
+
+    if page:
+        # JSON mode: return paginated users
+        page = int(page)
+        page_size = 16
+
+        if q:
+            queryset = User.objects.filter(is_active=True).filter(
+                Q(username__icontains=q) | Q(profile__display_name__icontains=q)
+            ).distinct()
+        else:
+            queryset = User.objects.filter(is_active=True).annotate(
+                rating_count=Count('ratings')
+            ).order_by('-rating_count')
+
+        paginator = Paginator(queryset, page_size)
+        try:
+            page_obj = paginator.page(page)
+        except Exception:
+            page_obj = paginator.page(1)
+
+        data = []
+        for u in page_obj:
+            profile = u.profile
+            data.append({
+                'id': u.id,
+                'profile': {
+                    'display_name': profile.display_name or f"Cinephile #{u.id}",
+                    'avatar': {'url': profile.avatar.url} if profile.avatar else None,
+                    'reviews_count': profile.reviews_count,
+                    'avg_rating': profile.avg_rating,
+                },
+                'avg_rating': profile.avg_rating,
+            })
+
+        return JsonResponse({
+            'users': data,
+            'is_search': is_search,
+            'page': page_obj.number,
+            'total_pages': paginator.num_pages,
+            'total_count': paginator.count,
+        })
+
+    # HTML mode: render template, JS akan fetch via ?page=N
     return render(request, 'auth/user_search_results.html', {
         'query': q,
-        'users': users,
-        'is_search': is_search
+        'is_search': is_search,
     })
 
 

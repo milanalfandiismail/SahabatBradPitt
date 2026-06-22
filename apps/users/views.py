@@ -1,6 +1,7 @@
 from rest_framework import status, permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserProfileEditSerializer, UserPreferencesSerializer
@@ -201,7 +202,63 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('username')
     serializer_class = UserSerializer
 
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def public_list(self, request):
+        """
+        Endpoint publik untuk menampilkan daftar user aktif (search + pagination).
+        Tidak perlu autentikasi.
+        """
+        from django.db.models import Count, Q
+        from django.core.paginator import Paginator
+
+        q = request.GET.get('q', '').strip()
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 16))
+
+        queryset = User.objects.filter(is_active=True)
+        if q:
+            queryset = queryset.filter(
+                Q(username__icontains=q) | Q(profile__display_name__icontains=q)
+            ).distinct()
+            is_search = True
+        else:
+            queryset = queryset.annotate(
+                rating_count=Count('ratings')
+            ).order_by('-rating_count')
+            is_search = False
+
+        paginator = Paginator(queryset, page_size)
+        try:
+            page_obj = paginator.page(page)
+        except Exception:
+            page_obj = paginator.page(1)
+
+        data = []
+        for u in page_obj:
+            profile = u.profile
+            data.append({
+                'id': u.id,
+                'profile': {
+                    'display_name': profile.display_name or f"Cinephile #{u.id}",
+                    'avatar': {'url': profile.avatar.url} if profile.avatar else None,
+                    'reviews_count': profile.reviews_count,
+                    'avg_rating': profile.avg_rating,
+                },
+                'rating_count': profile.ratings_count,
+                'avg_rating': profile.avg_rating,
+            })
+
+        return Response({
+            'users': data,
+            'is_search': is_search,
+            'page': page_obj.number,
+            'total_pages': paginator.num_pages,
+            'total_count': paginator.count,
+        }, status=status.HTTP_200_OK)
+
     def get_permissions(self):
+        if self.action == 'public_list':
+            return [permissions.AllowAny()]
         # Hanya Superuser yang boleh mengakses CRUD User ini
         return [permissions.IsAuthenticated()]
 

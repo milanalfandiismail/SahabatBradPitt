@@ -2,6 +2,7 @@ from rest_framework import status, permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.db import models
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from apps.users.serializers import RegisterSerializer, UserSerializer, UserProfileSerializer, UserProfileEditSerializer, UserPreferencesSerializer
@@ -202,6 +203,40 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('username')
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        """
+        Filter queryset berdasarkan parameter query:
+        - search: cari username/email
+        - role: superadmin / admin / regular
+        - login_provider: google / local
+        """
+        # Proteksi: hanya superuser yang boleh akses
+        if not self.request.user.is_superuser:
+            return User.objects.none()
+        
+        qs = User.objects.filter(is_active=True).order_by('username')
+        
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            qs = qs.filter(
+                models.Q(username__icontains=search) |
+                models.Q(email__icontains=search)
+            )
+        
+        role = self.request.query_params.get('role', '').strip()
+        if role == 'superadmin':
+            qs = qs.filter(is_superuser=True)
+        elif role == 'admin':
+            qs = qs.filter(is_staff=True, is_superuser=False)
+        elif role == 'regular':
+            qs = qs.filter(is_staff=False, is_superuser=False)
+        
+        login_provider = self.request.query_params.get('login_provider', '').strip()
+        if login_provider:
+            qs = qs.filter(profile__auth_provider=login_provider)
+        
+        return qs
+
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def public_list(self, request):
         """
@@ -261,12 +296,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]
         # Hanya Superuser yang boleh mengakses CRUD User ini
         return [permissions.IsAuthenticated()]
-
-    def get_queryset(self):
-        # Proteksi double agar data tidak bocor jika diakses non-superuser
-        if not self.request.user.is_superuser:
-            return User.objects.none()
-        return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_superuser:

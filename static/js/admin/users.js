@@ -1,62 +1,71 @@
 /**
  * admin/users.js
  * Handles: User management (Superuser only).
- * Includes: Search filter, stagger animations, modal integration.
+ * Includes: Search filter, server-side pagination, modal integration.
+ * Mirrors pagination pattern from movies.js / actors.js / festivals.js.
  */
 
 // selectedUserId sudah dideklarasikan di core.js sebagai global
-let allUsers = [];
+let usersCurrentPage = 1;
 
 // =============================================
 // FETCH & RENDER USERS
 // =============================================
-function fetchUsers() {
+function fetchUsers(page = 1) {
+    usersCurrentPage = page;
     const tbody = document.getElementById('users-table-body');
     const empty = document.getElementById('users-empty');
     const loading = document.getElementById('users-loading');
     const error = document.getElementById('users-error');
+    const paginationInfo = document.getElementById('users-pagination-info');
+    const paginationControls = document.getElementById('users-pagination-controls');
 
     tbody.textContent = '';
     empty?.classList.add('hidden');
     error?.classList.add('hidden');
     loading?.classList.remove('hidden');
 
-    secureFetch('/api/auth/users/')
+    // Build query params — kirim filter ke backend biar server-side pagination jalan
+    const params = new URLSearchParams();
+    params.append('page', page);
+
+    const search = document.getElementById('users-search-input')?.value.trim();
+    if (search) params.append('search', search);
+
+    const roleFilter = document.getElementById('users-role-filter')?.value || 'all';
+    if (roleFilter !== 'all') params.append('role', roleFilter);
+
+    const loginFilter = document.getElementById('users-login-filter')?.value || 'all';
+    if (loginFilter !== 'all') params.append('login_provider', loginFilter);
+
+    secureFetch(`/api/auth/users/?${params.toString()}`)
         .then(res => {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return res.json();
         })
         .then(data => {
             loading?.classList.add('hidden');
-            allUsers = Array.isArray(data) ? data : (data.results || []);
+            const users = data.results || [];
+            const total = data.count || 0;
 
-            // Apply search filter client-side
-            const query = document.getElementById('users-search-input')?.value.toLowerCase() || '';
-            const roleFilter = document.getElementById('users-role-filter')?.value || 'all';
-            const loginFilter = document.getElementById('users-login-filter')?.value || 'all';
-            
-            const filtered = allUsers.filter(u => {
-                const matchSearch = !query || u.username.toLowerCase().includes(query) || (u.email && u.email.toLowerCase().includes(query));
-                
-                let matchRole = true;
-                if (roleFilter === 'superadmin') matchRole = u.is_superuser;
-                else if (roleFilter === 'admin') matchRole = u.is_staff && !u.is_superuser;
-                else if (roleFilter === 'regular') matchRole = !u.is_staff && !u.is_superuser;
-                
-                let matchLogin = true;
-                const authProvider = (u.profile && u.profile.auth_provider) ? u.profile.auth_provider : 'local';
-                if (loginFilter === 'google') matchLogin = authProvider === 'google';
-                else if (loginFilter === 'local') matchLogin = authProvider === 'local';
-                
-                return matchSearch && matchRole && matchLogin;
-            });
-
-            if (filtered.length === 0) {
+            if (users.length === 0) {
                 empty?.classList.remove('hidden');
+                if (paginationInfo) paginationInfo.textContent = 'Menampilkan 0 pengguna';
+                if (paginationControls) paginationControls.textContent = '';
                 return;
             }
 
-            renderUsersTable(filtered);
+            renderUsersTable(users);
+
+            // Pagination info
+            const start = (page - 1) * 12 + 1;
+            const end = Math.min(page * 12, total);
+            if (paginationInfo) {
+                paginationInfo.textContent = `Menampilkan ${start} - ${end} dari ${total} pengguna`;
+            }
+
+            // Pagination controls
+            renderUsersPagination(page, total);
         })
         .catch(() => {
             loading?.classList.add('hidden');
@@ -146,6 +155,43 @@ function renderUsersTable(users) {
 }
 
 // =============================================
+// PAGINATION CONTROLS
+// =============================================
+function renderUsersPagination(page, totalCount) {
+    const container = document.getElementById('users-pagination-controls');
+    if (!container) return;
+    container.textContent = '';
+    const totalPages = Math.ceil(totalCount / 12);
+    if (totalPages <= 1) return;
+
+    // Prev button
+    const prev = document.createElement('button');
+    prev.className = `flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5 transition-all text-xs ${page === 1 ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`;
+    prev.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_left</span>`;
+    prev.addEventListener('click', () => fetchUsers(page - 1));
+    container.appendChild(prev);
+
+    // Page numbers
+    let start = Math.max(1, page - 2);
+    let end = Math.min(totalPages, start + 4);
+    if (end - start < 4) start = Math.max(1, end - 4);
+    for (let i = start; i <= end; i++) {
+        const btn = document.createElement('button');
+        btn.className = `w-7 h-7 rounded border text-xs font-bold transition-all ${i === page ? 'bg-[#715A5A] border-[#715A5A] text-white shadow-md' : 'border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5'}`;
+        btn.textContent = i;
+        btn.addEventListener('click', () => fetchUsers(i));
+        container.appendChild(btn);
+    }
+
+    // Next button
+    const next = document.createElement('button');
+    next.className = `flex items-center justify-center w-7 h-7 rounded border border-white/10 text-stone-300 hover:border-[#715A5A] hover:bg-white/5 transition-all text-xs ${page === totalPages ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`;
+    next.innerHTML = `<span class="material-symbols-outlined text-sm">chevron_right</span>`;
+    next.addEventListener('click', () => fetchUsers(page + 1));
+    container.appendChild(next);
+}
+
+// =============================================
 // USER EDITOR MODAL
 // =============================================
 function openUserEditor(user) {
@@ -184,7 +230,7 @@ function deleteUser(id, username) {
             .then(res => {
                 if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Gagal menghapus pengguna.'); });
                 showToast('Pengguna terhapus.', 'success');
-                fetchUsers();
+                fetchUsers(usersCurrentPage);
             })
             .catch(err => showToast(err.message || 'Gagal menghapus pengguna.', 'error'));
     });
@@ -226,28 +272,22 @@ function _buildConfirmToast(message, onConfirm) {
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Search handlers
+    // Load first page on mount
+    fetchUsers(1);
+
+    // Search with debounce — reset ke halaman 1
     const searchInput = document.getElementById('users-search-input');
     let searchTimeout = null;
-
     searchInput?.addEventListener('input', () => {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            if (allUsers.length > 0) fetchUsers(); // or renderUsersTable based on logic, but fetchUsers handles filters properly
-        }, 300);
+        searchTimeout = setTimeout(() => fetchUsers(1), 500);
     });
 
-    document.getElementById('users-search-icon-btn')?.addEventListener('click', () => {
-        fetchUsers();
-    });
+    document.getElementById('users-search-icon-btn')?.addEventListener('click', () => fetchUsers(1));
 
-    document.getElementById('users-role-filter')?.addEventListener('change', () => {
-        fetchUsers();
-    });
-
-    document.getElementById('users-login-filter')?.addEventListener('change', () => {
-        fetchUsers();
-    });
+    // Filter changes — reset ke halaman 1
+    document.getElementById('users-role-filter')?.addEventListener('change', () => fetchUsers(1));
+    document.getElementById('users-login-filter')?.addEventListener('change', () => fetchUsers(1));
 
     // Add user button
     document.getElementById('add-user-btn')?.addEventListener('click', () => openUserEditor(null));
@@ -296,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Data otoritas pengguna berhasil disimpan!', 'success');
                 document.getElementById('user-editor-modal').classList.add('hidden');
                 if (searchInput?.value) searchInput.value = '';
-                fetchUsers();
+                fetchUsers(1);
             })
             .catch(err => {
                 console.error(err);
@@ -314,4 +354,5 @@ window.openUserEditor = openUserEditor;
 window.deleteUser = deleteUser;
 window.fetchUsers = fetchUsers;
 window.renderUsersTable = renderUsersTable;
+window.renderUsersPagination = renderUsersPagination;
 window._buildConfirmToast = _buildConfirmToast;

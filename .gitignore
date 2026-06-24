@@ -20,6 +20,7 @@ env/
 *.swo
 .DS_Store
 Thumbs.db
+.gemini/
 
 planning_sahabatbradpitt.md
 CLAUDE.md
@@ -30,12 +31,20 @@ skills/
 RPL/
 Kecerdasan_Buatan/
 
-
 # Project Context and Task Tracking
-# (Jika Anda ingin mengabaikan berkas catatan markdown atau log di git)
-
-# task.md
 .commandcode/
+
 # Django FileBasedCache directory
 django_cache/
 
+# Node / npm
+node_modules/
+
+# Binary executables
+*.exe
+
+# MCP knowledge graph cache
+.codebase-memory/
+
+# Documentation
+docs/

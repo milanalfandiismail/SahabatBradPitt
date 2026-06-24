@@ -7,8 +7,8 @@
     <title>{% block title %}Sineas Portal - Admin{% endblock %}</title>
     <link rel="icon" type="image/jpeg" href="/static/images/sahabatbradpitt.jpg" />
 
-    <!-- Styles -->
-    <link href="/static/css/tailwind.css" rel="stylesheet" />
+    <!-- Scripts & Fonts CDNs -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="/static/css/toast.css" rel="stylesheet" />
@@ -21,7 +21,29 @@
         const isStaff = JSON.parse("{% if user.is_staff %}true{% else %}false{% endif %}");
     </script>
 
-    <!-- Custom Tailwind theme & utilities are in static/src/input.css (built to static/css/tailwind.css) -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#141314",
+                        surface: "#201f20",
+                        surfaceHighlight: "#2b2a2a",
+                        primaryBrand: "#715A5A",
+                        primaryBrandHover: "#8A6E6E",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 999px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(113,90,90,0.4); border-radius: 999px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(113,90,90,0.7); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
 

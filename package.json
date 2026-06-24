@@ -1,0 +1,34 @@
+{
+  "name": "sahabatbradpitt",
+  "version": "1.0.0",
+  "description": "Platform database film modern dengan sistem rekomendasi berbasis AI, sinkronisasi otomatis dari TMDB API, dan UI yang responsif.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "npx @tailwindcss/cli -i ./static/src/input.css -o ./static/css/tailwind.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./static/src/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/milanalfandiismail/SahabatBradPitt.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/milanalfandiismail/SahabatBradPitt/issues"
+  },
+  "homepage": "https://github.com/milanalfandiismail/SahabatBradPitt#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.1",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "autoprefixer": "^10.5.1",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1"
+  }
+}

@@ -7,7 +7,7 @@
     <title>{% block title %}Sahabat Bradpitt - Cine-Noir Database{% endblock %}</title>
     <link rel="icon" type="image/jpeg" href="/static/images/sahabatbradpitt.jpg" />
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/static/css/tailwind.css" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
@@ -16,105 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet" />
     <link href="/static/css/toast.css" rel="stylesheet" />
 
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                screens: {
-                    'sm': '640px',
-                    'md': '768px',
-                    'lg': '1024px',
-                    'xl': '1400px',
-                    '2xl': '1536px',
-                },
-                extend: {
-                    "colors": {
-                        "secondary-fixed-dim": "#c7c5d1",
-                        "on-primary-fixed-variant": "#48454f",
-                        "surface-tint": "#c9c4d0",
-                        "primary-fixed": "#e5e0ec",
-                        "on-primary": "#312f38",
-                        "surface-container": "#201f20",
-                        "on-error": "#690005",
-                        "surface-container-highest": "#363435",
-                        "inverse-primary": "#605d67",
-                        "on-tertiary-container": "#a59f8e",
-                        "on-surface": "#e5e1e2",
-                        "on-secondary-fixed-variant": "#464650",
-                        "inverse-on-surface": "#313031",
-                        "outline": "#938f95",
-                        "secondary": "#c7c5d1",
-                        "on-background": "#e5e1e2",
-                        "surface-container-high": "#2b2a2a",
-                        "tertiary-container": "#3a3629",
-                        "surface-bright": "#3a3939",
-                        "error": "#ffb4ab",
-                        "surface-container-lowest": "#0e0e0f",
-                        "tertiary": "#cdc6b4",
-                        "surface-variant": "#363435",
-                        "primary": "#c9c4d0",
-                        "inverse-surface": "#e5e1e2",
-                        "on-surface-variant": "#c9c5cb",
-                        "on-secondary-fixed": "#1a1b24",
-                        "secondary-container": "#484852",
-                        "surface-dim": "#141314",
-                        "on-error-container": "#ffdad6",
-                        "on-tertiary-fixed-variant": "#4b4739",
-                        "on-primary-container": "#a19da8",
-                        "primary-container": "#37353e",
-                        "primary-fixed-dim": "#c9c4d0",
-                        "tertiary-fixed-dim": "#cdc6b4",
-                        "error-container": "#93000a",
-                        "on-tertiary-fixed": "#1f1b10",
-                        "on-secondary-container": "#b9b7c3",
-                        "surface": "#141314",
-                        "on-primary-fixed": "#1c1a23",
-                        "outline-variant": "#48464b",
-                        "secondary-fixed": "#e3e1ee",
-                        "on-tertiary": "#343024",
-                        "tertiary-fixed": "#eae2cf",
-                        "surface-container-low": "#1c1b1c",
-                        "background": "#141314",
-                        "on-secondary": "#2f3039"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "stack-md": "16px",
-                        "stack-sm": "8px",
-                        "margin-page": "64px",
-                        "unit": "4px",
-                        "stack-lg": "32px",
-                        "navbar-height": "64px",
-                        "gutter": "24px"
-                    },
-                    "fontFamily": {
-                        "section-title": ["Playfair Display"],
-                        "meta-label": ["DM Sans"],
-                        "hero-display": ["Playfair Display"],
-                        "body-main": ["DM Sans"],
-                        "card-title": ["DM Sans"]
-                    },
-                    "fontSize": {
-                        "section-title": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
-                        "meta-label": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }],
-                        "hero-display": ["52px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "body-main": ["15px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "card-title": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }]
-                    }
-                },
-            }
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
+    <!-- Custom Tailwind theme is in static/src/input.css (built to static/css/tailwind.css) -->
 
     <script>
         const CSRF_TOKEN = "{{ csrf_token }}";

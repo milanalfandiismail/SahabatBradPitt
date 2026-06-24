@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Sahabat Bradpitt - Actor Detail{% endblock %}
 
@@ -118,7 +118,7 @@
                         class="font-['DM_Sans'] text-[#D3DAD9]/80 leading-relaxed text-base whitespace-pre-wrap"></p>
                     <button id="bio-expand-btn"
                         class="hidden mt-3 font-['DM_Sans'] text-xs text-[#715A5A] hover:text-[#8A6E6E] transition-colors underline">Baca
-                        Selengkapnya ↓</button>
+                        Selengkapnya â†“</button>
                 </div>
             </div>
 
@@ -183,25 +183,25 @@
 
                 if (actor.birthday) {
                     const birthBadge = document.getElementById("birth-year-badge");
-                    birthBadge.textContent = `📅 Lahir ${formatIndonesianDate(actor.birthday)}`;
+                    birthBadge.textContent = `ðŸ“… Lahir ${formatIndonesianDate(actor.birthday)}`;
                     birthBadge.classList.remove("hidden");
                 } else if (actor.birth_year) {
                     const birthBadge = document.getElementById("birth-year-badge");
-                    birthBadge.textContent = `📅 Lahir ${actor.birth_year}`;
+                    birthBadge.textContent = `ðŸ“… Lahir ${actor.birth_year}`;
                     birthBadge.classList.remove("hidden");
                 }
 
                 // Badge Meninggal
                 if (actor.deathday) {
                     const deathBadge = document.getElementById("death-badge");
-                    deathBadge.textContent = `✝️ Wafat ${actor.deathday}`;
+                    deathBadge.textContent = `âœï¸ Wafat ${actor.deathday}`;
                     deathBadge.classList.remove("hidden");
                 }
 
                 // Badge Tempat Lahir
                 if (actor.place_of_birth) {
                     const placeBadge = document.getElementById("place-of-birth-badge");
-                    placeBadge.textContent = `📍 ${actor.place_of_birth}`;
+                    placeBadge.textContent = `ðŸ“ ${actor.place_of_birth}`;
                     placeBadge.classList.remove("hidden");
                 }
 
@@ -209,7 +209,7 @@
                 const filmCount = actor.filmographies ? actor.filmographies.length : 0;
                 if (filmCount > 0) {
                     const filmBadge = document.getElementById("film-count-badge");
-                    filmBadge.textContent = `🎬 ${filmCount} Karya`;
+                    filmBadge.textContent = `ðŸŽ¬ ${filmCount} Karya`;
                     filmBadge.classList.remove("hidden");
                 }
 
@@ -251,13 +251,13 @@
                 const BIO_LIMIT = 400;
 
                 if (fullBio.length > BIO_LIMIT) {
-                    bioEl.textContent = fullBio.substring(0, BIO_LIMIT) + "…";
+                    bioEl.textContent = fullBio.substring(0, BIO_LIMIT) + "â€¦";
                     bioExpandBtn.classList.remove("hidden");
                     let expanded = false;
                     bioExpandBtn.addEventListener("click", () => {
                         expanded = !expanded;
-                        bioEl.textContent = expanded ? fullBio : fullBio.substring(0, BIO_LIMIT) + "…";
-                        bioExpandBtn.textContent = expanded ? "Sembunyikan ↑" : "Baca Selengkapnya ↓";
+                        bioEl.textContent = expanded ? fullBio : fullBio.substring(0, BIO_LIMIT) + "â€¦";
+                        bioExpandBtn.textContent = expanded ? "Sembunyikan â†‘" : "Baca Selengkapnya â†“";
                     });
                 } else {
                     bioEl.textContent = fullBio;

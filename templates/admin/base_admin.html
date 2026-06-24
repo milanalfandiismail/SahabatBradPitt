@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="dark" lang="id">
 
 <head>
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="/static/css/toast.css" rel="stylesheet" />
 
-    <!-- Variabel user context diinjeksi Django — tidak butuh localStorage atau fetch token -->
+    <!-- Variabel user context diinjeksi Django â€” tidak butuh localStorage atau fetch token -->
     <script>
         const CSRF_TOKEN = "{{ csrf_token }}";
         const currentUserId = JSON.parse("{% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %}");
@@ -176,7 +176,7 @@
     </main>
 
     <!-- Common Scripts -->
-    <script src="/static/js/toast.js?v=111"></script>
+    <script src="/static/js/toast.js?v=112"></script>
     {% block scripts %}{% endblock %}
 
 

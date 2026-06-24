@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Sahabat Bradpitt - All Actors{% endblock %}
 
@@ -38,7 +38,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/home_actors.js?v=111"></script>
+<script src="/static/js/home_actors.js?v=112"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const grid = document.getElementById("actors-grid");
@@ -156,7 +156,7 @@
 
                         // Tambahkan tahun lahir jika ada
                         origin.textContent = actor.birth_year
-                            ? `${roleLabel} · ${actor.birth_year}`
+                            ? `${roleLabel} Â· ${actor.birth_year}`
                             : roleLabel;
 
                         article.appendChild(portraitWrap);

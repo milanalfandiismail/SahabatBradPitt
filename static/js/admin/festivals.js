@@ -59,7 +59,6 @@ function fetchFestivals(page = 1) {
         })
         .catch(err => {
             loading?.classList.add('hidden');
-            console.error('Error fetching festivals:', err);
             showToast('Gagal memuat data festival', 'error');
         });
 }
@@ -75,7 +74,7 @@ function _debounceFestival(fn, delay) {
     };
 }
 
-const debouncedFetchFestivals = _debounceFestival(() => fetchFestivals(1), 400);
+const debouncedFetchFestivals = _debounceFestival(() => fetchFestivals(1), 500);
 
 // =============================================
 // RENDER TABLE
@@ -232,6 +231,7 @@ function _buildConfirmToast(message, onConfirm) {
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('festival-search');
     searchInput?.addEventListener('input', debouncedFetchFestivals);
+    searchInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fetchFestivals(1); } });
     document.getElementById('festival-search-icon-btn')?.addEventListener('click', () => fetchFestivals(1));
 });
 

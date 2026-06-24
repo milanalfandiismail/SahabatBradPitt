@@ -139,7 +139,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.dispatchEvent(new CustomEvent('filmsLoaded', { detail: films }));
         })
         .catch(err => {
-            console.error("Gagal memuat film hero:", err);
             showEmptyHero();
             document.dispatchEvent(new CustomEvent('filmsLoadError', { detail: err }));
         });

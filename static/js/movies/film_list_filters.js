@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 genresList = Array.isArray(data) ? data : (data.results || []);
                 renderGenreChips();
             })
-            .catch(err => console.error("Gagal memuat genre:", err));
+            .catch(() => {});
     }
 
     function renderGenreChips() {
@@ -93,10 +93,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     [searchInput, searchInputMobile, searchInputMobileBottom].forEach(input => {
         if (input) {
-            input.addEventListener("input", (e) => syncSearchInputs(e.target.value));
+            let searchTimeout;
+            input.addEventListener("input", (e) => {
+                syncSearchInputs(e.target.value);
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => triggerSearch(), 500);
+            });
             input.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
+                    clearTimeout(searchTimeout);
                     triggerSearch();
                 }
             });
@@ -109,6 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ratingSlider && ratingVal) {
         ratingSlider.addEventListener("input", () => {
             ratingVal.textContent = parseFloat(ratingSlider.value).toFixed(1);
+        });
+        ratingSlider.addEventListener("change", () => {
             triggerSearch();
         });
     }

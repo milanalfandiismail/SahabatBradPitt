@@ -22,7 +22,7 @@ function fetchStats() {
             document.getElementById('stat-draft').textContent = draft;
             document.getElementById('stat-rejected').textContent = rejected;
         })
-        .catch(err => console.error("Error loading stats:", err));
+        .catch(() => {/* silent */});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         // server balas 'idle' — kemungkinan kena worker berbeda (LocMemCache)
                         // atau cache belum terpasang. Retry dulu sebelum menyerah.
                         idleRetryCount++;
-                        console.warn(`[Sync] 'idle' saat sesi aktif, retry ${idleRetryCount}/${MAX_IDLE_RETRIES}...`);
                         if (!syncPollInterval) {
                             syncPollInterval = setInterval(checkSyncStatus, 3000);
                         }
@@ -137,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             })
-            .catch(err => console.error("Error polling sync status:", err));
+            .catch(() => {/* silent */});
     }
 
     // Cek status saat halaman pertama kali dimuat.
@@ -186,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(checkSyncStatus, 500);
         })
         .catch(err => {
-            console.error(err);
             stopPolling();
             clearSyncSession();
             hideProgress();

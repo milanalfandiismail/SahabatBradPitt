@@ -13,7 +13,7 @@ function fetchAllActorsForCast() {
     fetch('/api/actors/?limit=1000', {})
         .then(res => res.json())
         .then(data => { window.allActorsList = Array.isArray(data) ? data : (data.results || []); })
-        .catch(err => console.error("Failed to fetch all actors", err));
+        .catch(() => { /* silent */ });
 }
 
 function fetchActors(page = 1) {
@@ -259,7 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitActorSearch = () => { window.actorsSearchQuery = document.getElementById('actor-search').value.trim(); fetchActors(1); };
     document.getElementById('actor-search-submit-btn')?.addEventListener('click', submitActorSearch);
     document.getElementById('actor-search-icon-btn')?.addEventListener('click', submitActorSearch);
-    document.getElementById('actor-search')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitActorSearch(); } });
+    document.getElementById('actor-search')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(actorsSearchTimeout); submitActorSearch(); } });
+    let actorsSearchTimeout;
+    document.getElementById('actor-search')?.addEventListener('input', () => {
+        clearTimeout(actorsSearchTimeout);
+        actorsSearchTimeout = setTimeout(() => submitActorSearch(), 500);
+    });
     document.getElementById('add-actor-btn')?.addEventListener('click', () => openActorEditor(null));
     document.getElementById('actor-editor-cancel-btn')?.addEventListener('click', closeActorEditor);
     document.getElementById('actor-editor-close-btn')?.addEventListener('click', closeActorEditor);

@@ -24,7 +24,6 @@ class RBACManager {
                 localStorage.setItem('isSuperadmin', this.isSuperadmin);
             }
         } catch (error) {
-            console.error('Failed to initialize user role:', error);
         }
     }
 
@@ -75,7 +74,6 @@ class PosterUploadManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Poster upload error:', error);
             throw error;
         }
     }
@@ -104,7 +102,6 @@ class PosterUploadManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Backdrop upload error:', error);
             throw error;
         }
     }
@@ -126,7 +123,6 @@ class PosterUploadManager {
                 throw new Error(error.error || 'Gagal menghapus gambar');
             }
         } catch (error) {
-            console.error('Image deletion error:', error);
             throw error;
         }
     }
@@ -154,7 +150,6 @@ class ApprovalManager {
             const data = await response.json();
             return data.results || [];
         } catch (error) {
-            console.error('Fetch pending films error:', error);
             throw error;
         }
     }
@@ -174,7 +169,6 @@ class ApprovalManager {
             const data = await response.json();
             return data.results || [];
         } catch (error) {
-            console.error('Fetch pending actors error:', error);
             throw error;
         }
     }
@@ -197,7 +191,6 @@ class ApprovalManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Film approval error:', error);
             throw error;
         }
     }
@@ -222,7 +215,6 @@ class ApprovalManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Film rejection error:', error);
             throw error;
         }
     }
@@ -245,7 +237,6 @@ class ApprovalManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Actor approval error:', error);
             throw error;
         }
     }
@@ -270,7 +261,6 @@ class ApprovalManager {
 
             return await response.json();
         } catch (error) {
-            console.error('Actor rejection error:', error);
             throw error;
         }
     }

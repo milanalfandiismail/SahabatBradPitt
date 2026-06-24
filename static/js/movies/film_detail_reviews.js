@@ -156,7 +156,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                     }
                                 })
                                 .catch(err => {
-                                    console.error(err);
                                     if (window.showToast) window.showToast("Terjadi kesalahan saat menghapus ulasan.", "error");
                                 });
                             }
@@ -201,7 +200,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.fetchReviews(filmId);
             })
             .catch(err => { 
-                console.error(err); 
                 if(window.showToast) {
                     const errorMsg = isEditing ? "Gagal memperbarui ulasan." : "Gagal mengirim ulasan. Pastikan Anda belum memberikan ulasan sebelumnya.";
                     window.showToast(errorMsg, "error");
@@ -251,9 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             })
-            .catch(err => {
-                console.log("Anonymous session or failed user fetch:", err);
-            })
+            .catch(() => {})
             .finally(() => {
                 window.fetchReviews(filmId);
             });

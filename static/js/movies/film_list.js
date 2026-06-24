@@ -7,16 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const filmGrid = document.getElementById("film-grid");
     const resultsCount = document.getElementById("results-count");
-    // Desktop search input
     const searchInput = document.getElementById("search-input");
-    // Mobile search inputs
     const searchInputMobile = document.getElementById("search-input-mobile");
     const searchInputMobileBottom = document.getElementById("search-input-mobile-bottom");
     const yearFrom = document.getElementById("year-from");
     const yearTo = document.getElementById("year-to");
     const ratingSlider = document.getElementById("rating-slider");
 
-    // Get active search value (any input)
     function getActiveSearchValue() {
         return searchInput?.value?.trim() ||
             searchInputMobile?.value?.trim() ||
@@ -177,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const detailBtn = document.createElement("button");
                     detailBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all flex items-center gap-1";
-                    detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span> Detail`;
+                    detailBtn.innerHTML = `<span class="material-symbols-outlined text-sm">info</span><span class="hidden sm:inline"> Detail</span>`;
                     detailBtn.addEventListener("click", (e) => {
                         e.stopPropagation();
                         window.location.href = `/movies/${film.id}/`;
@@ -189,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         trailerBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-white/10 text-stone-300 hover:border-[#715A5A] hover:text-[#c7c5d1] transition-all flex items-center gap-1";
                         trailerBtn.href = film.trailer_url;
                         trailerBtn.target = "_blank";
-                        trailerBtn.innerHTML = `<span class="material-symbols-outlined text-sm">play_circle</span> Trailer`;
+                        trailerBtn.innerHTML = `<span class="material-symbols-outlined text-sm">play_circle</span><span class="hidden sm:inline"> Trailer</span>`;
                         trailerBtn.addEventListener("click", (e) => e.stopPropagation());
                         actionsDiv.appendChild(trailerBtn);
                     }
@@ -213,7 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(err => {
                 window.FilmListState.isLoading = false;
-                console.error("Gagal mengambil data film:", err);
                 filmGrid.textContent = "";
                 const errorState = document.createElement("div");
                 errorState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";

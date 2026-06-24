@@ -74,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(function(err) {
                 isLoading = false;
-                console.error(err);
                 grid.innerHTML = "<p class='col-span-full text-center text-red-500 py-12'>Gagal memuat data.</p>";
             });
     }
@@ -134,7 +133,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (searchBtn) searchBtn.addEventListener("click", function() { fetchUsers(1); });
-    if (searchInput) searchInput.addEventListener("keypress", function(e) { if (e.key === "Enter") fetchUsers(1); });
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() { fetchUsers(1); }, 500);
+        });
+        searchInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                clearTimeout(searchTimeout);
+                fetchUsers(1);
+            }
+        });
+    }
 
     fetchUsers(1);
 });

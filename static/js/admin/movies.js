@@ -67,7 +67,6 @@ function fetchFilms(page = 1) {
             renderPagination(page, totalCount);
         })
         .catch(err => {
-            console.error(err);
             tableLoading.classList.add('hidden');
             showToast('Gagal memuat daftar film.', 'error');
         });
@@ -290,6 +289,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('manage-search-submit-btn')?.addEventListener('click', triggerSearch);
     document.getElementById('manage-search-icon-btn')?.addEventListener('click', triggerSearch);
     manageSearch?.addEventListener('keypress', e => { if (e.key === 'Enter') triggerSearch(); });
+    let searchTimeout;
+    manageSearch?.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => triggerSearch(), 500);
+    });
     manageStatusFilter?.addEventListener('change', () => fetchFilms(1));
     document.getElementById('add-film-btn')?.addEventListener('click', () => openEditor(null));
 

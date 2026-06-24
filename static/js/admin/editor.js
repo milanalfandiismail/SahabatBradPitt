@@ -447,7 +447,7 @@ function _saveFilm() {
             const handleDeletions = () => {
                 if (stagedImageDeletions.length === 0) return Promise.resolve();
                 return Promise.all(stagedImageDeletions.map(imgId =>
-                    secureFetch(`/api/films/${filmIdToUse}/images/${imgId}/`, { method: 'DELETE' }).catch(console.error)
+                    secureFetch(`/api/films/${filmIdToUse}/images/${imgId}/`, { method: 'DELETE' }).catch(() => {})
                 )).then(() => { stagedImageDeletions = []; });
             };
 
@@ -457,7 +457,7 @@ function _saveFilm() {
                     const fd = new FormData();
                     fd.append('image', file);
                     fd.append('image_type', 'backdrop');
-                    return secureFetch(`/api/films/${filmIdToUse}/images/`, { method: 'POST', body: fd }).catch(console.error);
+                    return secureFetch(`/api/films/${filmIdToUse}/images/`, { method: 'POST', body: fd }).catch(() => {});
                 }));
             };
 
@@ -474,7 +474,7 @@ function _saveFilm() {
                 showMoviesSubView('manage');
             }).catch(() => { showToast('Film disimpan tapi ada error saat upload backdrop.', 'warning'); showMoviesSubView('manage'); });
         })
-        .catch(err => { formSaveBtn.disabled = false; console.error(err); showToast(err.message || 'Gagal menyimpan data film.', 'error'); });
+        .catch(err => { formSaveBtn.disabled = false; showToast(err.message || 'Gagal menyimpan data film.', 'error'); });
 }
 
 document.addEventListener("DOMContentLoaded", function () {

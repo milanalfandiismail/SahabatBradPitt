@@ -59,7 +59,6 @@ function fetchFestivals(page = 1) {
         })
         .catch(err => {
             loading?.classList.add('hidden');
-            console.error('Error fetching festivals:', err);
             showToast('Gagal memuat data festival', 'error');
         });
 }

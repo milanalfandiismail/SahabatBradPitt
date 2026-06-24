@@ -171,7 +171,6 @@
                     isLoading = false;
                     const initialLoading = document.getElementById("initial-loading");
                     if (initialLoading) initialLoading.remove();
-                    console.error("Gagal memuat daftar aktor:", err);
                     grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-12">Terjadi kesalahan saat memuat data.</p>`;
                     if (paginationControls) paginationControls.innerHTML = "";
                 });

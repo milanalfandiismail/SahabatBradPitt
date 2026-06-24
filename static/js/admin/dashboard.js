@@ -124,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         // server balas 'idle' — kemungkinan kena worker berbeda (LocMemCache)
                         // atau cache belum terpasang. Retry dulu sebelum menyerah.
                         idleRetryCount++;
-                        console.warn(`[Sync] 'idle' saat sesi aktif, retry ${idleRetryCount}/${MAX_IDLE_RETRIES}...`);
                         if (!syncPollInterval) {
                             syncPollInterval = setInterval(checkSyncStatus, 3000);
                         }
@@ -186,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(checkSyncStatus, 500);
         })
         .catch(err => {
-            console.error(err);
             stopPolling();
             clearSyncSession();
             hideProgress();

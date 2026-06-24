@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 genresList = Array.isArray(data) ? data : (data.results || []);
                 renderGenreChips();
             })
-            .catch(err => console.error("Gagal memuat genre:", err));
     }
 
     function renderGenreChips() {

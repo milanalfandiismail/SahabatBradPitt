@@ -339,7 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchUsers(1);
             })
             .catch(err => {
-                console.error(err);
                 showToast(err.message || 'Gagal menyimpan perubahan.', 'error');
             })
             .finally(() => {

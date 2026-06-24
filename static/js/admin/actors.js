@@ -13,7 +13,6 @@ function fetchAllActorsForCast() {
     fetch('/api/actors/?limit=1000', {})
         .then(res => res.json())
         .then(data => { window.allActorsList = Array.isArray(data) ? data : (data.results || []); })
-        .catch(err => console.error("Failed to fetch all actors", err));
 }
 
 function fetchActors(page = 1) {

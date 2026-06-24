@@ -74,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(function(err) {
                 isLoading = false;
-                console.error(err);
                 grid.innerHTML = "<p class='col-span-full text-center text-red-500 py-12'>Gagal memuat data.</p>";
             });
     }

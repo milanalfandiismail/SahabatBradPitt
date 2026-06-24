@@ -67,7 +67,6 @@ function fetchFilms(page = 1) {
             renderPagination(page, totalCount);
         })
         .catch(err => {
-            console.error(err);
             tableLoading.classList.add('hidden');
             showToast('Gagal memuat daftar film.', 'error');
         });

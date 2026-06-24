@@ -99,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
             renderChoiceCard(ecContainer, ecFilm, false, 1);
         })
         .catch(err => {
-            console.error("Gagal memuat film pilihan:", err);
             showEmptyCard(ecContainer, "Gagal memuat data. Periksa koneksi server.");
             showEmptyCard(trContainer, "Gagal memuat data. Periksa koneksi server.");
         });

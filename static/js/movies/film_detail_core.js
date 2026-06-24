@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/api/auth/me/")
             .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(me => checkWatchlistState(me.id))
-            .catch(err => console.log("Failed to fetch user for watchlist state"));
     }
 
     function checkWatchlistState(userId) {
@@ -149,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (window.fetchCast) window.fetchCast(film.id);
             fetchSimilar(film.id);
         })
-        .catch(err => { if (loading) loading.classList.add("hidden"); if (errorContainer) errorContainer.classList.remove("hidden"); console.error(err); });
 
     function _renderAwards(film) {
         const section = document.getElementById("film-awards-section");

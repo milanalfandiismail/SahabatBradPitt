@@ -146,7 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 renderRecommendationsPage();
             })
             .catch(err => {
-                console.error("Gagal mendapatkan rekomendasi:", err);
                 resultsLoading.classList.add("hidden");
                 feed.classList.remove("hidden");
                 document.getElementById("pagination-controls")?.classList.add("hidden");

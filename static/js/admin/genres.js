@@ -18,7 +18,6 @@ async function fetchAllGenres(url = '/api/films/genres/', allGenres = []) {
         }
         return allGenres;
     } catch (err) {
-        console.error("Error loading genres:", err);
         return allGenres;
     }
 }
@@ -54,7 +53,6 @@ function fetchGenres() {
         }
         return all;
     }).catch(err => {
-        console.error("Gagal memuat daftar genre:", err);
         if (genresTableBody) {
             genresLoading?.classList.add('hidden');
             genresEmpty?.classList.remove('hidden');

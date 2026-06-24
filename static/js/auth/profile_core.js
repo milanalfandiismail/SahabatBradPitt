@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (window.fetchUserRatings) window.fetchUserRatings(user.id);
                 if (window.fetchUserWatchlist) window.fetchUserWatchlist(user.id);
             })
-            .catch(err => console.error(err));
     };
 
     // Tab Navigation Logic

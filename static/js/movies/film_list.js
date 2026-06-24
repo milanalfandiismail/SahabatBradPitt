@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     contentDiv.appendChild(mainInfoDiv);
 
                     const actionsDiv = document.createElement("div");
-                    actionsDiv.className = "flex items-center gap-2 mt-2";
+                    actionsDiv.className = "flex flex-wrap items-center gap-2 mt-2";
 
                     const detailBtn = document.createElement("button");
                     detailBtn.className = "px-3 py-1.5 rounded text-xs font-medium border border-[#715A5A] text-[#c7c5d1] bg-[#715A5A]/10 hover:bg-[#715A5A] hover:text-white transition-all flex items-center gap-1";
@@ -213,7 +213,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(err => {
                 window.FilmListState.isLoading = false;
-                console.error("Gagal mengambil data film:", err);
                 filmGrid.textContent = "";
                 const errorState = document.createElement("div");
                 errorState.className = "text-center py-16 bg-[#201f20] rounded-lg border border-white/5";

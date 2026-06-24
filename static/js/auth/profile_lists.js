@@ -265,6 +265,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (res.ok) { showToast("Film berhasil dihapus dari watchlist.", "success"); window.fetchUserWatchlist(userId); }
                 else showToast("Gagal menghapus film dari watchlist.", "error");
             })
-            .catch(err => { console.error(err); showToast("Terjadi kesalahan.", "error"); });
     }
 });

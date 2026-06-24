@@ -474,7 +474,6 @@ function _saveFilm() {
                 showMoviesSubView('manage');
             }).catch(() => { showToast('Film disimpan tapi ada error saat upload backdrop.', 'warning'); showMoviesSubView('manage'); });
         })
-        .catch(err => { formSaveBtn.disabled = false; console.error(err); showToast(err.message || 'Gagal menyimpan data film.', 'error'); });
 }
 
 document.addEventListener("DOMContentLoaded", function () {

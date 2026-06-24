@@ -68,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         })
         .catch(err => {
-            console.error("Gagal memuat aktor:", err);
             actorsList.innerHTML = `
                 <div class="col-span-full flex flex-col items-center justify-center py-12 gap-3">
                     <span class="material-symbols-outlined text-4xl text-red-500/60">wifi_off</span>

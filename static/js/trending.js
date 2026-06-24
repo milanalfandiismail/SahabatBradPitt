@@ -169,7 +169,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         })
         .catch(err => {
-            console.error("Gagal memuat film trending:", err);
             spotlightLoading.textContent = "Terjadi kegagalan saat memuat data.";
         });
 });

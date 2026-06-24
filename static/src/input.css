@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* ===== Base resets untuk konsistensi gambar ===== */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+img {
+  vertical-align: middle;
+}
+
 /* ===== Custom Theme (migrated from inline CDN config) ===== */
 @theme {
   /* Colors — Dark theme Material palette */

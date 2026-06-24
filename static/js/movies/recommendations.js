@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             })
-            .catch(err => console.log("Failed to load user preferences:", err))
+            .catch(() => {})
             .finally(() => loadGenres());
 
     function loadGenres() {

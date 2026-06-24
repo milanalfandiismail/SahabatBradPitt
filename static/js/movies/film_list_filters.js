@@ -108,6 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ratingSlider && ratingVal) {
         ratingSlider.addEventListener("input", () => {
             ratingVal.textContent = parseFloat(ratingSlider.value).toFixed(1);
+        });
+        ratingSlider.addEventListener("change", () => {
             triggerSearch();
         });
     }

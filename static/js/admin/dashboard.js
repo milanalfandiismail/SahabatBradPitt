@@ -22,7 +22,7 @@ function fetchStats() {
             document.getElementById('stat-draft').textContent = draft;
             document.getElementById('stat-rejected').textContent = rejected;
         })
-        .catch(err => console.error("Error loading stats:", err));
+        .catch(() => {});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             })
-            .catch(err => console.error("Error polling sync status:", err));
+            .catch(() => {});
     }
 
     // Cek status saat halaman pertama kali dimuat.
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Beri jeda 500ms sebelum polling pertama agar cache 'running' sudah terpasang
             setTimeout(checkSyncStatus, 500);
         })
-        .catch(err => {
+        .catch(() => {
             stopPolling();
             clearSyncSession();
             hideProgress();

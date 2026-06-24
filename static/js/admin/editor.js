@@ -446,18 +446,17 @@ function _saveFilm() {
 
             const handleDeletions = () => {
                 if (stagedImageDeletions.length === 0) return Promise.resolve();
-                return Promise.all(stagedImageDeletions.map(imgId =>
-                    secureFetch(`/api/films/${filmIdToUse}/images/${imgId}/`, { method: 'DELETE' }).catch(console.error)
-                )).then(() => { stagedImageDeletions = []; });
+                    return Promise.all(stagedImageDeletions.map(imgId =>
+                    secureFetch(`/api/films/${filmIdToUse}/images/${imgId}/`, { method: 'DELETE' }).catch(() => {})
+                  )).then(() => { stagedImageDeletions = []; });
             };
-
             const uploadTempBackdrops = () => {
                 if (tempBackdropFiles.length === 0) return Promise.resolve();
                 return Promise.all(tempBackdropFiles.map(file => {
                     const fd = new FormData();
                     fd.append('image', file);
                     fd.append('image_type', 'backdrop');
-                    return secureFetch(`/api/films/${filmIdToUse}/images/`, { method: 'POST', body: fd }).catch(console.error);
+                    return secureFetch(`/api/films/${filmIdToUse}/images/`, { method: 'POST', body: fd }).catch(() => {});
                 }));
             };
 
